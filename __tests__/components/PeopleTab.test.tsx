@@ -92,7 +92,7 @@ describe('PeopleTab Component', () => {
 		});
 	});
 
-	it('shows alert when required fields are missing', async () => {
+	it('button disabled when required fields are missing', async () => {
 		render(<PeopleTab />);
 
 		await waitFor(() => {
@@ -100,9 +100,11 @@ describe('PeopleTab Component', () => {
 		});
 
 		const addButton = screen.getByText('Add Person');
+		
 		fireEvent.click(addButton);
+		expect(global.alert).not.toHaveBeenCalledWith('Please fill in all fields');
 
-		expect(global.alert).toHaveBeenCalledWith('Please fill in all fields');
+		expect(addButton).not.toBeEnabled();
 	});
 
 	it('clears form after successful add', async () => {

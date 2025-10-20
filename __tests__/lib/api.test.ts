@@ -26,7 +26,7 @@ describe('API Helper Functions', () => {
 		it('should throw error on failed request', async () => {
 			(global.fetch as jest.Mock).mockResolvedValueOnce({
 				ok: false,
-				text: async () => 'Error message',
+				json: async () => ({ catch: { statusText: 'Error message' }}),
 			});
 
 			await expect(apiGet('/api/test')).rejects.toThrow('Error message');
