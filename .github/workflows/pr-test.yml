@@ -32,6 +32,9 @@ jobs:
 
    - name: Build application
      run: npm run build
+     
+   - name: Run Unit Tests
+     run: npm run test:ci
 
  docker-build:
   name: Docker Build Test
