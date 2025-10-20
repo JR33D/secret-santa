@@ -13,6 +13,7 @@ export default function PeopleTab() {
 	const [poolId, setPoolId] = useState('');
 	const [filterPoolId, setFilterPoolId] = useState('all');
 	const [loading, setLoading] = useState(false);
+	const [emailError, setEmailError] = useState('');
 
 	async function loadPools() {
 		const data = await apiGet<Pool[]>('/api/pools');
@@ -39,15 +40,38 @@ export default function PeopleTab() {
 		load();
 	}, []);
 
+	// Email validation function
+	function validateEmail(email: string): boolean {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(email);
+	}
+
+	// Handle email input change with validation
+	function handleEmailChange(value: string) {
+		setEmail(value);
+		if (value && !validateEmail(value)) {
+			setEmailError('Please enter a valid email address');
+		} else {
+			setEmailError('');
+		}
+	}
+
 	async function addPerson() {
 		if (!name || !email || !poolId) {
 			alert('Please fill in all fields');
 			return;
 		}
+
+		if (!validateEmail(email)) {
+			alert('Please enter a valid email address');
+			return;
+		}
+
 		try {
 			await apiPost('/api/people', { name, email, pool_id: Number(poolId) });
 			setName('');
 			setEmail('');
+			setEmailError('');
 			load();
 		} catch (err: any) {
 			alert(String(err.message || err));
@@ -81,13 +105,32 @@ export default function PeopleTab() {
 							<label htmlFor="person-name-input" className="block font-semibold mb-1">
 								Name
 							</label>
-							<input id="person-name-input" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2 border rounded" />
+							<input 
+								id="person-name-input" 
+								value={name} 
+								onChange={(e) => setName(e.target.value)} 
+								className="w-full p-2 border rounded" 
+								placeholder="John Doe"
+							/>
 						</div>
 						<div>
 							<label htmlFor="person-email-input" className="block font-semibold mb-1">
 								Email
 							</label>
-							<input id="person-email-input" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border rounded" />
+							<input 
+								id="person-email-input" 
+								type="email"
+								value={email} 
+								onChange={(e) => handleEmailChange(e.target.value)} 
+								className={`w-full p-2 border rounded ${emailError ? 'border-red-500' : ''}`}
+								placeholder="john@example.com"
+							/>
+							{emailError && (
+								<p className="text-red-600 text-xs mt-1">{emailError}</p>
+							)}
+							<p className="text-gray-500 text-xs mt-1">
+								Required for user account creation and notifications
+							</p>
 						</div>
 						<div>
 							<label htmlFor="person-pool-select" className="block font-semibold mb-1">
@@ -104,7 +147,11 @@ export default function PeopleTab() {
 						</div>
 					</div>
 
-					<button onClick={addPerson} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+					<button 
+						onClick={addPerson} 
+						disabled={!!emailError || !name || !email || !poolId}
+						className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+					>
 						Add Person
 					</button>
 				</>

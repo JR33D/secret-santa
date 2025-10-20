@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { hashPassword, generatePassword } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import nodemailer from "nodemailer";
 
 export async function GET() {
   try {
@@ -95,13 +96,61 @@ export async function POST(request: Request) {
       [username, passwordHash, person_id]
     );
 
+    // Try to send email with credentials
+    let emailSent = false;
+    let emailError = "";
+
+    try {
+      const { getEmailHtml, getEmailSubject } = await import('@/lib/email-templates');
+      const config = await db.get('SELECT * FROM email_config LIMIT 1');
+      
+      if (config && config.smtp_server) {
+        const transporter = nodemailer.createTransport({
+          host: config.smtp_server,
+          port: config.smtp_port,
+          secure: false,
+          auth: { 
+            user: config.smtp_username, 
+            pass: config.smtp_password 
+          },
+        });
+
+        const emailHtml = getEmailHtml('user-created', {
+          person_name: person.name,
+          username: username,
+          temp_password: tempPassword
+        });
+
+        const subject = getEmailSubject('user-created', {
+          person_name: person.name
+        });
+
+        await transporter.sendMail({
+          from: config.from_email,
+          to: person.email,
+          subject: subject,
+          html: emailHtml,
+        });
+
+        emailSent = true;
+      } else {
+        emailError = "Email not configured";
+      }
+    } catch (error: any) {
+      emailError = error.message || "Failed to send email";
+    }
+
     return NextResponse.json({
       id: result.lastID,
       username,
-      tempPassword, // Send this back so admin can share it
+      tempPassword,
       person_name: person.name,
       person_email: person.email,
-      message: "User created successfully",
+      emailSent,
+      emailError,
+      message: emailSent 
+        ? "User created and credentials emailed successfully" 
+        : "User created but email failed to send",
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

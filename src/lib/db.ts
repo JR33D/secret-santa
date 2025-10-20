@@ -80,7 +80,7 @@ export async function getDb(): Promise<Database> {
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL CHECK(role IN ('admin', 'user')),
       person_id INTEGER UNIQUE,
-      must_change_password INTEGER DEFAULT 0,
+      must_change_password INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE
     );

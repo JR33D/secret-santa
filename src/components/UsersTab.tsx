@@ -14,13 +14,21 @@ type User = {
   created_at: string;
 };
 
+type CredentialsModalData = {
+  username: string;
+  tempPassword: string;
+  person_name: string;
+  person_email: string;
+  emailSent: boolean;
+  emailError?: string;
+};
+
 export default function UsersTab() {
   const [users, setUsers] = useState<User[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [selectedPersonId, setSelectedPersonId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [tempPassword, setTempPassword] = useState<string | null>(null);
-  const [tempUsername, setTempUsername] = useState<string | null>(null);
+  const [credentialsModal, setCredentialsModal] = useState<CredentialsModalData | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -59,12 +67,38 @@ export default function UsersTab() {
         person_id: Number(selectedPersonId),
       });
 
-      setTempUsername(result.username);
-      setTempPassword(result.tempPassword);
+      setCredentialsModal({
+        username: result.username,
+        tempPassword: result.tempPassword,
+        person_name: result.person_name,
+        person_email: result.person_email,
+        emailSent: result.emailSent,
+        emailError: result.emailError,
+      });
+
       setSelectedPersonId("");
       loadUsers();
     } catch (err: any) {
       alert(err.message || "Failed to create user");
+    }
+  }
+
+  async function resendCredentials(userId: number) {
+    if (!confirm("Generate a new temporary password and send it via email?")) return;
+
+    try {
+      const result = await apiPost<any>(`/api/users/${userId}/resend-credentials`);
+
+      setCredentialsModal({
+        username: result.username,
+        tempPassword: result.tempPassword,
+        person_name: result.person_name,
+        person_email: result.person_email,
+        emailSent: result.emailSent,
+        emailError: result.emailError,
+      });
+    } catch (err: any) {
+      alert(err.message || "Failed to resend credentials");
     }
   }
 
@@ -79,9 +113,8 @@ export default function UsersTab() {
     }
   }
 
-  const closeTempPasswordModal = () => {
-    setTempPassword(null);
-    setTempUsername(null);
+  const closeCredentialsModal = () => {
+    setCredentialsModal(null);
   };
 
   // Filter out people who already have user accounts
@@ -98,26 +131,49 @@ export default function UsersTab() {
         Create user accounts for family members so they can log in and manage their wishlists
       </p>
 
-      {/* Temporary Password Modal */}
-      {tempPassword && (
+      {/* Credentials Modal */}
+      {credentialsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold text-indigo-600 mb-4">
-              ✅ User Account Created!
+              {credentialsModal.emailSent ? "✅ Credentials Sent!" : "⚠️ Email Failed"}
             </h3>
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-              <p className="text-sm text-yellow-800 mb-2">
-                <strong>⚠️ Important:</strong> Copy these credentials now. They won't be shown again!
-              </p>
-            </div>
+            
+            {credentialsModal.emailSent ? (
+              <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                <p className="text-sm text-green-800 mb-2">
+                  <strong>✓ Email sent successfully to:</strong>
+                </p>
+                <p className="text-sm text-green-700">{credentialsModal.person_email}</p>
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <p className="text-sm text-yellow-800 mb-2">
+                  <strong>⚠️ Email could not be sent:</strong>
+                </p>
+                <p className="text-sm text-yellow-700">{credentialsModal.emailError}</p>
+                <p className="text-sm text-yellow-800 mt-2">
+                  Please share these credentials manually with {credentialsModal.person_name}.
+                </p>
+              </div>
+            )}
             
             <div className="space-y-3 mb-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  For
+                </label>
+                <div className="bg-gray-100 p-3 rounded border border-gray-300 text-sm">
+                  {credentialsModal.person_name} ({credentialsModal.person_email})
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Username
                 </label>
                 <div className="bg-gray-100 p-3 rounded border border-gray-300 font-mono text-sm">
-                  {tempUsername}
+                  {credentialsModal.username}
                 </div>
               </div>
               
@@ -126,7 +182,7 @@ export default function UsersTab() {
                   Temporary Password
                 </label>
                 <div className="bg-gray-100 p-3 rounded border border-gray-300 font-mono text-sm break-all">
-                  {tempPassword}
+                  {credentialsModal.tempPassword}
                 </div>
               </div>
             </div>
@@ -138,10 +194,10 @@ export default function UsersTab() {
             </div>
 
             <button
-              onClick={closeTempPasswordModal}
+              onClick={closeCredentialsModal}
               className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition"
             >
-              I've Saved These Credentials
+              Close
             </button>
           </div>
         </div>
@@ -202,7 +258,7 @@ export default function UsersTab() {
                 key={user.id}
                 className="bg-gray-50 p-4 rounded-lg flex justify-between items-center"
               >
-                <div>
+                <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <strong className="text-lg">{user.username}</strong>
                     {user.role === "admin" && (
@@ -228,14 +284,26 @@ export default function UsersTab() {
                   </div>
                 </div>
 
-                {user.role !== "admin" && (
-                  <button
-                    onClick={() => deleteUser(user.id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
-                  >
-                    Delete
-                  </button>
-                )}
+                <div className="flex gap-2">
+                  {user.role !== "admin" && user.person_email && (
+                    <button
+                      onClick={() => resendCredentials(user.id)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition"
+                      title="Generate new password and send via email"
+                    >
+                      📧 Resend
+                    </button>
+                  )}
+                  
+                  {user.role !== "admin" && (
+                    <button
+                      onClick={() => deleteUser(user.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

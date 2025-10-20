@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secret Santa Account Created</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h2 style="color: #4f46e5;">🎅 Secret Santa Account Created</h2>
+    <p>Hello {{person_name}}!</p>
+    <p>An account has been created for you in the Family Secret Santa system.</p>
+    
+    <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h3 style="margin-top: 0; color: #4f46e5;">Your Login Credentials</h3>
+      <p style="margin: 10px 0;">
+        <strong>Username:</strong> 
+        <code style="background-color: #e5e7eb; padding: 4px 8px; border-radius: 4px;">{{username}}</code>
+      </p>
+      <p style="margin: 10px 0;">
+        <strong>Temporary Password:</strong> 
+        <code style="background-color: #e5e7eb; padding: 4px 8px; border-radius: 4px;">{{temp_password}}</code>
+      </p>
+    </div>
+
+    <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0;">
+      <p style="margin: 0; color: #92400e;">
+        <strong>⚠️ Important:</strong> You will be required to change this password when you first log in.
+      </p>
+    </div>
+
+    <p>You can now:</p>
+    <ul>
+      <li>Create and manage your wishlist</li>
+      <li>View your Secret Santa assignment (once generated)</li>
+      <li>See your recipient's wishlist</li>
+    </ul>
+
+    <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+      Happy gifting! 🎁<br>
+      Family Secret Santa
+    </p>
+  </div>
+</body>
+</html>
