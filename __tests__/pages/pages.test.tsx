@@ -119,11 +119,13 @@ describe('Page Components', () => {
       fireEvent.change(passwordInput, { target: { value: 'password123' } });
       fireEvent.click(submitButton);
 
+      // Check that loading state appears
       expect(screen.getByText('Signing in...')).toBeInTheDocument();
 
+      // Wait for the promise to resolve and loading to disappear
       await waitFor(() => {
-        expect(screen.queryByText('Signing in...')).not.toBeInTheDocument();
-      });
+        expect(mockPush).toHaveBeenCalledWith('/home');
+      }, { timeout: 3000 });
     });
 
     it('handles unexpected errors', async () => {

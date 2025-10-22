@@ -1,6 +1,39 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
+// Mock Next.js Request/Response for API route tests
+global.Request = class Request {
+  constructor(input, init) {
+    this.url = input;
+    this.method = init?.method || 'GET';
+    this.headers = new Map(Object.entries(init?.headers || {}));
+    this.body = init?.body;
+  }
+};
+
+global.Response = class Response {
+  constructor(body, init) {
+    this.body = body;
+    this.status = init?.status || 200;
+    this.headers = new Map(Object.entries(init?.headers || {}));
+    this.json = async () => JSON.parse(this.body);
+  }
+};
+
+jest.mock('next/server', () => ({
+  NextResponse: {
+    json: jest.fn((body, init) => {
+      const response = {
+        ok: true,
+        status: init?.status || 200,
+        json: async () => body,
+        text: async () => JSON.stringify(body),
+      };
+      return response;
+    }),
+  },
+}));
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

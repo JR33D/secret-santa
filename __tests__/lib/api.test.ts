@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiDelete } from '@/lib/api';
+import { apiGet, apiPost, apiDelete, apiPatch } from '@/lib/api';
 
 describe('API Helper Functions', () => {
 	beforeEach(() => {
@@ -26,10 +26,22 @@ describe('API Helper Functions', () => {
 		it('should throw error on failed request', async () => {
 			(global.fetch as jest.Mock).mockResolvedValueOnce({
 				ok: false,
-				json: async () => ({ catch: { statusText: 'Error message' }}),
+				status: 500,
+				json: async () => ({ error: 'Error message' }),
 			});
 
 			await expect(apiGet('/api/test')).rejects.toThrow('Error message');
+		});
+
+		it('should handle failed json parsing', async () => {
+			(global.fetch as jest.Mock).mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				statusText: 'Internal Server Error',
+				json: async () => { throw new Error('Invalid JSON'); },
+			});
+
+			await expect(apiGet('/api/test')).rejects.toThrow('Internal Server Error');
 		});
 	});
 
@@ -69,6 +81,16 @@ describe('API Helper Functions', () => {
 				body: undefined,
 			});
 		});
+
+		it('should throw error on failed post', async () => {
+			(global.fetch as jest.Mock).mockResolvedValueOnce({
+				ok: false,
+				status: 400,
+				json: async () => ({ error: 'Bad request' }),
+			});
+
+			await expect(apiPost('/api/people', {})).rejects.toThrow('Bad request');
+		});
 	});
 
 	describe('apiDelete', () => {
@@ -86,6 +108,47 @@ describe('API Helper Functions', () => {
 				method: 'DELETE',
 			});
 			expect(result).toEqual(mockResponse);
+		});
+
+		it('should throw error on failed delete', async () => {
+			(global.fetch as jest.Mock).mockResolvedValueOnce({
+				ok: false,
+				status: 404,
+				json: async () => ({ error: 'Not found' }),
+			});
+
+			await expect(apiDelete('/api/people/999')).rejects.toThrow('Not found');
+		});
+	});
+
+	describe('apiPatch', () => {
+		it('should patch successfully', async () => {
+			const mockResponse = { success: true };
+			const patchData = { name: 'Updated Name' };
+
+			(global.fetch as jest.Mock).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockResponse,
+			});
+
+			const result = await apiPatch('/api/pools/1', patchData);
+
+			expect(global.fetch).toHaveBeenCalledWith('/api/pools/1', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(patchData),
+			});
+			expect(result).toEqual(mockResponse);
+		});
+
+		it('should throw error on failed patch', async () => {
+			(global.fetch as jest.Mock).mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				json: async () => ({ error: 'Server error' }),
+			});
+
+			await expect(apiPatch('/api/pools/1', {})).rejects.toThrow('Server error');
 		});
 	});
 });

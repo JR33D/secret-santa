@@ -22,6 +22,7 @@ describe('Users API Routes', () => {
       all: jest.fn(),
       get: jest.fn(),
       run: jest.fn(),
+      exec: jest.fn(),
     };
     (getDb as jest.Mock).mockResolvedValue(mockDb);
 
