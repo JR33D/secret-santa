@@ -94,6 +94,7 @@ Key files to look at first when making changes
 
 - Run `npm ci` (or `npm install` when iterating).
 - Run `npx tsc --noEmit` and fix type issues.
+- Run `npm run format` to ensure consistent code style.
 - Run `npm run lint` and `npm run lint:fix` where appropriate.
 - Run `npm run build` and `npm start` (or `npm run dev` for local dev) to smoke-test.
 - Run `npm run test:ci` and ensure tests and coverage meet thresholds.

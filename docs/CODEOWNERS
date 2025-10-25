@@ -1,0 +1,61 @@
+# Code Owners
+# 
+# This file defines individuals or teams responsible for code in this repository.
+# Code owners are automatically requested for review when someone opens a pull
+# request that modifies code that they own.
+#
+# More info: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+# These owners will be requested for review unless a later match takes precedence
+* @JR33D
+
+# GitHub configuration and workflows
+/.github/ @JR33D
+/.github/workflows/ @JR33D
+
+# Docker and deployment
+/Dockerfile @JR33D
+/docker-compose.yml @JR33D
+/.dockerignore @JR33D
+
+# Core application files
+/src/app/ @JR33D
+/src/components/ @JR33D
+/src/lib/ @JR33D
+
+# API routes - require careful review
+/src/app/api/ @JR33D
+
+# Authentication and security - require extra careful review
+/src/lib/auth.ts @JR33D
+/src/app/api/auth/ @JR33D
+/src/lib/middleware.ts @JR33D
+
+# Database schema and migrations
+/src/lib/db.ts @JR33D
+
+# Email templates and configuration
+/email-templates/ @JR33D
+/src/app/api/email-config/ @JR33D
+/src/app/api/send-notifications/ @JR33D
+
+# Tests
+/__tests__/ @JR33D
+/jest.config.js @JR33D
+/jest.setup.js @JR33D
+
+# Configuration files
+/package.json @JR33D
+/tsconfig.json @JR33D
+/next.config.mjs @JR33D
+/tailwind.config.mjs @JR33D
+
+# Documentation
+/docs @JR33D
+/README.md @JR33D
+/CHANGELOG.md @JR33D
+
+# Release configuration
+/release-please-config.json @JR33D
+/.release-please-manifest.json @JR33D
