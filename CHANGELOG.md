@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1](https://github.com/JR33D/secret-santa/compare/v1.1.0...v1.1.1) (2025-10-25)
+
+
+### Bug Fixes
+
+* **docker:** separate development and production configurations into distinct files ([550d61a](https://github.com/JR33D/secret-santa/commit/550d61ade35ee0fb022426966edbe99532903eb2))
+* update restrictions route import path ([550d61a](https://github.com/JR33D/secret-santa/commit/550d61ade35ee0fb022426966edbe99532903eb2))
+
 ## [1.1.0](https://github.com/JR33D/secret-santa/compare/v1.0.1...v1.1.0) (2025-10-25)
 
 
