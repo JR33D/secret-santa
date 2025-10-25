@@ -4,7 +4,6 @@
 [![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue)](https://github.com/JR33D/secret-santa/pkgs/container/secret-santa)
 [![License](https://img.shields.io/github/license/JR33D/secret-santa)](LICENSE)
 [![CI](https://github.com/JR33D/secret-santa/workflows/PR%20Tests/badge.svg)](https://github.com/JR33D/secret-santa/actions)
-
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
@@ -65,7 +64,6 @@ Visit http://localhost:3000 and login with:
 ### Project Information
 - [Code of Conduct](docs/CODE_OF_CONDUCT.md) - Community standards
 - [Security Policy](docs/SECURITY.md) - Security and vulnerability reporting
-- [Setup Summary](docs/SETUP_SUMMARY.md) - Release system overview
 - [Changelog](CHANGELOG.md) - Version history
 
 ---
