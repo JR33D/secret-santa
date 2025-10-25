@@ -3,6 +3,7 @@ import { hashPassword, generatePassword } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import nodemailer from 'nodemailer';
+import { getEnvEmailConfig, isEmailConfigValid } from '@/lib/email-config';
 
 export async function GET() {
 	try {
@@ -90,16 +91,15 @@ export async function POST(request: Request) {
 
 		try {
 			const { getEmailHtml, getEmailSubject } = await import('@/lib/email-templates');
-			const config = await db.get('SELECT * FROM email_config LIMIT 1');
-
-			if (config && config.smtp_server) {
+			const envCfg = getEnvEmailConfig();
+			if (isEmailConfigValid(envCfg)) {
 				const transporter = nodemailer.createTransport({
-					host: config.smtp_server,
-					port: config.smtp_port,
+					host: envCfg!.smtp_server,
+					port: envCfg!.smtp_port,
 					secure: false,
 					auth: {
-						user: config.smtp_username,
-						pass: config.smtp_password,
+						user: envCfg!.smtp_username ?? undefined,
+						pass: envCfg!.smtp_password ?? undefined,
 					},
 				});
 
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
 				});
 
 				await transporter.sendMail({
-					from: config.from_email,
+					from: envCfg!.from_email as string,
 					to: person.email,
 					subject: subject,
 					html: emailHtml,
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
 
 				emailSent = true;
 			} else {
-				emailError = 'Email not configured';
+				emailError = 'Email not configured (set SMTP_SERVER and FROM_EMAIL in env)';
 			}
 		} catch (error: any) {
 			emailError = error.message || 'Failed to send email';

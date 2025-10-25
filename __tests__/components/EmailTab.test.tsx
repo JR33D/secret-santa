@@ -21,11 +21,12 @@ describe('EmailTab Component', () => {
 		global.alert = jest.fn();
 	});
 
-	it('renders the component with title', async () => {
+	it('renders the component with title and message', async () => {
 		render(<EmailTab />);
 
 		await waitFor(() => {
 			expect(screen.getByText('Email Configuration')).toBeInTheDocument();
+			expect(screen.getByText(/manages SMTP configuration via environment variables/i)).toBeInTheDocument();
 		});
 	});
 
@@ -54,105 +55,29 @@ describe('EmailTab Component', () => {
 		expect(fromEmailInput.value).toBe('noreply@example.com');
 	});
 
-	it('updates SMTP server input', async () => {
+	it('renders inputs as read-only (changes do not apply)', async () => {
 		render(<EmailTab />);
 
 		await waitFor(() => {
-			expect(screen.getByLabelText('SMTP Server')).toBeInTheDocument();
+			const smtpServerInput = screen.getByLabelText('SMTP Server') as HTMLInputElement;
+			expect(smtpServerInput).toHaveAttribute('readonly');
 		});
 
 		const smtpServerInput = screen.getByLabelText('SMTP Server') as HTMLInputElement;
 		fireEvent.change(smtpServerInput, { target: { value: 'smtp.newserver.com' } });
 
-		expect(smtpServerInput.value).toBe('smtp.newserver.com');
+		// Value should remain unchanged because field is read-only
+		expect(smtpServerInput.value).toBe('smtp.example.com');
 	});
 
-	it('updates SMTP port input', async () => {
+	// inputs are read-only now; no tests for changing values
+
+	it('does not render a save button', async () => {
 		render(<EmailTab />);
 
 		await waitFor(() => {
-			expect(screen.getByLabelText('SMTP Port')).toBeInTheDocument();
+			expect(screen.queryByText('Save Configuration')).toBeNull();
 		});
-
-		const smtpPortInput = screen.getByLabelText('SMTP Port') as HTMLInputElement;
-		fireEvent.change(smtpPortInput, { target: { value: '465' } });
-
-		expect(smtpPortInput.value).toBe('465');
-	});
-
-	it('updates username input', async () => {
-		render(<EmailTab />);
-
-		await waitFor(() => {
-			expect(screen.getByLabelText('Username')).toBeInTheDocument();
-		});
-
-		const usernameInput = screen.getByLabelText('Username') as HTMLInputElement;
-		fireEvent.change(usernameInput, { target: { value: 'newuser@example.com' } });
-
-		expect(usernameInput.value).toBe('newuser@example.com');
-	});
-
-	it('updates password input', async () => {
-		render(<EmailTab />);
-
-		await waitFor(() => {
-			expect(screen.getByLabelText('Password')).toBeInTheDocument();
-		});
-
-		const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
-		fireEvent.change(passwordInput, { target: { value: 'newpassword123' } });
-
-		expect(passwordInput.value).toBe('newpassword123');
-		expect(passwordInput.type).toBe('password');
-	});
-
-	it('updates from email input', async () => {
-		render(<EmailTab />);
-
-		await waitFor(() => {
-			expect(screen.getByLabelText('From Email')).toBeInTheDocument();
-		});
-
-		const fromEmailInput = screen.getByLabelText('From Email') as HTMLInputElement;
-		fireEvent.change(fromEmailInput, { target: { value: 'santa@example.com' } });
-
-		expect(fromEmailInput.value).toBe('santa@example.com');
-	});
-
-	it('saves configuration successfully', async () => {
-		render(<EmailTab />);
-
-		await waitFor(() => {
-			expect(screen.getByText('Save Configuration')).toBeInTheDocument();
-		});
-
-		const smtpServerInput = screen.getByLabelText('SMTP Server');
-		const smtpPortInput = screen.getByLabelText('SMTP Port');
-		const usernameInput = screen.getByLabelText('Username');
-		const passwordInput = screen.getByLabelText('Password');
-		const fromEmailInput = screen.getByLabelText('From Email');
-		const saveButton = screen.getByText('Save Configuration');
-
-		fireEvent.change(smtpServerInput, { target: { value: 'smtp.test.com' } });
-		fireEvent.change(smtpPortInput, { target: { value: '465' } });
-		fireEvent.change(usernameInput, { target: { value: 'test@example.com' } });
-		fireEvent.change(passwordInput, { target: { value: 'testpass' } });
-		fireEvent.change(fromEmailInput, { target: { value: 'from@example.com' } });
-
-		fireEvent.click(saveButton);
-
-		await waitFor(() => {
-			expect(api.apiPost).toHaveBeenCalledWith('/api/email-config', {
-				smtp_server: 'smtp.test.com',
-				smtp_port: 465,
-				smtp_username: 'test@example.com',
-				smtp_password: 'testpass',
-				from_email: 'from@example.com',
-			});
-		});
-
-		expect(global.alert).toHaveBeenCalledWith('Email configuration saved!');
 	});
 
 	it('handles empty configuration on load', async () => {
@@ -199,31 +124,9 @@ describe('EmailTab Component', () => {
 		});
 	});
 
-	it('applies correct styling to save button', async () => {
-		render(<EmailTab />);
+	// Save button removed in env-only mode
 
-		await waitFor(() => {
-			const saveButton = screen.getByText('Save Configuration');
-			expect(saveButton).toHaveClass('bg-indigo-600', 'text-white', 'hover:bg-indigo-700');
-		});
-	});
-
-	it('handles API error gracefully', async () => {
-		(api.apiPost as jest.Mock).mockRejectedValue(new Error('API Error'));
-
-		render(<EmailTab />);
-
-		await waitFor(() => {
-			expect(screen.getByText('Save Configuration')).toBeInTheDocument();
-		});
-
-		const saveButton = screen.getByText('Save Configuration');
-		fireEvent.click(saveButton);
-
-		await waitFor(() => {
-			expect(api.apiPost).toHaveBeenCalled();
-		});
-	});
+	// No save button; API POST tests not applicable in env-only mode
 
 	it('does not display password value from loaded config', async () => {
 		render(<EmailTab />);

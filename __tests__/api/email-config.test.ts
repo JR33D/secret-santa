@@ -1,45 +1,32 @@
 import { GET, POST } from '@/app/api/email-config/route';
-import { getDb } from '@/lib/db';
-import { NextResponse } from 'next/server';
 
-// Mock getDb
-jest.mock('@/lib/db');
-
-describe('Email API Route', () => {
-	let mockDb: any;
-
-	beforeEach(() => {
-		mockDb = {
-			get: jest.fn(),
-			run: jest.fn(),
-		};
-		(getDb as jest.Mock).mockResolvedValue(mockDb);
-	});
-
+describe('Email API Route (env-only)', () => {
 	afterEach(() => {
 		jest.resetAllMocks();
+		delete process.env.SMTP_SERVER;
+		delete process.env.SMTP_PORT;
+		delete process.env.SMTP_USERNAME;
+		delete process.env.FROM_EMAIL;
 	});
 
 	describe('GET', () => {
-		it('should return the email config if exists', async () => {
-			const fakeRow = {
-				smtp_server: 'smtp.example.com',
-				smtp_port: 587,
-				smtp_username: 'user',
-				from_email: 'test@example.com',
-			};
-			mockDb.get.mockResolvedValue(fakeRow);
+		it('should return env-based email config when set', async () => {
+			process.env.SMTP_SERVER = 'smtp.example.com';
+			process.env.SMTP_PORT = '587';
+			process.env.SMTP_USERNAME = 'user';
+			process.env.FROM_EMAIL = 'test@example.com';
 
 			const response = await GET();
 			const json = await response.json();
 
-			expect(mockDb.get).toHaveBeenCalledWith('SELECT smtp_server, smtp_port, smtp_username, from_email FROM email_config LIMIT 1');
-			expect(json).toEqual(fakeRow);
+			expect(json.smtp_server).toBe('smtp.example.com');
+			expect(json.smtp_port).toBe(587);
+			expect(json.smtp_username).toBe('user');
+			expect(json.from_email).toBe('test@example.com');
+			expect(json.source).toBe('env');
 		});
 
-		it('should return an empty object if no config exists', async () => {
-			mockDb.get.mockResolvedValue(undefined);
-
+		it('should return empty object when no env config', async () => {
 			const response = await GET();
 			const json = await response.json();
 
@@ -48,56 +35,12 @@ describe('Email API Route', () => {
 	});
 
 	describe('POST', () => {
-		const requestBody = {
-			smtp_server: 'smtp.example.com',
-			smtp_port: 587,
-			smtp_username: 'user',
-			smtp_password: 'pass',
-			from_email: 'test@example.com',
-		};
-
-		it('should update existing config if row exists', async () => {
-			mockDb.get.mockResolvedValue({ id: 1 });
-
-			const req = {
-				json: jest.fn().mockResolvedValue(requestBody),
-			};
-
-			const response = await POST(req as any);
+		it('should reject POST with 403 in env-only mode', async () => {
+			const response = await POST();
 			const json = await response.json();
 
-			expect(mockDb.get).toHaveBeenCalledWith('SELECT id FROM email_config LIMIT 1');
-			expect(mockDb.run).toHaveBeenCalledWith('UPDATE email_config SET smtp_server = ?, smtp_port = ?, smtp_username = ?, smtp_password = ?, from_email = ? WHERE id = ?', [
-				requestBody.smtp_server,
-				requestBody.smtp_port,
-				requestBody.smtp_username,
-				requestBody.smtp_password,
-				requestBody.from_email,
-				1,
-			]);
-			expect(json).toEqual({ success: true });
-		});
-
-		it('should insert a new config if none exists', async () => {
-			mockDb.get.mockResolvedValue(undefined);
-			mockDb.run.mockResolvedValue({ lastID: 1 });
-
-			const req = {
-				json: jest.fn().mockResolvedValue(requestBody),
-			};
-
-			const response = await POST(req as any);
-			const json = await response.json();
-
-			expect(mockDb.get).toHaveBeenCalledWith('SELECT id FROM email_config LIMIT 1');
-			expect(mockDb.run).toHaveBeenCalledWith('INSERT INTO email_config (smtp_server, smtp_port, smtp_username, smtp_password, from_email) VALUES (?, ?, ?, ?, ?)', [
-				requestBody.smtp_server,
-				requestBody.smtp_port,
-				requestBody.smtp_username,
-				requestBody.smtp_password,
-				requestBody.from_email,
-			]);
-			expect(json).toEqual({ success: true });
+			expect(response.status).toBe(403);
+			expect(json).toHaveProperty('error');
 		});
 	});
 });

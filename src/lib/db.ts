@@ -66,14 +66,6 @@ export async function getDb(): Promise<any> {
       FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE
     );
 
-    CREATE TABLE IF NOT EXISTS email_config (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      smtp_server TEXT NOT NULL,
-      smtp_port INTEGER NOT NULL,
-      smtp_username TEXT NOT NULL,
-      smtp_password TEXT NOT NULL,
-      from_email TEXT NOT NULL
-    );
 
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
