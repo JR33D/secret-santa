@@ -65,6 +65,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 				person_name: user.person_name,
 				username: user.username,
 				temp_password: tempPassword,
+				domain: process.env.DOMAIN ?? '',
 			});
 
 			const subject = getEmailSubject('password-reset', {
