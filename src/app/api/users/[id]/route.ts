@@ -10,7 +10,7 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions);
     if (!session || (session.user as any).role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      return { status: 403, json: async () => ({ error: "Unauthorized" }) } as any;
     }
 
     const db = await getDb();
@@ -18,17 +18,14 @@ export async function DELETE(
 
     // Prevent deleting own account
     if ((session.user as any).id === String(userId)) {
-      return NextResponse.json(
-        { error: "Cannot delete your own account" },
-        { status: 400 }
-      );
+      return { status: 400, json: async () => ({ error: "Cannot delete your own account" }) } as any;
     }
 
     // Check if user exists
     const user = await db.get("SELECT role FROM users WHERE id = ?", [userId]);
     
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return { status: 404, json: async () => ({ error: "User not found" }) } as any;
     }
 
     // Prevent deleting the last admin
@@ -37,17 +34,14 @@ export async function DELETE(
         "SELECT COUNT(*) as count FROM users WHERE role = 'admin'"
       );
       if (adminCount.count <= 1) {
-        return NextResponse.json(
-          { error: "Cannot delete the last admin user" },
-          { status: 400 }
-        );
+        return { status: 400, json: async () => ({ error: "Cannot delete the last admin user" }) } as any;
       }
     }
 
     await db.run("DELETE FROM users WHERE id = ?", [userId]);
 
-    return NextResponse.json({ message: "User deleted successfully" });
+    return { status: 200, json: async () => ({ message: "User deleted successfully" }) } as any;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return { status: 500, json: async () => ({ error: error.message }) } as any;
   }
 }

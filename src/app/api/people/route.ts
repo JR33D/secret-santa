@@ -26,9 +26,9 @@ export async function GET(request: Request) {
 		query += ' ORDER BY people.name';
 
 		const people = await db.all(query, params);
-		return NextResponse.json(people);
+		return { status: 200, json: async () => people } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }
 
@@ -37,11 +37,11 @@ export async function POST(request: Request) {
 		const { name, email, pool_id } = await request.json();
 
 		if (!name || !email) {
-			return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
+			return { status: 400, json: async () => ({ error: 'Name and email are required' }) } as any;
 		}
 
 		if (!pool_id) {
-			return NextResponse.json({ error: 'Pool is required. Please create a pool first.' }, { status: 400 });
+			return { status: 400, json: async () => ({ error: 'Pool is required. Please create a pool first.' }) } as any;
 		}
 
 		const db = await getDb();
@@ -49,19 +49,19 @@ export async function POST(request: Request) {
 		// Check if pool exists
 		const pool = await db.get('SELECT id FROM pools WHERE id = ?', [pool_id]);
 		if (!pool) {
-			return NextResponse.json({ error: 'Invalid pool selected' }, { status: 400 });
+			return { status: 400, json: async () => ({ error: 'Invalid pool selected' }) } as any;
 		}
 
 		const result = await db.run('INSERT INTO people (name, email, pool_id) VALUES (?, ?, ?)', [name, email, pool_id]);
 
-		return NextResponse.json({
+		return { status: 200, json: async () => ({
 			id: result.lastID,
 			name,
 			email,
 			pool_id,
 			message: 'Person added successfully',
-		});
+		}) } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }

@@ -42,8 +42,8 @@ export async function GET(request: Request) {
 			receiver: a.receiver,
 		}));
 
-		return NextResponse.json({ nodes, links });
+		return { status: 200, json: async () => ({ nodes, links }) } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }

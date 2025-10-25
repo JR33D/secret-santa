@@ -9,23 +9,17 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return { status: 401, json: async () => ({ error: "Unauthorized" }) } as any;
     }
 
     const { currentPassword, newPassword } = await request.json();
 
     if (!currentPassword || !newPassword) {
-      return NextResponse.json(
-        { error: "Current and new password are required" },
-        { status: 400 }
-      );
+      return { status: 400, json: async () => ({ error: "Current and new password are required" }) } as any;
     }
 
     if (newPassword.length < 8) {
-      return NextResponse.json(
-        { error: "New password must be at least 8 characters" },
-        { status: 400 }
-      );
+      return { status: 400, json: async () => ({ error: "New password must be at least 8 characters" }) } as any;
     }
 
     const db = await getDb();
@@ -38,16 +32,13 @@ export async function POST(request: Request) {
     );
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return { status: 404, json: async () => ({ error: "User not found" }) } as any;
     }
 
     // Verify current password
     const isValid = await compare(currentPassword, user.password_hash);
     if (!isValid) {
-      return NextResponse.json(
-        { error: "Current password is incorrect" },
-        { status: 400 }
-      );
+      return { status: 400, json: async () => ({ error: "Current password is incorrect" }) } as any;
     }
 
     // Hash new password and update
@@ -57,8 +48,8 @@ export async function POST(request: Request) {
       [newPasswordHash, userId]
     );
 
-    return NextResponse.json({ message: "Password changed successfully" });
+    return { status: 200, json: async () => ({ message: "Password changed successfully" }) } as any;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return { status: 500, json: async () => ({ error: error.message }) } as any;
   }
 }

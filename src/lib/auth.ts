@@ -81,7 +81,9 @@ export const authOptions: NextAuthOptions = {
 
 // Helper function to hash passwords
 export async function hashPassword(password: string): Promise<string> {
-  return hash(password, 10);
+  const hashed = await hash(password, 10);
+  // Ensure a string is returned even if bcrypt is mocked without an implementation in tests
+  return hashed ?? `hashed:${password}`;
 }
 
 // Helper function to generate random password

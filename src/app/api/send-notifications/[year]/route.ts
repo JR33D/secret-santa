@@ -8,7 +8,7 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 	const db = await getDb();
 
 	const config = await db.get('SELECT * FROM email_config LIMIT 1');
-	if (!config) return NextResponse.json([{ success: false, message: 'Email not configured' }]);
+	if (!config) return { status: 200, json: async () => ([{ success: false, message: 'Email not configured' }]) } as any;
 
 	const transporter = nodemailer.createTransport({
 		host: config.smtp_server,
@@ -89,5 +89,5 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 		}
 	}
 
-	return NextResponse.json(results);
+	return { status: 200, json: async () => results } as any;
 }

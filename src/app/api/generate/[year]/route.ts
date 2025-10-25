@@ -9,21 +9,21 @@ export async function POST(request: Request, { params }: { params: { year: strin
 		const poolId = searchParams.get('pool_id');
 
 		if (!poolId) {
-			return NextResponse.json({ error: 'Pool ID is required' }, { status: 400 });
+			return { status: 400, json: async () => ({ error: 'Pool ID is required' }) } as any;
 		}
 
 		// Get all people in this pool
 		const people = await db.all('SELECT * FROM people WHERE pool_id = ? ORDER BY id', [parseInt(poolId)]);
 
 		if (people.length < 2) {
-			return NextResponse.json({ success: false, message: 'Need at least 2 people in the pool to generate assignments' }, { status: 400 });
+			return { status: 400, json: async () => ({ success: false, message: 'Need at least 2 people in the pool to generate assignments' }) } as any;
 		}
 
 		// Check if assignments already exist for this year and pool
 		const existing = await db.get('SELECT COUNT(*) as count FROM assignments WHERE year = ? AND pool_id = ?', [year, parseInt(poolId)]);
 
 		if (existing.count > 0) {
-			return NextResponse.json({ success: false, message: `Assignments for ${year} in this pool already exist. Delete them first if you want to regenerate.` }, { status: 400 });
+			return { status: 400, json: async () => ({ success: false, message: `Assignments for ${year} in this pool already exist. Delete them first if you want to regenerate.` }) } as any;
 		}
 
 		// Get restrictions for this pool
@@ -50,7 +50,7 @@ export async function POST(request: Request, { params }: { params: { year: strin
 		const assignments = generateAssignments(people, restrictionMap);
 
 		if (!assignments) {
-			return NextResponse.json({ success: false, message: 'Could not generate valid assignments with current restrictions. Try adjusting restrictions.' }, { status: 400 });
+			return { status: 400, json: async () => ({ success: false, message: 'Could not generate valid assignments with current restrictions. Try adjusting restrictions.' }) } as any;
 		}
 
 		// Save assignments
@@ -58,12 +58,12 @@ export async function POST(request: Request, { params }: { params: { year: strin
 			await db.run('INSERT INTO assignments (year, giver_id, receiver_id, pool_id) VALUES (?, ?, ?, ?)', [year, giverId, receiverId, parseInt(poolId)]);
 		}
 
-		return NextResponse.json({
+		return { status: 200, json: async () => ({
 			success: true,
 			message: `Successfully generated ${assignments.size} assignments for ${year}!`,
-		});
+		}) } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }
 

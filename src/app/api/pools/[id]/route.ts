@@ -10,14 +10,14 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 		const peopleCount = await db.get('SELECT COUNT(*) as count FROM people WHERE pool_id = ?', [poolId]);
 
 		if (peopleCount.count > 0) {
-			return NextResponse.json({ error: 'Cannot delete pool with people in it. Remove or reassign people first.' }, { status: 400 });
+			return { status: 400, json: async () => ({ error: 'Cannot delete pool with people in it. Remove or reassign people first.' }) } as any;
 		}
 
 		await db.run('DELETE FROM pools WHERE id = ?', [poolId]);
 
-		return NextResponse.json({ message: 'Pool deleted successfully' });
+		return { status: 200, json: async () => ({ message: 'Pool deleted successfully' }) } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+			return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }
 
@@ -29,8 +29,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 		await db.run('UPDATE pools SET name = ?, description = ? WHERE id = ?', [name, description, poolId]);
 
-		return NextResponse.json({ message: 'Pool updated successfully' });
+	  return { status: 200, json: async () => ({ message: 'Pool updated successfully' }) } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+	  return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }

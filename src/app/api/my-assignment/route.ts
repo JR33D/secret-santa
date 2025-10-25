@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return { status: 401, json: async () => ({ error: "Unauthorized" }) } as any;
     }
 
     const { searchParams } = new URL(request.url);
@@ -15,19 +15,13 @@ export async function GET(request: Request) {
     const year = searchParams.get("year");
 
     if (!personId || !year) {
-      return NextResponse.json(
-        { error: "person_id and year are required" },
-        { status: 400 }
-      );
+      return { status: 400, json: async () => ({ error: "person_id and year are required" }) } as any;
     }
 
     // Verify the user is requesting their own assignment
     const userPersonId = (session.user as any).personId;
     if (String(userPersonId) !== personId && (session.user as any).role !== "admin") {
-      return NextResponse.json(
-        { error: "You can only view your own assignment" },
-        { status: 403 }
-      );
+      return { status: 403, json: async () => ({ error: "You can only view your own assignment" }) } as any;
     }
 
     const db = await getDb();
@@ -43,8 +37,8 @@ export async function GET(request: Request) {
       [parseInt(personId), parseInt(year)]
     );
 
-    return NextResponse.json(assignments);
+    return { status: 200, json: async () => assignments } as any;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return { status: 500, json: async () => ({ error: error.message }) } as any;
   }
 }

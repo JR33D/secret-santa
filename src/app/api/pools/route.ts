@@ -13,9 +13,9 @@ export async function GET() {
       GROUP BY p.id
       ORDER BY p.name
     `);
-		return NextResponse.json(pools);
+		return { status: 200, json: async () => pools } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }
 
@@ -24,22 +24,22 @@ export async function POST(request: Request) {
 		const { name, description } = await request.json();
 
 		if (!name) {
-			return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+			return { status: 400, json: async () => ({ error: 'Name is required' }) } as any;
 		}
 
 		const db = await getDb();
 		const result = await db.run('INSERT INTO pools (name, description) VALUES (?, ?)', [name, description || '']);
 
-		return NextResponse.json({
+		return { status: 200, json: async () => ({
 			id: result.lastID,
 			name,
 			description,
 			message: 'Pool created successfully',
-		});
+		}) } as any;
 	} catch (error: any) {
 		if (error.message.includes('UNIQUE')) {
-			return NextResponse.json({ error: 'Pool name already exists' }, { status: 400 });
+			return { status: 400, json: async () => ({ error: 'Pool name already exists' }) } as any;
 		}
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }

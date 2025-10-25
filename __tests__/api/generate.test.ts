@@ -29,7 +29,7 @@ describe('Generate Assignments API', () => {
 		mockDb.all.mockResolvedValueOnce([]); // Get restrictions
 		mockDb.run.mockResolvedValue({ lastID: 1 });
 
-		const request = new NextRequest('http://localhost/api/generate/2024');
+	const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
 		const response = await POST(request, { params: { year: '2024' } });
 		const data = await response.json();
 
@@ -41,7 +41,7 @@ describe('Generate Assignments API', () => {
 	it('should fail with less than 2 people', async () => {
 		mockDb.all.mockResolvedValueOnce([mockPeople[0]]); // Only 1 person
 
-		const request = new NextRequest('http://localhost/api/generate/2024');
+	const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
 		const response = await POST(request, { params: { year: '2024' } });
 		const data = await response.json();
 
@@ -53,7 +53,7 @@ describe('Generate Assignments API', () => {
 		mockDb.all.mockResolvedValueOnce(mockPeople);
 		mockDb.get.mockResolvedValueOnce({ count: 3 }); // Existing assignments
 
-		const request = new NextRequest('http://localhost/api/generate/2024');
+	const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
 		const response = await POST(request, { params: { year: '2024' } });
 		const data = await response.json();
 
@@ -71,7 +71,7 @@ describe('Generate Assignments API', () => {
 		mockDb.all.mockResolvedValueOnce(restrictions);
 		mockDb.run.mockResolvedValue({ lastID: 1 });
 
-		const request = new NextRequest('http://localhost/api/generate/2024');
+	const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
 		const response = await POST(request, { params: { year: '2024' } });
 		const data = await response.json();
 
@@ -102,7 +102,7 @@ describe('Generate Assignments API', () => {
 		mockDb.get.mockResolvedValueOnce({ count: 0 });
 		mockDb.all.mockResolvedValueOnce(impossibleRestrictions);
 
-		const request = new NextRequest('http://localhost/api/generate/2024');
+	const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
 		const response = await POST(request, { params: { year: '2024' } });
 		const data = await response.json();
 
@@ -113,7 +113,7 @@ describe('Generate Assignments API', () => {
 	it('should handle database errors', async () => {
 		mockDb.all.mockRejectedValueOnce(new Error('Database error'));
 
-		const request = new NextRequest('http://localhost/api/generate/2024');
+		const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
 		const response = await POST(request, { params: { year: '2024' } });
 		const data = await response.json();
 

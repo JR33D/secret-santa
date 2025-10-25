@@ -191,7 +191,9 @@ describe('Pools API Routes', () => {
 
       const req = {} as any;
       const response = await DELETE(req, { params: { id: '5' } });
-      const json = await response.json();
+      // DEBUG: inspect response shape when DB error occurs
+  // DEBUG: response inspection removed
+  const json = await response.json();
 
       expect(response.status).toBe(500);
       expect(json).toEqual({ error: 'DB Error' });

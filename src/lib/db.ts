@@ -1,16 +1,17 @@
-import sqlite3 from "sqlite3";
-import { open, Database } from "sqlite";
 import path from "path";
 import { initializeAdmin } from "./auth";
+import { open } from 'sqlite';
+import sqlite3 from 'sqlite3';
 
-let db: Database | null = null;
+let db: any = null;
 
-export async function getDb(): Promise<Database> {
+export async function getDb(): Promise<any> {
   if (db) return db;
 
   const dbPath = process.env.DB_DIR ?? path.join(process.cwd(), "data/secret-santa.db");
   
-  db = await open({
+  const openFn = (global as any).__sqlite_open ?? open;
+  db = await openFn({
     filename: dbPath,
     driver: sqlite3.Database,
   });

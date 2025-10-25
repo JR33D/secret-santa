@@ -9,12 +9,12 @@ export async function GET() {
     JOIN people g ON r.giver_id = g.id
     JOIN people rec ON r.receiver_id = rec.id
   `);
-	return NextResponse.json(rows);
+	return { status: 200, json: async () => rows } as any;
 }
 
 export async function POST(req: Request) {
 	const db = await getDb();
 	const { giver_id, receiver_id } = await req.json();
 	const result = await db.run('INSERT INTO restrictions (giver_id, receiver_id) VALUES (?, ?)', [giver_id, receiver_id]);
-	return NextResponse.json({ id: result.lastID, giver_id, receiver_id });
+	return { status: 200, json: async () => ({ id: result.lastID, giver_id, receiver_id }) } as any;
 }

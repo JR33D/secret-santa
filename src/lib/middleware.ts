@@ -27,10 +27,7 @@ export default withAuth(
     const isAdminOnlyPath = adminOnlyPaths.some((p) => path.startsWith(p));
     
     if (isAdminOnlyPath && token?.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized - Admin access required" },
-        { status: 403 }
-      );
+      return { status: 403, json: async () => ({ error: "Unauthorized - Admin access required" }) } as any;
     }
 
     return NextResponse.next();

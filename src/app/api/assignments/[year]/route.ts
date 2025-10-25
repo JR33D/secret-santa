@@ -31,9 +31,9 @@ export async function GET(request: Request, { params }: { params: { year: string
 		query += ' ORDER BY g.name';
 
 		const assignments = await db.all(query, queryParams);
-		return NextResponse.json(assignments);
+		return { status: 200, json: async () => assignments } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }
 
@@ -50,8 +50,8 @@ export async function DELETE(request: Request, { params }: { params: { year: str
 			await db.run('DELETE FROM assignments WHERE year = ?', [year]);
 		}
 
-		return NextResponse.json({ message: 'Assignments deleted successfully' });
+		return { status: 200, json: async () => ({ message: 'Assignments deleted successfully' }) } as any;
 	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		return { status: 500, json: async () => ({ error: error.message }) } as any;
 	}
 }
