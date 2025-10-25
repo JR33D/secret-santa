@@ -72,6 +72,7 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 				giver_name: assignment.giver_name,
 				receiver_name: assignment.receiver_name,
 				wishlist_section: wishlistHtml,
+				domain: process.env.DOMAIN ?? '',
 			});
 
 			const subject = getEmailSubject('assignment-notification', {

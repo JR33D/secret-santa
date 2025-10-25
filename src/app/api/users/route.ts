@@ -107,6 +107,7 @@ export async function POST(request: Request) {
 					person_name: person.name,
 					username: username,
 					temp_password: tempPassword,
+					domain: process.env.DOMAIN ?? '',
 				});
 
 				const subject = getEmailSubject('user-created', {
