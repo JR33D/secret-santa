@@ -28,8 +28,8 @@ export async function GET(request: Request) {
 
 		query += ' ORDER BY a.year DESC, g.name';
 
-        const assignments = await db.all(query, params);
-        return Response.json(assignments, { status: 200 });
+		const assignments = await db.all(query, params);
+		return Response.json(assignments, { status: 200 });
 	} catch (error: any) {
 		return Response.json({ error: error.message }, { status: 500 });
 	}

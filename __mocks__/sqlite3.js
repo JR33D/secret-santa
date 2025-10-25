@@ -1,3 +1,3 @@
 module.exports = {
-  Database: jest.fn(),
+	Database: jest.fn(),
 };

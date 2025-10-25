@@ -100,7 +100,7 @@ describe('PeopleTab Component', () => {
 		});
 
 		const addButton = screen.getByText('Add Person');
-		
+
 		fireEvent.click(addButton);
 		expect(global.alert).not.toHaveBeenCalledWith('Please fill in all fields');
 

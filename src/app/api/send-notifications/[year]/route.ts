@@ -31,7 +31,7 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 	const results: any[] = [];
 	for (const assignment of assignments) {
 		const wishlist = await db.all('SELECT * FROM wishlist_items WHERE person_id = ?', [assignment.receiver_id]);
-		
+
 		let wishlistHtml = '';
 		if (wishlist.length > 0) {
 			wishlistHtml = `
@@ -39,7 +39,7 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 					<h3 style="margin-top: 0; color: #92400e; font-size: 18px;">🎁 Their Wishlist:</h3>
 					<ul style="color: #78350f; line-height: 1.8; padding-left: 20px;">
 			`;
-			
+
 			for (const item of wishlist) {
 				wishlistHtml += `<li style="margin-bottom: 15px;"><strong>${item.item_name}</strong>`;
 				if (item.link) {
@@ -67,12 +67,12 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 				year: String(year),
 				giver_name: assignment.giver_name,
 				receiver_name: assignment.receiver_name,
-				wishlist_section: wishlistHtml
+				wishlist_section: wishlistHtml,
 			});
 
 			const subject = getEmailSubject('assignment-notification', {
 				year: String(year),
-				giver_name: assignment.giver_name
+				giver_name: assignment.giver_name,
 			});
 
 			await transporter.sendMail({
@@ -81,7 +81,7 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 				subject: subject,
 				html: emailHtml,
 			});
-			
+
 			results.push({ giver: assignment.giver_name, success: true, message: 'Email sent' });
 		} catch (error: any) {
 			results.push({ giver: assignment.giver_name, success: false, message: String(error.message || error) });

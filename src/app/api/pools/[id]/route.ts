@@ -15,9 +15,9 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 		await db.run('DELETE FROM pools WHERE id = ?', [poolId]);
 
 		return Response.json({ message: 'Pool deleted successfully' }, { status: 200 });
-    } catch (error: any) {
-	    return Response.json({ error: error.message }, { status: 500 });
-    }
+	} catch (error: any) {
+		return Response.json({ error: error.message }, { status: 500 });
+	}
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
@@ -28,8 +28,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 		await db.run('UPDATE pools SET name = ?, description = ? WHERE id = ?', [name, description, poolId]);
 
-	return Response.json({ message: 'Pool updated successfully' }, { status: 200 });
-		} catch (error: any) {
+		return Response.json({ message: 'Pool updated successfully' }, { status: 200 });
+	} catch (error: any) {
 		return Response.json({ error: error.message }, { status: 500 });
 	}
 }

@@ -29,10 +29,10 @@ export async function GET(request: Request, { params }: { params: { year: string
 
 		query += ' ORDER BY g.name';
 
-	const assignments = await db.all(query, queryParams);
-	return Response.json(assignments, { status: 200 });
+		const assignments = await db.all(query, queryParams);
+		return Response.json(assignments, { status: 200 });
 	} catch (error: any) {
-	return Response.json({ error: error.message }, { status: 500 });
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }
 

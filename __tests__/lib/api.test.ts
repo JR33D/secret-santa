@@ -38,7 +38,9 @@ describe('API Helper Functions', () => {
 				ok: false,
 				status: 500,
 				statusText: 'Internal Server Error',
-				json: async () => { throw new Error('Invalid JSON'); },
+				json: async () => {
+					throw new Error('Invalid JSON');
+				},
 			});
 
 			await expect(apiGet('/api/test')).rejects.toThrow('Internal Server Error');

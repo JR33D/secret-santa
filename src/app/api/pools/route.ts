@@ -12,9 +12,9 @@ export async function GET() {
       GROUP BY p.id
       ORDER BY p.name
     `);
-	return Response.json(pools, { status: 200 });
+		return Response.json(pools, { status: 200 });
 	} catch (error: any) {
-	return Response.json({ error: error.message }, { status: 500 });
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }
 
@@ -29,12 +29,15 @@ export async function POST(request: Request) {
 		const db = await getDb();
 		const result = await db.run('INSERT INTO pools (name, description) VALUES (?, ?)', [name, description || '']);
 
-		return Response.json({
-			id: result.lastID,
-			name,
-			description,
-			message: 'Pool created successfully',
-		}, { status: 200 });
+		return Response.json(
+			{
+				id: result.lastID,
+				name,
+				description,
+				message: 'Pool created successfully',
+			},
+			{ status: 200 },
+		);
 	} catch (error: any) {
 		if (error.message.includes('UNIQUE')) {
 			return Response.json({ error: 'Pool name already exists' }, { status: 400 });

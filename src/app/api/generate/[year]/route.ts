@@ -57,10 +57,13 @@ export async function POST(request: Request, { params }: { params: { year: strin
 			await db.run('INSERT INTO assignments (year, giver_id, receiver_id, pool_id) VALUES (?, ?, ?, ?)', [year, giverId, receiverId, parseInt(poolId)]);
 		}
 
-		return Response.json({
-			success: true,
-			message: `Successfully generated ${assignments.size} assignments for ${year}!`,
-		}, { status: 200 });
+		return Response.json(
+			{
+				success: true,
+				message: `Successfully generated ${assignments.size} assignments for ${year}!`,
+			},
+			{ status: 200 },
+		);
 	} catch (error: any) {
 		return Response.json({ error: error.message }, { status: 500 });
 	}

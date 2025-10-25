@@ -1,23 +1,23 @@
-import path from "path";
-import { initializeAdmin } from "./auth";
+import path from 'path';
+import { initializeAdmin } from './auth';
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 
 let db: any = null;
 
 export async function getDb(): Promise<any> {
-  if (db) return db;
+	if (db) return db;
 
-  const dbPath = process.env.DB_DIR ?? path.join(process.cwd(), "data/secret-santa.db");
-  
-  const openFn = (global as any).__sqlite_open ?? open;
-  db = await openFn({
-    filename: dbPath,
-    driver: sqlite3.Database,
-  });
+	const dbPath = process.env.DB_DIR ?? path.join(process.cwd(), 'data/secret-santa.db');
 
-  // Initialize tables
-  await db.exec(`
+	const openFn = (global as any).__sqlite_open ?? open;
+	db = await openFn({
+		filename: dbPath,
+		driver: sqlite3.Database,
+	});
+
+	// Initialize tables
+	await db.exec(`
     CREATE TABLE IF NOT EXISTS pools (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
@@ -92,8 +92,8 @@ export async function getDb(): Promise<any> {
     CREATE INDEX IF NOT EXISTS idx_people_pool ON people(pool_id);
   `);
 
-  // Initialize admin user
-  await initializeAdmin();
+	// Initialize admin user
+	await initializeAdmin();
 
-  return db;
+	return db;
 }

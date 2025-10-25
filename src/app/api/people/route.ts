@@ -24,10 +24,10 @@ export async function GET(request: Request) {
 
 		query += ' ORDER BY people.name';
 
-	const people = await db.all(query, params);
-	return Response.json(people, { status: 200 });
+		const people = await db.all(query, params);
+		return Response.json(people, { status: 200 });
 	} catch (error: any) {
-	return Response.json({ error: error.message }, { status: 500 });
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }
 
@@ -53,14 +53,17 @@ export async function POST(request: Request) {
 
 		const result = await db.run('INSERT INTO people (name, email, pool_id) VALUES (?, ?, ?)', [name, email, pool_id]);
 
-		return Response.json({
-			id: result.lastID,
-			name,
-			email,
-			pool_id,
-			message: 'Person added successfully',
-		}, { status: 200 });
+		return Response.json(
+			{
+				id: result.lastID,
+				name,
+				email,
+				pool_id,
+				message: 'Person added successfully',
+			},
+			{ status: 200 },
+		);
 	} catch (error: any) {
-	return Response.json({ error: error.message }, { status: 500 });
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }
