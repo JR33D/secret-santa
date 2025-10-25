@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 (2025-10-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Refactor email configuration to use only environment variables ([#2](https://github.com/JR33D/secret-santa/issues/2))
+
+### Features
+
+* add Code of Conduct and Contributing guidelines ([#1](https://github.com/JR33D/secret-santa/issues/1)) ([fe11592](https://github.com/JR33D/secret-santa/commit/fe11592fc47a0af47c90002d4f41f6442f6d827f))
+* add whatwg-fetch polyfill and refactor API responses to use Response.json ([b7f37c4](https://github.com/JR33D/secret-santa/commit/b7f37c400909a223564b26dbc8059a9ca37d064b))
+* Refactor email configuration to use only environment variables ([#2](https://github.com/JR33D/secret-santa/issues/2)) ([23bff57](https://github.com/JR33D/secret-santa/commit/23bff577c8ea34bcec17f020ff0d5d5154e80608))
+
+
+### Bug Fixes
+
+* update docker deployment instructions with correct image paths ([fe11592](https://github.com/JR33D/secret-santa/commit/fe11592fc47a0af47c90002d4f41f6442f6d827f))
+
 ## [Unreleased]
 
 ### Added
