@@ -55,7 +55,7 @@ The GitHub Actions workflow automatically:
 
 ### Container Registry
 
-Images are published to: `ghcr.io/YOUR-USERNAME/YOUR-REPO:latest`
+Images are published to: `ghcr.io/JR33D/YOUR-REPO:latest`
 
 ## Pulling and Running Published Images
 
@@ -63,17 +63,17 @@ Images are published to: `ghcr.io/YOUR-USERNAME/YOUR-REPO:latest`
 
 ```bash
 # Login to GHCR (use a Personal Access Token with read:packages scope)
-echo $GITHUB_TOKEN | docker login ghcr.io -u YOUR-USERNAME --password-stdin
+echo $GITHUB_TOKEN | docker login ghcr.io -u JR33D --password-stdin
 
 # Pull the latest image
-docker pull ghcr.io/YOUR-USERNAME/YOUR-REPO:latest
+docker pull ghcr.io/JR33D/YOUR-REPO:latest
 
 # Run the container
 docker run -d \
   --name secret-santa \
   -p 3000:3000 \
   -v secret-santa-data:/app/data \
-  ghcr.io/YOUR-USERNAME/YOUR-REPO:latest
+  ghcr.io/JR33D/YOUR-REPO:latest
 ```
 
 ## Production Deployment
@@ -87,7 +87,7 @@ docker run -d \
   -p 3000:3000 \
   -v /path/to/data:/app/data \
   -e NODE_ENV=production \
-  ghcr.io/YOUR-USERNAME/YOUR-REPO:latest
+  ghcr.io/JR33D/YOUR-REPO:latest
 ```
 
 ### Docker Compose for Production
@@ -99,7 +99,7 @@ version: '3.8'
 
 services:
  secret-santa:
-  image: ghcr.io/YOUR-USERNAME/YOUR-REPO:latest
+  image: ghcr.io/JR33D/YOUR-REPO:latest
   container_name: secret-santa
   ports:
    - '3000:3000'
