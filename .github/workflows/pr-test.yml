@@ -1,76 +1,76 @@
 name: PR Tests
 
 on:
-  pull_request:
-    branches: [main]
+ pull_request:
+  branches: [main]
 
 jobs:
-  lint-and-build:
-    name: Lint and Build
-    runs-on: ubuntu-latest
+ lint-and-build:
+  name: Lint and Build
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+   - name: Checkout code
+     uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+      node-version: '20'
+      cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+   - name: Install dependencies
+     run: npm ci
 
-      - name: Run linter
-        run: npm run lint
-        continue-on-error: true
+   - name: Run linter
+     run: npm run lint
+     continue-on-error: true
 
-      - name: Type check
-        run: npx tsc --noEmit
-        continue-on-error: true
+   - name: Type check
+     run: npx tsc --noEmit
+     continue-on-error: true
 
-      - name: Build application
-        run: npm run build
-        
-      - name: Run Unit Tests
-        run: npm run test:ci
+   - name: Build application
+     run: npm run build
 
-  # Optional: Test Docker build without publishing
-  docker-build-test:
-    name: Docker Build Test
-    runs-on: ubuntu-latest
-    # Only run if Dockerfile changed
-    if: contains(github.event.pull_request.changed_files, 'Dockerfile')
+   - name: Run Unit Tests
+     run: npm run test:ci
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+ # Optional: Test Docker build without publishing
+ docker-build-test:
+  name: Docker Build Test
+  runs-on: ubuntu-latest
+  # Only run if Dockerfile changed
+  if: contains(github.event.pull_request.changed_files, 'Dockerfile')
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  steps:
+   - name: Checkout code
+     uses: actions/checkout@v4
 
-      - name: Build Docker image (test only)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false  # Don't publish from PRs!
-          tags: secret-santa-test:pr-${{ github.event.pull_request.number }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+   - name: Set up Docker Buildx
+     uses: docker/setup-buildx-action@v3
 
-  # Optional: Check conventional commits
-  # conventional-commits:
-  #   name: Check Commit Messages
-  #   runs-on: ubuntu-latest
-    
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+   - name: Build Docker image (test only)
+     uses: docker/build-push-action@v5
+     with:
+      context: .
+      push: false # Don't publish from PRs!
+      tags: secret-santa-test:pr-${{ github.event.pull_request.number }}
+      cache-from: type=gha
+      cache-to: type=gha,mode=max
 
-  #     - name: Check commits
-  #       uses: wagoid/commitlint-github-action@v5
-  #       with:
-  #         configFile: .commitlintrc.json
+ # Optional: Check conventional commits
+ # conventional-commits:
+ #   name: Check Commit Messages
+ #   runs-on: ubuntu-latest
+
+ #   steps:
+ #     - name: Checkout code
+ #       uses: actions/checkout@v4
+ #       with:
+ #         fetch-depth: 0
+
+ #     - name: Check commits
+ #       uses: wagoid/commitlint-github-action@v5
+ #       with:
+ #         configFile: .commitlintrc.json

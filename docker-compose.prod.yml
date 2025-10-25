@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+ secret-santa:
+  build:
+   context: .
+   dockerfile: Dockerfile
+  image: secret-santa-app:latest
+  container_name: secret-santa
+  ports:
+   - '3000:3000'
+  volumes:
+   # Persist database between container restarts
+   - secret-santa-data:/app/data
+  environment:
+   - NODE_ENV=production
+   - DB_DIR=/app/data
+   - PORT=3000
+   - DOMAIN=${DOMAIN:-http://localhost:3000}
+   # Authentication
+   - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+   - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+
+   # Admin Credentials
+   - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+   - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+
+   # Optional: Email Configuration (can also be set in app)
+   - SMTP_SERVER=${SMTP_SERVER:-}
+   - SMTP_PORT=${SMTP_PORT:-587}
+   - SMTP_USERNAME=${SMTP_USERNAME:-}
+   # For production, prefer providing passwords via Docker secrets (see below)
+   - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+   - FROM_EMAIL=${FROM_EMAIL:-}
+  restart: unless-stopped
+  healthcheck:
+   test: ['CMD', 'node', '-e', "require('http').get('${DOMAIN:-http://localhost:3000}/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+   interval: 30s
+   timeout: 10s
+   retries: 3
+   start_period: 40s
+
+# Example secrets configuration (recommended for production):
+secrets:
+ smtp_password:
+  file: ./secrets/smtp_password.txt
+ nextauth_secret:
+  file: ./secrets/nextauth_secret.txt
+ admin_password:
+  file: ./secrets/admin_password.txt
+
+volumes:
+ secret-santa-data:
+  driver: local

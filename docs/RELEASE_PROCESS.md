@@ -5,6 +5,7 @@ This document describes the automated release process for Secret Santa App using
 ## Overview
 
 Our release process is fully automated using:
+
 - **Release Please**: Automated version bumping and changelog generation
 - **Conventional Commits**: Commit message format for automatic versioning
 - **Semantic Versioning**: MAJOR.MINOR.PATCH versioning
@@ -72,22 +73,23 @@ BREAKING CHANGE: API responses now use camelCase
 
 ### Types
 
-| Type | Description | Version Bump | Appears in Changelog |
-|------|-------------|--------------|---------------------|
-| `feat` | New feature | MINOR | ✅ Features |
-| `fix` | Bug fix | PATCH | ✅ Bug Fixes |
-| `perf` | Performance improvement | PATCH | ✅ Performance |
-| `docs` | Documentation only | - | ✅ Documentation |
-| `refactor` | Code refactoring | - | ✅ Code Refactoring |
-| `test` | Adding tests | - | ✅ Tests |
-| `build` | Build system changes | - | ✅ Build System |
-| `ci` | CI/CD changes | - | ✅ Continuous Integration |
-| `chore` | Maintenance tasks | - | ✅ Miscellaneous |
-| `style` | Code style changes | - | ❌ (hidden) |
+| Type       | Description             | Version Bump | Appears in Changelog      |
+| ---------- | ----------------------- | ------------ | ------------------------- |
+| `feat`     | New feature             | MINOR        | ✅ Features               |
+| `fix`      | Bug fix                 | PATCH        | ✅ Bug Fixes              |
+| `perf`     | Performance improvement | PATCH        | ✅ Performance            |
+| `docs`     | Documentation only      | -            | ✅ Documentation          |
+| `refactor` | Code refactoring        | -            | ✅ Code Refactoring       |
+| `test`     | Adding tests            | -            | ✅ Tests                  |
+| `build`    | Build system changes    | -            | ✅ Build System           |
+| `ci`       | CI/CD changes           | -            | ✅ Continuous Integration |
+| `chore`    | Maintenance tasks       | -            | ✅ Miscellaneous          |
+| `style`    | Code style changes      | -            | ❌ (hidden)               |
 
 ### Scopes
 
 Common scopes (optional but recommended):
+
 - `auth`, `wishlist`, `assignments`, `email`, `ui`, `api`, `db`, `docker`, `docs`
 
 ### Examples
@@ -120,6 +122,7 @@ Closes #123
 ### Automatic Releases (Recommended)
 
 1. **Develop Features**
+
    ```bash
    git checkout -b feat/my-feature
    # Make changes
@@ -168,9 +171,10 @@ Closes #123
 To release a specific version:
 
 1. Edit `.release-please-manifest.json`:
+
    ```json
    {
-     ".": "2.0.0"
+   	".": "2.0.0"
    }
    ```
 
@@ -189,6 +193,7 @@ gh workflow run edge-release.yml -f prerelease_type=beta
 ```
 
 Pre-release tags:
+
 - `edge`, `edge-YYYYMMDD`, `edge-{sha}`
 - `beta`, `beta-YYYYMMDD`
 - `alpha`, `alpha-YYYYMMDD`
@@ -196,16 +201,16 @@ Pre-release tags:
 
 ## Docker Tags Explained
 
-| Tag | When Updated | Use Case |
-|-----|--------------|----------|
-| `latest` | Every release | Development/Testing |
-| `stable` | Every release | Production (verified) |
-| `v1.2.3` | Specific release | Production (pinned) |
-| `v1.2` | Minor releases | Production (auto-patch) |
-| `v1` | Major releases | Production (auto-minor) |
-| `1.2.3-YYYYMMDD` | Release date | Audit/Rollback |
-| `edge` | Every develop push | Bleeding edge testing |
-| `beta` | Beta releases | Pre-release testing |
+| Tag              | When Updated       | Use Case                |
+| ---------------- | ------------------ | ----------------------- |
+| `latest`         | Every release      | Development/Testing     |
+| `stable`         | Every release      | Production (verified)   |
+| `v1.2.3`         | Specific release   | Production (pinned)     |
+| `v1.2`           | Minor releases     | Production (auto-patch) |
+| `v1`             | Major releases     | Production (auto-minor) |
+| `1.2.3-YYYYMMDD` | Release date       | Audit/Rollback          |
+| `edge`           | Every develop push | Bleeding edge testing   |
+| `beta`           | Beta releases      | Pre-release testing     |
 
 ### Recommended for Production
 
@@ -243,11 +248,13 @@ Breaking changes are prominently displayed at the top of each release section wi
 For critical production issues:
 
 1. **Create Hotfix Branch**
+
    ```bash
    git checkout -b hotfix/critical-bug main
    ```
 
 2. **Fix and Test**
+
    ```bash
    git commit -m "fix: resolve critical security issue"
    ```
@@ -294,6 +301,7 @@ docker-compose up -d
 **Cause**: No conventional commits since last release
 
 **Solution**: Ensure commits follow conventional format:
+
 ```bash
 git log --oneline | head -5
 ```
@@ -302,7 +310,8 @@ git log --oneline | head -5
 
 **Cause**: Incorrect commit type
 
-**Solution**: 
+**Solution**:
+
 - Use `fix:` for patches
 - Use `feat:` for minors
 - Use `!` or `BREAKING CHANGE:` for majors
@@ -312,6 +321,7 @@ git log --oneline | head -5
 **Cause**: Merge conflicts or failed checks
 
 **Solution**:
+
 ```bash
 git checkout main
 git pull
@@ -324,6 +334,7 @@ git push
 **Cause**: Build errors or test failures
 
 **Solution**: Check GitHub Actions logs:
+
 ```bash
 gh run list --workflow=release-please.yml
 gh run view <run-id> --log-failed
@@ -344,6 +355,7 @@ No secrets required! GitHub token is automatically available.
 ### 3. Update CODEOWNERS
 
 Edit `CODEOWNERS` file:
+
 ```bash
 * @JR33D
 ```
@@ -404,6 +416,7 @@ docker pull ghcr.io/JR33D/secret-santa:v1.2.3
 ### Commit Messages
 
 ✅ **Good**
+
 ```
 feat(wishlist): add bulk import from CSV
 fix(auth): resolve session timeout issue
@@ -412,6 +425,7 @@ docs: update Docker deployment guide
 ```
 
 ❌ **Bad**
+
 ```
 Updated files
 Fixed bug
@@ -422,6 +436,7 @@ asdf
 ### Pull Requests
 
 ✅ **Good PR**
+
 - Clear title with conventional format
 - Detailed description
 - Links to related issues
@@ -429,6 +444,7 @@ asdf
 - All tests passing
 
 ❌ **Bad PR**
+
 - Vague title: "Update stuff"
 - No description
 - Multiple unrelated changes
@@ -465,22 +481,26 @@ After release:
 ### Release Announcements
 
 For major/minor releases:
+
 1. Create GitHub Discussion
 2. Update README if needed
 3. Post in community channels
 
 Template:
+
 ```markdown
 ## 🎉 Secret Santa v1.2.0 Released
 
 We're excited to announce version 1.2.0 with the following highlights:
 
 ### ✨ New Features
+
 - Wishlist image previews
 - Bulk people import
 - Dark mode support
 
 ### 🐛 Bug Fixes
+
 - Fixed email notification delays
 - Resolved mobile layout issues
 
@@ -501,7 +521,8 @@ See full changelog: [v1.2.0](https://github.com/JR33D/secret-santa/releases/tag/
 
 ## Support
 
-Questions about releases? 
+Questions about releases?
+
 - Open a [Discussion](https://github.com/JR33D/secret-santa/discussions)
 - Check [existing issues](https://github.com/JR33D/secret-santa/issues)
 - Review [CONTRIBUTING.md](./CONTRIBUTING.md)

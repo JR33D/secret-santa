@@ -4,7 +4,6 @@
 [![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue)](https://github.com/JR33D/secret-santa/pkgs/container/secret-santa)
 [![License](https://img.shields.io/github/license/JR33D/secret-santa)](LICENSE)
 [![CI](https://github.com/JR33D/secret-santa/workflows/PR%20Tests/badge.svg)](https://github.com/JR33D/secret-santa/actions)
-
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
@@ -28,6 +27,7 @@ docker run -d \
 ```
 
 Visit http://localhost:3000 and login with:
+
 - Username: `admin`
 - Password: `changeme123` (change immediately!)
 
@@ -51,21 +51,23 @@ Visit http://localhost:3000 and login with:
 ## 📖 Documentation
 
 ### Getting Started
+
 - [Installation Guide](docs/installation.md) - Setup instructions
 - [User Guide](docs/user-guide.md) - How to use the application
 - [Docker Deployment](docs/docker.md) - Production deployment
 - [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
 
 ### For Contributors
+
 - [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute
 - [Development Setup](docs/development.md) - Local development environment
 - [Release Process](docs/RELEASE_PROCESS.md) - How releases work
 - [API Documentation](docs/api.md) - API reference
 
 ### Project Information
+
 - [Code of Conduct](docs/CODE_OF_CONDUCT.md) - Community standards
 - [Security Policy](docs/SECURITY.md) - Security and vulnerability reporting
-- [Setup Summary](docs/SETUP_SUMMARY.md) - Release system overview
 - [Changelog](CHANGELOG.md) - Version history
 
 ---
@@ -80,13 +82,16 @@ Visit http://localhost:3000 and login with:
 ### Option 1: Docker Compose (Production)
 
 1. **Download configuration files**
+
    ```bash
-   curl -O https://raw.githubusercontent.com/JR33D/secret-santa/main/docker-compose.yml
+   curl -O https://raw.githubusercontent.com/JR33D/secret-santa/main/docker-compose.prod.yml
+   mv docker-compose.prod.yml docker-compose.yml
    curl -O https://raw.githubusercontent.com/JR33D/secret-santa/main/.env.example
    mv .env.example .env
    ```
 
 2. **Configure environment**
+
    ```bash
    # Generate secure secret
    echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)" >> .env
@@ -101,17 +106,20 @@ Visit http://localhost:3000 and login with:
 ### Option 2: Development Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/JR33D/secret-santa.git
    cd secret-santa
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm ci
    ```
 
 3. **Configure environment**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
@@ -197,6 +205,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 💖 Support the Project
 
 If you find this project helpful, please consider:
+
 - ⭐ **Starring** the repository
 - 🐛 **Reporting** bugs and issues
 - 💡 **Suggesting** new features

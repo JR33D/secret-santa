@@ -11,6 +11,33 @@ export interface User {
 	mustChangePassword: boolean;
 }
 
+// Separated authorize logic so it can be tested in isolation.
+export async function authorizeCredentials(credentials: any) {
+	if (!credentials?.username || !credentials?.password) {
+		return null;
+	}
+
+	const db = await getDb();
+	const user = await db.get('SELECT * FROM users WHERE username = ?', [credentials.username]);
+
+	if (!user) {
+		return null;
+	}
+
+	const isValid = await compare(credentials.password, user.password_hash);
+	if (!isValid) {
+		return null;
+	}
+
+	return {
+		id: String(user.id),
+		username: user.username,
+		role: user.role,
+		personId: user.person_id,
+		mustChangePassword: user.must_change_password === 1,
+	};
+}
+
 export const authOptions: NextAuthOptions = {
 	providers: [
 		CredentialsProvider({
@@ -20,29 +47,8 @@ export const authOptions: NextAuthOptions = {
 				password: { label: 'Password', type: 'password' },
 			},
 			async authorize(credentials) {
-				if (!credentials?.username || !credentials?.password) {
-					return null;
-				}
-
-				const db = await getDb();
-				const user = await db.get('SELECT * FROM users WHERE username = ?', [credentials.username]);
-
-				if (!user) {
-					return null;
-				}
-
-				const isValid = await compare(credentials.password, user.password_hash);
-				if (!isValid) {
-					return null;
-				}
-
-				return {
-					id: String(user.id),
-					username: user.username,
-					role: user.role,
-					personId: user.person_id,
-					mustChangePassword: user.must_change_password === 1,
-				};
+				// Delegate to exported helper so it can be tested in isolation
+				return authorizeCredentials(credentials as any);
 			},
 		}),
 	],

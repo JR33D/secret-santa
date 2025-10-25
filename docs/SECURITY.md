@@ -44,34 +44,40 @@ If you discover a security vulnerability, please send an email to [INSERT SECURI
 When deploying Secret Santa App, we recommend:
 
 ### Environment Variables
+
 - **Never commit** `.env` files to version control
 - Use strong, randomly generated secrets for `NEXTAUTH_SECRET`
 - Change default admin passwords immediately
 - Rotate secrets regularly
 
 ### Docker Deployment
+
 - Use specific version tags instead of `latest` in production
 - Run containers as non-root users (already configured)
 - Keep base images updated
 - Use Docker secrets for sensitive data
 
 ### Database
+
 - Regular backups of the SQLite database
 - Secure file permissions on the database file
 - Consider encryption at rest for sensitive deployments
 
 ### Network Security
+
 - Use HTTPS/TLS in production (reverse proxy required)
 - Implement rate limiting at the reverse proxy level
 - Use firewall rules to restrict access
 
 ### SMTP Configuration
+
 - Use app-specific passwords, not account passwords
 - Enable 2FA on email accounts
 - Use TLS/SSL for SMTP connections
 - Validate SMTP credentials before saving
 
 ### Access Control
+
 - Limit admin accounts to trusted individuals
 - Regular audit of user accounts and permissions
 - Remove inactive user accounts
@@ -79,21 +85,25 @@ When deploying Secret Santa App, we recommend:
 ## Known Security Considerations
 
 ### Session Management
+
 - Sessions expire after 30 days of inactivity
 - JWT tokens are used for session management
 - Tokens are httpOnly and secure in production
 
 ### Password Storage
+
 - Passwords are hashed using bcrypt with 10 rounds
 - Temporary passwords force users to change on first login
 - Minimum password length of 8 characters enforced
 
 ### Data Privacy
+
 - Email addresses are stored for notification purposes
 - No sensitive financial or identity information is collected
 - Wishlists and assignments are visible only to authorized users
 
 ### Docker Container Security
+
 - Container runs as non-root user (uid 1001)
 - Minimal attack surface with alpine-based images
 - Health checks implemented
@@ -113,6 +123,7 @@ We aim to disclose vulnerabilities in a coordinated manner, allowing users time 
 ## Security Updates
 
 Security updates will be released as:
+
 - Patch versions (e.g., 1.0.1) for minor issues
 - Minor versions (e.g., 1.1.0) for moderate issues
 - With `SECURITY.md` updates in the CHANGELOG

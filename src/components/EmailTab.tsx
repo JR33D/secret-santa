@@ -39,7 +39,9 @@ export default function EmailTab() {
 	return (
 		<div>
 			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">Email Configuration</h2>
-			<p className="mb-4 text-sm text-gray-700">This deployment manages SMTP configuration via environment variables. Fields are read-only. To change settings update container environment / secrets and redeploy.</p>
+			<p className="mb-4 text-sm text-gray-700">
+				This deployment manages SMTP configuration via environment variables. Fields are read-only. To change settings update container environment / secrets and redeploy.
+			</p>
 			<div className="grid md:grid-cols-2 gap-4">
 				<div>
 					<label htmlFor="smtp-server-input" className="font-semibold block mb-1">

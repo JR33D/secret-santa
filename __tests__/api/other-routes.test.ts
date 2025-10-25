@@ -1,5 +1,5 @@
 import { GET as getHealth } from '@/app/api/health/route';
-import { GET as getMyAssignment } from '@/app/api/my-assignment/route';
+import { GET as getMyAssignment } from '@/app/api/my-assignments/route';
 import { POST as changePassword } from '@/app/api/change-password/route';
 import { getDb } from '@/lib/db';
 import { getServerSession } from 'next-auth';

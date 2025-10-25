@@ -14,32 +14,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.1](https://github.com/JR33D/secret-santa/compare/v1.0.0...v1.0.1) (2025-10-25)
 
-
 ### Bug Fixes
 
-* update permissions to allow write access for contents in release workflow ([3ccb59d](https://github.com/JR33D/secret-santa/commit/3ccb59db0f38211aee13397228163bc243c6a871))
+- update permissions to allow write access for contents in release workflow ([3ccb59d](https://github.com/JR33D/secret-santa/commit/3ccb59db0f38211aee13397228163bc243c6a871))
 
 ## 1.0.0 (2025-10-25)
 
-
 ### ⚠ BREAKING CHANGES
 
-* Refactor email configuration to use only environment variables ([#2](https://github.com/JR33D/secret-santa/issues/2))
+- Refactor email configuration to use only environment variables ([#2](https://github.com/JR33D/secret-santa/issues/2))
 
 ### Features
 
-* add Code of Conduct and Contributing guidelines ([#1](https://github.com/JR33D/secret-santa/issues/1)) ([fe11592](https://github.com/JR33D/secret-santa/commit/fe11592fc47a0af47c90002d4f41f6442f6d827f))
-* add whatwg-fetch polyfill and refactor API responses to use Response.json ([b7f37c4](https://github.com/JR33D/secret-santa/commit/b7f37c400909a223564b26dbc8059a9ca37d064b))
-* Refactor email configuration to use only environment variables ([#2](https://github.com/JR33D/secret-santa/issues/2)) ([23bff57](https://github.com/JR33D/secret-santa/commit/23bff577c8ea34bcec17f020ff0d5d5154e80608))
-
+- add Code of Conduct and Contributing guidelines ([#1](https://github.com/JR33D/secret-santa/issues/1)) ([fe11592](https://github.com/JR33D/secret-santa/commit/fe11592fc47a0af47c90002d4f41f6442f6d827f))
+- add whatwg-fetch polyfill and refactor API responses to use Response.json ([b7f37c4](https://github.com/JR33D/secret-santa/commit/b7f37c400909a223564b26dbc8059a9ca37d064b))
+- Refactor email configuration to use only environment variables ([#2](https://github.com/JR33D/secret-santa/issues/2)) ([23bff57](https://github.com/JR33D/secret-santa/commit/23bff577c8ea34bcec17f020ff0d5d5154e80608))
 
 ### Bug Fixes
 
-* update docker deployment instructions with correct image paths ([fe11592](https://github.com/JR33D/secret-santa/commit/fe11592fc47a0af47c90002d4f41f6442f6d827f))
+- update docker deployment instructions with correct image paths ([fe11592](https://github.com/JR33D/secret-santa/commit/fe11592fc47a0af47c90002d4f41f6442f6d827f))
 
 ## [Unreleased]
 
 ### Added
+
 - Initial release of Secret Santa App
 - User authentication with NextAuth
 - Pool management for organizing different groups
@@ -58,24 +56,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Features
 
 #### Authentication & User Management
+
 - Secure authentication system with role-based access control
 - Admin and user roles with different permissions
 - Password change functionality with temporary password support
 - Automatic user account creation linked to people
 
 #### Pool & People Management
+
 - Create and manage multiple gift exchange pools
 - Add people with names and email addresses to pools
 - Filter and organize people by pool membership
 - Email validation for all participants
 
 #### Wishlist System
+
 - Create personal wishlists with items, links, and images
 - View assigned recipient's wishlist after assignment
 - Image preview support for wishlist items
 - Easy-to-use interface for adding and removing items
 
 #### Assignment Generation
+
 - Smart algorithm respects all defined restrictions
 - Prevents same-person assignments
 - Supports complex restriction scenarios
@@ -83,12 +85,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Year-based assignment tracking
 
 #### Restrictions
+
 - Define who cannot give gifts to whom
 - Spouse/sibling restrictions
 - Pool-specific restriction management
 - Clear visualization of active restrictions
 
 #### Email Notifications
+
 - Customizable SMTP configuration
 - Automated notification emails with assignment details
 - Wishlist integration in notification emails
@@ -96,12 +100,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - User account creation emails with credentials
 
 #### History & Analytics
+
 - Visual assignment history graph
 - Year-over-year tracking
 - Chain detection and loop identification
 - Pool-filtered history views
 
 #### Deployment & Operations
+
 - Docker and docker-compose support
 - Multi-architecture support (amd64, arm64)
 - Health check endpoint
@@ -110,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Production-ready build with Next.js standalone output
 
 ### Technical Stack
+
 - **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes, Node.js
 - **Database**: SQLite with better-sqlite3
@@ -120,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI/CD**: GitHub Actions
 
 ### Documentation
+
 - Comprehensive README with setup instructions
 - Docker deployment guide
 - API route documentation
@@ -151,10 +159,12 @@ docker run -d \
 ### Environment Variables
 
 Required:
+
 - `NEXTAUTH_SECRET` - Secret for NextAuth session encryption
 - `ADMIN_PASSWORD` - Initial admin password
 
 Optional:
+
 - `ADMIN_USERNAME` - Admin username (default: admin)
 - `NEXTAUTH_URL` - Base URL (default: http://localhost:3000)
 - SMTP configuration for email notifications

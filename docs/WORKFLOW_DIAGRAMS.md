@@ -243,7 +243,7 @@ State 4: Release PR Merged
   GitHub Release created
   Docker images published
   Release PR closed
-  
+
 State 5: Back to State 1
   Cycle repeats for next release
 ```

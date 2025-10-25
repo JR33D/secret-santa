@@ -1,5 +1,5 @@
 import { GET, POST } from '@/app/api/restrictions/route';
-import { DELETE } from '@/app/api/restrictions/[id]/routes';
+import { DELETE } from '@/app/api/restrictions/[id]/route';
 import { getDb } from '@/lib/db';
 
 jest.mock('@/lib/db');

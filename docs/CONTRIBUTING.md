@@ -41,6 +41,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 ### Your First Code Contribution
 
 Unsure where to begin? Look for issues tagged with:
+
 - `good first issue` - Simple issues perfect for newcomers
 - `help wanted` - Issues where we'd love community help
 - `documentation` - Improvements to docs
@@ -56,23 +57,27 @@ Unsure where to begin? Look for issues tagged with:
 ### Setup Steps
 
 1. **Fork and Clone**
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/secret-santa.git
    cd secret-santa
    ```
 
 2. **Install Dependencies**
+
    ```bash
    npm ci
    ```
 
 3. **Set Up Environment**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 4. **Run Development Server**
+
    ```bash
    npm run dev
    ```
@@ -142,6 +147,7 @@ BREAKING CHANGE: NextAuth configuration has changed
 ### Scopes
 
 Common scopes include:
+
 - `auth` - Authentication related
 - `wishlist` - Wishlist features
 - `assignments` - Assignment generation
@@ -154,6 +160,7 @@ Common scopes include:
 ## Pull Request Process
 
 1. **Create a Branch**
+
    ```bash
    git checkout -b feat/your-feature-name
    ```
@@ -165,6 +172,7 @@ Common scopes include:
    - Update documentation
 
 3. **Test Your Changes**
+
    ```bash
    npm run lint
    npm run test
@@ -172,12 +180,14 @@ Common scopes include:
    ```
 
 4. **Commit Your Changes**
+
    ```bash
    git add .
    git commit -m "feat(scope): your descriptive message"
    ```
 
 5. **Push to Your Fork**
+
    ```bash
    git push origin feat/your-feature-name
    ```
@@ -214,12 +224,12 @@ Common scopes include:
 ```typescript
 // Good
 interface Props {
-  userName: string;
-  onSave: (data: FormData) => void;
+	userName: string;
+	onSave: (data: FormData) => void;
 }
 
 export default function UserForm({ userName, onSave }: Props) {
-  // Component logic
+	// Component logic
 }
 
 // Component should be focused on one responsibility
@@ -230,12 +240,12 @@ export default function UserForm({ userName, onSave }: Props) {
 ```typescript
 // Good - Clear error handling and responses
 export async function GET(request: Request) {
-  try {
-    const data = await fetchData();
-    return Response.json(data, { status: 200 });
-  } catch (error: any) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+	try {
+		const data = await fetchData();
+		return Response.json(data, { status: 200 });
+	} catch (error: any) {
+		return Response.json({ error: error.message }, { status: 500 });
+	}
 }
 ```
 
@@ -297,6 +307,7 @@ npm test -- PoolsTab.test.tsx
 ## Questions?
 
 Feel free to:
+
 - Open an issue for discussion
 - Join our community discussions
 - Reach out to maintainers
