@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
 export async function GET(request: Request) {
@@ -25,10 +24,10 @@ export async function GET(request: Request) {
 
 		query += ' ORDER BY people.name';
 
-		const people = await db.all(query, params);
-		return { status: 200, json: async () => people } as any;
+	const people = await db.all(query, params);
+	return Response.json(people, { status: 200 });
 	} catch (error: any) {
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+	return Response.json({ error: error.message }, { status: 500 });
 	}
 }
 
@@ -37,11 +36,11 @@ export async function POST(request: Request) {
 		const { name, email, pool_id } = await request.json();
 
 		if (!name || !email) {
-			return { status: 400, json: async () => ({ error: 'Name and email are required' }) } as any;
+			return Response.json({ error: 'Name and email are required' }, { status: 400 });
 		}
 
 		if (!pool_id) {
-			return { status: 400, json: async () => ({ error: 'Pool is required. Please create a pool first.' }) } as any;
+			return Response.json({ error: 'Pool is required. Please create a pool first.' }, { status: 400 });
 		}
 
 		const db = await getDb();
@@ -49,19 +48,19 @@ export async function POST(request: Request) {
 		// Check if pool exists
 		const pool = await db.get('SELECT id FROM pools WHERE id = ?', [pool_id]);
 		if (!pool) {
-			return { status: 400, json: async () => ({ error: 'Invalid pool selected' }) } as any;
+			return Response.json({ error: 'Invalid pool selected' }, { status: 400 });
 		}
 
 		const result = await db.run('INSERT INTO people (name, email, pool_id) VALUES (?, ?, ?)', [name, email, pool_id]);
 
-		return { status: 200, json: async () => ({
+		return Response.json({
 			id: result.lastID,
 			name,
 			email,
 			pool_id,
 			message: 'Person added successfully',
-		}) } as any;
+		}, { status: 200 });
 	} catch (error: any) {
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+	return Response.json({ error: error.message }, { status: 500 });
 	}
 }

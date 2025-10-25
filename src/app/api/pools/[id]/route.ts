@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
@@ -10,15 +9,15 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 		const peopleCount = await db.get('SELECT COUNT(*) as count FROM people WHERE pool_id = ?', [poolId]);
 
 		if (peopleCount.count > 0) {
-			return { status: 400, json: async () => ({ error: 'Cannot delete pool with people in it. Remove or reassign people first.' }) } as any;
+			return Response.json({ error: 'Cannot delete pool with people in it. Remove or reassign people first.' }, { status: 400 });
 		}
 
 		await db.run('DELETE FROM pools WHERE id = ?', [poolId]);
 
-		return { status: 200, json: async () => ({ message: 'Pool deleted successfully' }) } as any;
-	} catch (error: any) {
-			return { status: 500, json: async () => ({ error: error.message }) } as any;
-	}
+		return Response.json({ message: 'Pool deleted successfully' }, { status: 200 });
+    } catch (error: any) {
+	    return Response.json({ error: error.message }, { status: 500 });
+    }
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
@@ -29,8 +28,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 		await db.run('UPDATE pools SET name = ?, description = ? WHERE id = ?', [name, description, poolId]);
 
-	  return { status: 200, json: async () => ({ message: 'Pool updated successfully' }) } as any;
-	} catch (error: any) {
-	  return { status: 500, json: async () => ({ error: error.message }) } as any;
+	return Response.json({ message: 'Pool updated successfully' }, { status: 200 });
+		} catch (error: any) {
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }

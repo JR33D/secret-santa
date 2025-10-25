@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -7,7 +6,7 @@ export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      return { status: 401, json: async () => ({ error: "Unauthorized" }) } as any;
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -15,13 +14,13 @@ export async function GET(request: Request) {
     const year = searchParams.get("year");
 
     if (!personId || !year) {
-      return { status: 400, json: async () => ({ error: "person_id and year are required" }) } as any;
+      return Response.json({ error: "person_id and year are required" }, { status: 400 });
     }
 
     // Verify the user is requesting their own assignment
     const userPersonId = (session.user as any).personId;
     if (String(userPersonId) !== personId && (session.user as any).role !== "admin") {
-      return { status: 403, json: async () => ({ error: "You can only view your own assignment" }) } as any;
+      return Response.json({ error: "You can only view your own assignment" }, { status: 403 });
     }
 
     const db = await getDb();
@@ -37,8 +36,8 @@ export async function GET(request: Request) {
       [parseInt(personId), parseInt(year)]
     );
 
-    return { status: 200, json: async () => assignments } as any;
+    return Response.json(assignments, { status: 200 });
   } catch (error: any) {
-    return { status: 500, json: async () => ({ error: error.message }) } as any;
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

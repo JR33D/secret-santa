@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 import { compare } from "bcryptjs";
@@ -9,17 +8,17 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      return { status: 401, json: async () => ({ error: "Unauthorized" }) } as any;
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { currentPassword, newPassword } = await request.json();
 
     if (!currentPassword || !newPassword) {
-      return { status: 400, json: async () => ({ error: "Current and new password are required" }) } as any;
+      return Response.json({ error: "Current and new password are required" }, { status: 400 });
     }
 
     if (newPassword.length < 8) {
-      return { status: 400, json: async () => ({ error: "New password must be at least 8 characters" }) } as any;
+      return Response.json({ error: "New password must be at least 8 characters" }, { status: 400 });
     }
 
     const db = await getDb();
@@ -32,13 +31,13 @@ export async function POST(request: Request) {
     );
 
     if (!user) {
-      return { status: 404, json: async () => ({ error: "User not found" }) } as any;
+      return Response.json({ error: "User not found" }, { status: 404 });
     }
 
     // Verify current password
     const isValid = await compare(currentPassword, user.password_hash);
     if (!isValid) {
-      return { status: 400, json: async () => ({ error: "Current password is incorrect" }) } as any;
+      return Response.json({ error: "Current password is incorrect" }, { status: 400 });
     }
 
     // Hash new password and update
@@ -48,8 +47,8 @@ export async function POST(request: Request) {
       [newPasswordHash, userId]
     );
 
-    return { status: 200, json: async () => ({ message: "Password changed successfully" }) } as any;
+    return Response.json({ message: "Password changed successfully" }, { status: 200 });
   } catch (error: any) {
-    return { status: 500, json: async () => ({ error: error.message }) } as any;
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

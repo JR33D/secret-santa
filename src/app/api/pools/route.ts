@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
 export async function GET() {
@@ -13,9 +12,9 @@ export async function GET() {
       GROUP BY p.id
       ORDER BY p.name
     `);
-		return { status: 200, json: async () => pools } as any;
+	return Response.json(pools, { status: 200 });
 	} catch (error: any) {
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+	return Response.json({ error: error.message }, { status: 500 });
 	}
 }
 
@@ -24,22 +23,22 @@ export async function POST(request: Request) {
 		const { name, description } = await request.json();
 
 		if (!name) {
-			return { status: 400, json: async () => ({ error: 'Name is required' }) } as any;
+			return Response.json({ error: 'Name is required' }, { status: 400 });
 		}
 
 		const db = await getDb();
 		const result = await db.run('INSERT INTO pools (name, description) VALUES (?, ?)', [name, description || '']);
 
-		return { status: 200, json: async () => ({
+		return Response.json({
 			id: result.lastID,
 			name,
 			description,
 			message: 'Pool created successfully',
-		}) } as any;
+		}, { status: 200 });
 	} catch (error: any) {
 		if (error.message.includes('UNIQUE')) {
-			return { status: 400, json: async () => ({ error: 'Pool name already exists' }) } as any;
+			return Response.json({ error: 'Pool name already exists' }, { status: 400 });
 		}
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }

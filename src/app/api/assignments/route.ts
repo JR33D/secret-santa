@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
 export async function GET(request: Request) {
@@ -29,9 +28,9 @@ export async function GET(request: Request) {
 
 		query += ' ORDER BY a.year DESC, g.name';
 
-		const assignments = await db.all(query, params);
-		return { status: 200, json: async () => assignments } as any;
+        const assignments = await db.all(query, params);
+        return Response.json(assignments, { status: 200 });
 	} catch (error: any) {
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }

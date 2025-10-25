@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import nodemailer from 'nodemailer';
 import { getEmailHtml, getEmailSubject } from '@/lib/email-templates';
@@ -8,7 +7,7 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 	const db = await getDb();
 
 	const config = await db.get('SELECT * FROM email_config LIMIT 1');
-	if (!config) return { status: 200, json: async () => ([{ success: false, message: 'Email not configured' }]) } as any;
+	if (!config) return Response.json([{ success: false, message: 'Email not configured' }], { status: 200 });
 
 	const transporter = nodemailer.createTransport({
 		host: config.smtp_server,
@@ -89,5 +88,5 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 		}
 	}
 
-	return { status: 200, json: async () => results } as any;
+	return Response.json(results, { status: 200 });
 }

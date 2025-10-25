@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
 export async function GET(request: Request, { params }: { params: { year: string } }) {
@@ -30,10 +29,10 @@ export async function GET(request: Request, { params }: { params: { year: string
 
 		query += ' ORDER BY g.name';
 
-		const assignments = await db.all(query, queryParams);
-		return { status: 200, json: async () => assignments } as any;
+	const assignments = await db.all(query, queryParams);
+	return Response.json(assignments, { status: 200 });
 	} catch (error: any) {
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+	return Response.json({ error: error.message }, { status: 500 });
 	}
 }
 
@@ -50,8 +49,8 @@ export async function DELETE(request: Request, { params }: { params: { year: str
 			await db.run('DELETE FROM assignments WHERE year = ?', [year]);
 		}
 
-		return { status: 200, json: async () => ({ message: 'Assignments deleted successfully' }) } as any;
+		return Response.json({ message: 'Assignments deleted successfully' }, { status: 200 });
 	} catch (error: any) {
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }

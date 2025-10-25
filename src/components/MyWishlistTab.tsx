@@ -88,7 +88,7 @@ export default function MyWishlistTab() {
         🎁 My Wishlist
       </h2>
       <p className="text-gray-600 mb-4 text-sm">
-        Add items you'd like to receive this year. Your Secret Santa will see this list!
+        Add items you&apos;d like to receive this year. Your Secret Santa will see this list!
       </p>
 
       {/* Add Item Form */}

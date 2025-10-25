@@ -13,7 +13,7 @@ export default function Header() {
           🎅 Family Secret Santa
         </h1>
         <p className="text-gray-600 mb-3">
-          Organize your family's gift exchange with style!
+          Organize your family&apos;s gift exchange with style!
         </p>
       </>
     );
@@ -38,7 +38,7 @@ export default function Header() {
             🎅 Family Secret Santa
           </h1>
           <p className="text-gray-600">
-            Organize your family's gift exchange with style!
+            Organize your family&apos;s gift exchange with style!
           </p>
         </div>
         

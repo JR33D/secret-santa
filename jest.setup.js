@@ -1,6 +1,12 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+import 'whatwg-fetch';
 
+// Node-like polyfills for route tests
+if (typeof global.Request === 'undefined') {
+  const { Request, Response, Headers, fetch } = require('node-fetch');
+  Object.assign(global, { Request, Response, Headers, fetch });
+}
 // Mock Next.js Request/Response for API route tests
 global.Request = class Request {
   constructor(input, init) {
@@ -20,19 +26,12 @@ global.Response = class Response {
   }
 };
 
+// Add a static helper similar to NextResponse.json / Edge Response.json used in Next runtime
+global.Response.json = function (data, init) {
+  return new global.Response(JSON.stringify(data), init || {});
+};
+
 jest.mock('next/server', () => ({
-  NextResponse: {
-    json: jest.fn((body, init) => {
-      const response = {
-        ok: true,
-        status: init?.status || 200,
-        json: async () => body,
-        text: async () => JSON.stringify(body),
-      };
-      return response;
-    }),
-  },
-  // Minimal NextRequest mock for tests that construct NextRequest
   NextRequest: class NextRequest {
     constructor(input, init) {
       this.url = input;

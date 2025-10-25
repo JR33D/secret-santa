@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
 export async function GET() {
@@ -7,17 +6,21 @@ export async function GET() {
     const db = await getDb();
     await db.get("SELECT 1");
 
-    return { status: 200, json: async () => ({
+    return Response.json({
       status: "healthy",
       timestamp: new Date().toISOString(),
       database: "connected",
-    }) } as any;
+    }, { status: 200 });
   } catch (error: any) {
-    return { status: 503, json: async () => ({
-        status: "unhealthy",
-        timestamp: new Date().toISOString(),
-        database: "disconnected",
-        error: error.message,
-      }) } as any;
+    // debug - ensure the fallback path returns what we expect
+    const resp = Response.json({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      database: "disconnected",
+      error: error.message,
+    }, { status: 503 });
+    // eslint-disable-next-line no-console
+    console.log('DEBUG: health catch returned ->', resp);
+    return resp;
   }
 }

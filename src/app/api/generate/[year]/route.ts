@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
 export async function POST(request: Request, { params }: { params: { year: string } }) {
@@ -9,21 +8,21 @@ export async function POST(request: Request, { params }: { params: { year: strin
 		const poolId = searchParams.get('pool_id');
 
 		if (!poolId) {
-			return { status: 400, json: async () => ({ error: 'Pool ID is required' }) } as any;
+			return Response.json({ error: 'Pool ID is required' }, { status: 400 });
 		}
 
 		// Get all people in this pool
 		const people = await db.all('SELECT * FROM people WHERE pool_id = ? ORDER BY id', [parseInt(poolId)]);
 
 		if (people.length < 2) {
-			return { status: 400, json: async () => ({ success: false, message: 'Need at least 2 people in the pool to generate assignments' }) } as any;
+			return Response.json({ success: false, message: 'Need at least 2 people in the pool to generate assignments' }, { status: 400 });
 		}
 
 		// Check if assignments already exist for this year and pool
 		const existing = await db.get('SELECT COUNT(*) as count FROM assignments WHERE year = ? AND pool_id = ?', [year, parseInt(poolId)]);
 
 		if (existing.count > 0) {
-			return { status: 400, json: async () => ({ success: false, message: `Assignments for ${year} in this pool already exist. Delete them first if you want to regenerate.` }) } as any;
+			return Response.json({ success: false, message: `Assignments for ${year} in this pool already exist. Delete them first if you want to regenerate.` }, { status: 400 });
 		}
 
 		// Get restrictions for this pool
@@ -50,7 +49,7 @@ export async function POST(request: Request, { params }: { params: { year: strin
 		const assignments = generateAssignments(people, restrictionMap);
 
 		if (!assignments) {
-			return { status: 400, json: async () => ({ success: false, message: 'Could not generate valid assignments with current restrictions. Try adjusting restrictions.' }) } as any;
+			return Response.json({ success: false, message: 'Could not generate valid assignments with current restrictions. Try adjusting restrictions.' }, { status: 400 });
 		}
 
 		// Save assignments
@@ -58,12 +57,12 @@ export async function POST(request: Request, { params }: { params: { year: strin
 			await db.run('INSERT INTO assignments (year, giver_id, receiver_id, pool_id) VALUES (?, ?, ?, ?)', [year, giverId, receiverId, parseInt(poolId)]);
 		}
 
-		return { status: 200, json: async () => ({
+		return Response.json({
 			success: true,
 			message: `Successfully generated ${assignments.size} assignments for ${year}!`,
-		}) } as any;
+		}, { status: 200 });
 	} catch (error: any) {
-		return { status: 500, json: async () => ({ error: error.message }) } as any;
+		return Response.json({ error: error.message }, { status: 500 });
 	}
 }
 

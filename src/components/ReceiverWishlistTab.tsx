@@ -88,7 +88,7 @@ export default function ReceiverWishlistTab() {
             🎁 No assignment yet for {currentYear}
           </p>
           <p className="text-blue-700 text-sm">
-            Once the Secret Santa assignments are generated, you'll see your recipient's wishlist here!
+            Once the Secret Santa assignments are generated, you&apos;ll see your recipient&apos;s wishlist here!
           </p>
         </div>
       </div>
@@ -117,13 +117,13 @@ export default function ReceiverWishlistTab() {
 
       <div>
         <h3 className="text-indigo-600 text-xl font-semibold mb-3">
-          {assignment.receiver_name}'s Wishlist
+          {assignment.receiver_name}&apos;s Wishlist
         </h3>
 
         {items.length === 0 ? (
           <div className="text-center py-8 bg-gray-50 rounded-lg">
             <p className="text-gray-600">
-              {assignment.receiver_name} hasn't added any items to their wishlist yet.
+              {assignment.receiver_name} hasn&apos;t added any items to their wishlist yet.
             </p>
             <p className="text-sm text-gray-500 mt-2">
               Check back later, or surprise them with something thoughtful! 🎁

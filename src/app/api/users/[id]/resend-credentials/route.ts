@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -12,7 +11,7 @@ export async function POST(
   try {
     const session = await getServerSession(authOptions);
     if (!session || (session.user as any).role !== "admin") {
-      return { status: 403, json: async () => ({ error: "Unauthorized" }) } as any;
+      return Response.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const db = await getDb();
@@ -28,11 +27,11 @@ export async function POST(
     );
 
     if (!user) {
-      return { status: 404, json: async () => ({ error: "User not found" }) } as any;
+      return Response.json({ error: "User not found" }, { status: 404 });
     }
 
     if (!user.person_email) {
-      return { status: 400, json: async () => ({ error: "User has no email address associated" }) } as any;
+      return Response.json({ error: "User has no email address associated" }, { status: 400 });
     }
 
     // Generate new temporary password
@@ -54,7 +53,7 @@ export async function POST(
       const config = await db.get('SELECT * FROM email_config LIMIT 1');
       
       if (!config || !config.smtp_server) {
-        return { status: 400, json: async () => ({ error: "Email not configured. Configure email settings first." }) } as any;
+        return Response.json({ error: "Email not configured. Configure email settings first." }, { status: 400 });
       }
 
       const transporter = nodemailer.createTransport({
@@ -89,7 +88,7 @@ export async function POST(
       emailError = error.message || "Failed to send email";
     }
 
-    return { status: 200, json: async () => ({
+    return Response.json({
       username: user.username,
       tempPassword,
       person_name: user.person_name,
@@ -99,8 +98,8 @@ export async function POST(
       message: emailSent 
         ? "New password generated and emailed successfully" 
         : "New password generated but email failed to send",
-    }) } as any;
+    }, { status: 200 });
   } catch (error: any) {
-    return { status: 500, json: async () => ({ error: error.message }) } as any;
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

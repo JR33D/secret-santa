@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { hashPassword, generatePassword } from "@/lib/auth";
 import { getServerSession } from "next-auth";
@@ -9,7 +8,7 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session || (session.user as any).role !== "admin") {
-      return { status: 403, json: async () => ({ error: "Unauthorized" }) } as any;
+      return Response.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const db = await getDb();
@@ -28,9 +27,9 @@ export async function GET() {
       ORDER BY u.role DESC, u.username
     `);
 
-    return { status: 200, json: async () => users } as any;
+  return Response.json(users, { status: 200 });
   } catch (error: any) {
-    return { status: 500, json: async () => ({ error: error.message }) } as any;
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -38,13 +37,13 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || (session.user as any).role !== "admin") {
-      return { status: 403, json: async () => ({ error: "Unauthorized" }) } as any;
+      return Response.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const { person_id } = await request.json();
 
     if (!person_id) {
-      return { status: 400, json: async () => ({ error: "Person ID is required" }) } as any;
+      return Response.json({ error: "Person ID is required" }, { status: 400 });
     }
 
     const db = await getDb();
@@ -55,7 +54,7 @@ export async function POST(request: Request) {
     ]);
 
     if (!person) {
-      return { status: 404, json: async () => ({ error: "Person not found" }) } as any;
+      return Response.json({ error: "Person not found" }, { status: 404 });
     }
 
     // Check if user already exists for this person
@@ -65,7 +64,7 @@ export async function POST(request: Request) {
     );
 
     if (existingUser) {
-      return { status: 400, json: async () => ({ error: "User already exists for this person" }) } as any;
+      return Response.json({ error: "User already exists for this person" }, { status: 400 });
     }
 
     // Generate username from person's name (lowercase, no spaces)
@@ -134,7 +133,7 @@ export async function POST(request: Request) {
       emailError = error.message || "Failed to send email";
     }
 
-    return { status: 200, json: async () => ({
+    return Response.json({
       id: result.lastID,
       username,
       tempPassword,
@@ -145,8 +144,8 @@ export async function POST(request: Request) {
       message: emailSent 
         ? "User created and credentials emailed successfully" 
         : "User created but email failed to send",
-    }) } as any;
+    }, { status: 200 });
   } catch (error: any) {
-    return { status: 500, json: async () => ({ error: error.message }) } as any;
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
