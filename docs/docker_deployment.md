@@ -131,6 +131,63 @@ docker-compose -f docker-compose.prod.yml up -d
 | `DB_DIR`   | /app/data                 | SQLite database directory |
 | `DB_PATH`  | /app/data/secret_santa.db | Full database path        |
 
+### SMTP / Email Environment Variables
+
+This project now sources SMTP configuration from environment variables (do not store SMTP credentials in the database).
+
+| Variable       | Default | Description |
+| -------------- | ------- | ----------- |
+| `SMTP_SERVER`  | (none)  | SMTP host (required in production)
+| `SMTP_PORT`    | 587     | SMTP port (defaults to 587)
+| `SMTP_USERNAME`| (none)  | Optional SMTP username
+| `SMTP_PASSWORD`| (none)  | SMTP password — prefer Docker secrets or CI secrets in production
+| `FROM_EMAIL`   | (none)  | The "from" address for outgoing emails (required)
+
+If these variables are not set, email-related API endpoints will return an informative error. Tests and local development can set these variables via a `.env` file or your shell.
+
+### Using Docker secrets for SMTP_PASSWORD (recommended)
+
+For production, avoid passing sensitive secrets via plain environment variables. Use Docker secrets (or your orchestrator's secret manager) and mount them into the container.
+
+Example `docker-compose.prod.yml` snippet (see also `docker-compose.yml` in the repo):
+
+```yaml
+services:
+  secret-santa:
+    image: ghcr.io/YOUR-USERNAME/YOUR-REPO:latest
+    environment:
+      - NODE_ENV=production
+      - DB_DIR=/app/data
+      - SMTP_SERVER=smtp.example.com
+      - FROM_EMAIL=noreply@example.com
+    secrets:
+      - smtp_password
+      - nextauth_secret
+      - admin_password
+
+secrets:
+  smtp_password:
+    file: ./secrets/smtp_password.txt
+  nextauth_secret:
+    file: ./secrets/nextauth_secret.txt
+  admin_password:
+    file: ./secrets/admin_password.txt
+```
+
+Inside the container the secret files will be available at `/run/secrets/<name>` — for example `/run/secrets/smtp_password`. If you use this approach you can set `SMTP_PASSWORD` inside the container startup script by reading the file and exporting it as an environment variable before starting the Node process. This keeps secrets out of process listings and Docker inspect output.
+
+Example startup wrapper (simple):
+
+```sh
+if [ -f /run/secrets/smtp_password ]; then
+  export SMTP_PASSWORD=$(cat /run/secrets/smtp_password)
+fi
+node server.js
+```
+
+Or, if you prefer not to export env vars, adapt the application to read `/run/secrets/smtp_password` directly when building the SMTP transport.
+
+
 ## Data Persistence
 
 The SQLite database is stored in `/app/data` inside the container. **Always** mount this as a volume to persist data between container restarts:

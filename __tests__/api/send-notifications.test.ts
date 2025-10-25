@@ -53,17 +53,25 @@ describe('Send Notifications API Route', () => {
 		];
 
 		it('returns error when email not configured', async () => {
-			mockDb.get.mockResolvedValue(null);
+			// Ensure no env config is set
+			delete process.env.SMTP_SERVER;
+			delete process.env.FROM_EMAIL;
 
 			const req = {} as any;
 			const response = await POST(req, { params: { year: '2024' } });
 			const json = await response.json();
 
-			expect(json).toEqual([{ success: false, message: 'Email not configured' }]);
+			expect(json).toEqual([{ success: false, message: 'Email not configured (set SMTP_SERVER and FROM_EMAIL in env)' }]);
 		});
 
 		it('sends emails to all givers successfully', async () => {
-			mockDb.get.mockResolvedValueOnce(mockConfig);
+			// Provide env config
+			process.env.SMTP_SERVER = mockConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockConfig.smtp_password;
+			process.env.FROM_EMAIL = mockConfig.from_email;
+
 			mockDb.all.mockResolvedValueOnce(mockAssignments);
 			mockDb.all.mockResolvedValue([]); // No wishlist items
 
@@ -101,7 +109,12 @@ describe('Send Notifications API Route', () => {
 				{ item_name: 'Gadget', link: null, image_url: 'https://example.com/gadget.jpg' },
 			];
 
-			mockDb.get.mockResolvedValueOnce(mockConfig);
+			process.env.SMTP_SERVER = mockConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockConfig.smtp_password;
+			process.env.FROM_EMAIL = mockConfig.from_email;
+
 			mockDb.all.mockResolvedValueOnce([mockAssignments[0]]).mockResolvedValueOnce(wishlistItems); // Wishlist for receiver
 
 			const req = {} as any;
@@ -115,7 +128,12 @@ describe('Send Notifications API Route', () => {
 		});
 
 		it('sends email without wishlist section when empty', async () => {
-			mockDb.get.mockResolvedValueOnce(mockConfig);
+			process.env.SMTP_SERVER = mockConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockConfig.smtp_password;
+			process.env.FROM_EMAIL = mockConfig.from_email;
+
 			mockDb.all.mockResolvedValueOnce([mockAssignments[0]]).mockResolvedValueOnce([]); // No wishlist items
 
 			const req = {} as any;
@@ -126,7 +144,12 @@ describe('Send Notifications API Route', () => {
 		});
 
 		it('handles email send failures gracefully', async () => {
-			mockDb.get.mockResolvedValueOnce(mockConfig);
+			process.env.SMTP_SERVER = mockConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockConfig.smtp_password;
+			process.env.FROM_EMAIL = mockConfig.from_email;
+
 			mockDb.all.mockResolvedValueOnce([mockAssignments[0]]).mockResolvedValue([]);
 
 			mockTransporter.sendMail.mockRejectedValue(new Error('SMTP Error'));
@@ -144,7 +167,12 @@ describe('Send Notifications API Route', () => {
 		});
 
 		it('continues sending emails after individual failures', async () => {
-			mockDb.get.mockResolvedValueOnce(mockConfig);
+			process.env.SMTP_SERVER = mockConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockConfig.smtp_password;
+			process.env.FROM_EMAIL = mockConfig.from_email;
+
 			mockDb.all.mockResolvedValueOnce(mockAssignments).mockResolvedValue([]);
 
 			mockTransporter.sendMail.mockRejectedValueOnce(new Error('Failed for Alice')).mockResolvedValueOnce({ messageId: 'success' });
@@ -159,7 +187,12 @@ describe('Send Notifications API Route', () => {
 		});
 
 		it('formats email correctly', async () => {
-			mockDb.get.mockResolvedValueOnce(mockConfig);
+			process.env.SMTP_SERVER = mockConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockConfig.smtp_password;
+			process.env.FROM_EMAIL = mockConfig.from_email;
+
 			mockDb.all.mockResolvedValueOnce([mockAssignments[0]]).mockResolvedValue([]);
 
 			const req = {} as any;
@@ -175,7 +208,12 @@ describe('Send Notifications API Route', () => {
 		});
 
 		it('queries assignments for specific year', async () => {
-			mockDb.get.mockResolvedValueOnce(mockConfig);
+			process.env.SMTP_SERVER = mockConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockConfig.smtp_password;
+			process.env.FROM_EMAIL = mockConfig.from_email;
+
 			mockDb.all.mockResolvedValue([]);
 
 			const req = {} as any;

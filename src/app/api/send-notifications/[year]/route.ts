@@ -1,19 +1,23 @@
 import { getDb } from '@/lib/db';
 import nodemailer from 'nodemailer';
 import { getEmailHtml, getEmailSubject } from '@/lib/email-templates';
+import { getEnvEmailConfig, isEmailConfigValid } from '@/lib/email-config';
 
 export async function POST(req: Request, { params }: { params: { year: string } }) {
 	const year = parseInt(params.year);
 	const db = await getDb();
 
-	const config = await db.get('SELECT * FROM email_config LIMIT 1');
-	if (!config) return Response.json([{ success: false, message: 'Email not configured' }], { status: 200 });
+	// Env-only email configuration: read config from environment variables.
+	const envCfg = getEnvEmailConfig();
+	if (!isEmailConfigValid(envCfg)) {
+		return Response.json([{ success: false, message: 'Email not configured (set SMTP_SERVER and FROM_EMAIL in env)' }], { status: 200 });
+	}
 
 	const transporter = nodemailer.createTransport({
-		host: config.smtp_server,
-		port: config.smtp_port,
+		host: envCfg!.smtp_server,
+		port: envCfg!.smtp_port,
 		secure: false,
-		auth: { user: config.smtp_username, pass: config.smtp_password },
+		auth: { user: envCfg!.smtp_username ?? undefined, pass: envCfg!.smtp_password ?? undefined },
 	});
 
 	const assignments = await db.all(
@@ -76,7 +80,7 @@ export async function POST(req: Request, { params }: { params: { year: string } 
 			});
 
 			await transporter.sendMail({
-				from: config.from_email,
+				from: envCfg!.from_email as string,
 				to: assignment.giver_email,
 				subject: subject,
 				html: emailHtml,

@@ -1,34 +1,23 @@
-import { getDb } from '@/lib/db';
+// Email configuration is managed via environment variables only for this deployment model.
+// GET returns the current env values (if present). POST is not allowed — configuration
+// must be changed via environment/secret management and redeploy or container update.
 
 export async function GET() {
-	const db = await getDb();
-	const row = await db.get('SELECT smtp_server, smtp_port, smtp_username, from_email FROM email_config LIMIT 1');
-	return Response.json(row || {}, { status: 200 });
+	if (process.env.SMTP_SERVER) {
+		return Response.json(
+			{
+				smtp_server: process.env.SMTP_SERVER,
+				smtp_port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587,
+				smtp_username: process.env.SMTP_USERNAME || null,
+				from_email: process.env.FROM_EMAIL || null,
+				source: 'env',
+			},
+			{ status: 200 },
+		);
+	}
+	return Response.json({}, { status: 200 });
 }
 
-export async function POST(req: Request) {
-	const db = await getDb();
-	const body = await req.json();
-	const { smtp_server, smtp_port, smtp_username, smtp_password, from_email } = body;
-	const row = await db.get('SELECT id FROM email_config LIMIT 1');
-	if (row) {
-		await db.run('UPDATE email_config SET smtp_server = ?, smtp_port = ?, smtp_username = ?, smtp_password = ?, from_email = ? WHERE id = ?', [
-			smtp_server,
-			smtp_port,
-			smtp_username,
-			smtp_password,
-			from_email,
-			row.id,
-		]);
-		return Response.json({ success: true }, { status: 200 });
-	} else {
-		const res = await db.run('INSERT INTO email_config (smtp_server, smtp_port, smtp_username, smtp_password, from_email) VALUES (?, ?, ?, ?, ?)', [
-			smtp_server,
-			smtp_port,
-			smtp_username,
-			smtp_password,
-			from_email,
-		]);
-		return Response.json({ success: true }, { status: 200 });
-	}
+export async function POST() {
+	return Response.json({ error: 'Email configuration is managed via environment variables in this deployment; POST is disabled.' }, { status: 403 });
 }

@@ -76,7 +76,6 @@ describe('Database Module', () => {
 			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS restrictions');
 			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS assignments');
 			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS wishlist_items');
-			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS email_config');
 			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS users');
 		});
 
@@ -274,14 +273,7 @@ describe('Database Module', () => {
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
-			const emailTable = execCall.match(/CREATE TABLE IF NOT EXISTS email_config \(([\s\S]*?)\);/)[1];
-
-			expect(emailTable).toContain('id INTEGER PRIMARY KEY AUTOINCREMENT');
-			expect(emailTable).toContain('smtp_server TEXT NOT NULL');
-			expect(emailTable).toContain('smtp_port INTEGER NOT NULL');
-			expect(emailTable).toContain('smtp_username TEXT NOT NULL');
-			expect(emailTable).toContain('smtp_password TEXT NOT NULL');
-			expect(emailTable).toContain('from_email TEXT NOT NULL');
+			// email_config table is no longer created; SMTP is managed via environment variables
 		});
 	});
 });

@@ -39,41 +39,39 @@ export default function EmailTab() {
 	return (
 		<div>
 			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">Email Configuration</h2>
+			<p className="mb-4 text-sm text-gray-700">This deployment manages SMTP configuration via environment variables. Fields are read-only. To change settings update container environment / secrets and redeploy.</p>
 			<div className="grid md:grid-cols-2 gap-4">
 				<div>
 					<label htmlFor="smtp-server-input" className="font-semibold block mb-1">
 						SMTP Server
 					</label>
-					<input id="smtp-server-input" className="w-full p-2 border rounded" value={smtpServer} onChange={(e) => setSmtpServer(e.target.value)} />
+					<input id="smtp-server-input" className="w-full p-2 border rounded bg-gray-100" value={smtpServer} readOnly />
 				</div>
 				<div>
 					<label htmlFor="smtp-port-input" className="font-semibold block mb-1">
 						SMTP Port
 					</label>
-					<input id="smtp-port-input" type="number" className="w-full p-2 border rounded" value={smtpPort} onChange={(e) => setSmtpPort(Number(e.target.value))} />
+					<input id="smtp-port-input" type="number" className="w-full p-2 border rounded bg-gray-100" value={smtpPort} readOnly />
 				</div>
 				<div>
 					<label htmlFor="smtp-username-input" className="font-semibold block mb-1">
 						Username
 					</label>
-					<input id="smtp-username-input" className="w-full p-2 border rounded" value={smtpUsername} onChange={(e) => setSmtpUsername(e.target.value)} />
+					<input id="smtp-username-input" className="w-full p-2 border rounded bg-gray-100" value={smtpUsername} readOnly />
 				</div>
 				<div>
 					<label htmlFor="smtp-password-input" className="font-semibold block mb-1">
 						Password
 					</label>
-					<input id="smtp-password-input" type="password" className="w-full p-2 border rounded" value={smtpPassword} onChange={(e) => setSmtpPassword(e.target.value)} />
+					<input id="smtp-password-input" type="password" className="w-full p-2 border rounded bg-gray-100" value={smtpPassword} readOnly />
 				</div>
 				<div>
 					<label htmlFor="smtp-from-email-input" className="font-semibold block mb-1">
 						From Email
 					</label>
-					<input id="smtp-from-email-input" className="w-full p-2 border rounded" value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} />
+					<input id="smtp-from-email-input" className="w-full p-2 border rounded bg-gray-100" value={fromEmail} readOnly />
 				</div>
 			</div>
-			<button onClick={save} className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-				Save Configuration
-			</button>
 		</div>
 	);
 }
