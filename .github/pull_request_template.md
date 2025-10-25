@@ -20,15 +20,16 @@
 ## Related Issues
 
 <!-- Link to related issues -->
+
 Closes #(issue number)
 
 ## Changes Made
 
 <!-- List the main changes -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Screenshots/Videos
 

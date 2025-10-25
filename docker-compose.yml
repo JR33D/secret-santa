@@ -7,78 +7,15 @@ services:
    dockerfile: Dockerfile
   image: secret-santa-app:latest
   container_name: secret-santa
-  ports:
-   - '3000:3000'
-  volumes:
-   # Persist database between container restarts
-   - secret-santa-data:/app/data
-  environment:
-   - NODE_ENV=production
-   - DB_DIR=/app/data
-   - PORT=3000
-   # Authentication
-   - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-   - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+  # This repository now provides two Docker Compose files:
+  # - docker-compose.prod.yml  (production-ready, uses env + optional Docker secrets)
+  # - docker-compose.dev.yml   (development-friendly, mounts source and runs the dev server)
+  #
+  # To run development:
+  #   docker compose -f docker-compose.dev.yml up --build
+  #
+  # To run production (build & run image):
+  #   docker compose -f docker-compose.prod.yml up --build -d
 
-   # Admin Credentials
-   - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-   - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-
-   # Optional: Email Configuration (can also be set in app)
-  # SMTP configuration (recommended to set via environment or Docker secrets in production)
-  # Required: SMTP_SERVER and FROM_EMAIL. SMTP_PORT defaults to 587 if omitted.
-  - SMTP_SERVER=${SMTP_SERVER:-}
-  - SMTP_PORT=${SMTP_PORT:-587}
-  - SMTP_USERNAME=${SMTP_USERNAME:-}
-  # For production, prefer providing passwords via Docker secrets (see below)
-  - SMTP_PASSWORD=${SMTP_PASSWORD:-}
-  - FROM_EMAIL=${FROM_EMAIL:-}
-  restart: unless-stopped
-  healthcheck:
-   test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
-   interval: 30s
-   timeout: 10s
-   retries: 3
-   start_period: 40s
-# Example (recommended for production): use Docker secrets for sensitive values
-# secrets:
-#   nextauth_secret:
-#     file: ./secrets/nextauth_secret.txt
-#   admin_password:
-#     file: ./secrets/admin_password.txt
-#   smtp_password:
-#     file: ./secrets/smtp_password.txt
-
-volumes:
- secret-santa-data:
-  driver: local
-# Notes on secrets vs env vars:
-# - Environment variables are convenient for development and CI (set via CI secrets or .env files).
-# - Docker secrets are more secure in production; they avoid storing sensitive values in the image or process list.
-# - In Compose v3, you can reference secrets in the service and mount them into the container; inside the container
-#   secrets are available as files under /run/secrets/<name>. The application must read them (examples below).
-
-# Quick example (use in production with docker swarm or compose that supports secrets):
-# In this docker-compose.prod.yml, reference secrets in the service and provide files on the host:
-#
-# version: '3.8'
-# services:
-#   secret-santa:
-#     image: ghcr.io/YOUR-USERNAME/YOUR-REPO:latest
-#     environment:
-#       - NODE_ENV=production
-#       - DB_DIR=/app/data
-#       - SMTP_SERVER=smtp.example.com
-#       - FROM_EMAIL=noreply@example.com
-#       # Note: do not put passwords here in production; use secrets instead
-#     secrets:
-#       - smtp_password
-#       - nextauth_secret
-#       - admin_password
-# secrets:
-#   smtp_password:
-#     file: ./secrets/smtp_password.txt
-#   nextauth_secret:
-#     file: ./secrets/nextauth_secret.txt
-#   admin_password:
-#     file: ./secrets/admin_password.txt
+  # The original configuration has been moved into the two files above. Pick the one
+  # that fits your use case. See their headers for details.

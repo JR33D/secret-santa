@@ -312,7 +312,7 @@ describe('Users API Routes', () => {
 		});
 	});
 
-		describe('POST /api/users/[id]/resend-credentials', () => {
+	describe('POST /api/users/[id]/resend-credentials', () => {
 		const mockUser = {
 			id: 5,
 			username: 'johndoe',
@@ -328,30 +328,30 @@ describe('Users API Routes', () => {
 			from_email: 'noreply@example.com',
 		};
 
-			it('generates new password and sends email', async () => {
-				mockDb.get.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(null);
-				mockDb.run.mockResolvedValue({ changes: 1 });
+		it('generates new password and sends email', async () => {
+			mockDb.get.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(null);
+			mockDb.run.mockResolvedValue({ changes: 1 });
 
-				// Provide env SMTP config
-				process.env.SMTP_SERVER = mockEmailConfig.smtp_server;
-				process.env.SMTP_PORT = String(mockEmailConfig.smtp_port);
-				process.env.SMTP_USERNAME = mockEmailConfig.smtp_username;
-				process.env.SMTP_PASSWORD = mockEmailConfig.smtp_password;
-				process.env.FROM_EMAIL = mockEmailConfig.from_email;
+			// Provide env SMTP config
+			process.env.SMTP_SERVER = mockEmailConfig.smtp_server;
+			process.env.SMTP_PORT = String(mockEmailConfig.smtp_port);
+			process.env.SMTP_USERNAME = mockEmailConfig.smtp_username;
+			process.env.SMTP_PASSWORD = mockEmailConfig.smtp_password;
+			process.env.FROM_EMAIL = mockEmailConfig.from_email;
 
-				const req = {} as any;
-				const response = await ResendCredentials(req, { params: { id: '5' } });
-				const json = await response.json();
+			const req = {} as any;
+			const response = await ResendCredentials(req, { params: { id: '5' } });
+			const json = await response.json();
 
-				expect(mockDb.run).toHaveBeenCalledWith('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?', [expect.any(String), 5]);
-				expect(json).toMatchObject({
-					username: 'johndoe',
-					person_name: 'John Doe',
-					person_email: 'john@example.com',
-					emailSent: true,
-				});
-				expect(json.tempPassword).toBeDefined();
+			expect(mockDb.run).toHaveBeenCalledWith('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?', [expect.any(String), 5]);
+			expect(json).toMatchObject({
+				username: 'johndoe',
+				person_name: 'John Doe',
+				person_email: 'john@example.com',
+				emailSent: true,
 			});
+			expect(json.tempPassword).toBeDefined();
+		});
 
 		it('returns 404 when user not found', async () => {
 			mockDb.get.mockResolvedValue(null);
@@ -378,24 +378,24 @@ describe('Users API Routes', () => {
 			expect(json).toEqual({ error: 'User has no email address associated' });
 		});
 
-			it('returns 400 when email not configured', async () => {
-				mockDb.get.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(null);
+		it('returns 400 when email not configured', async () => {
+			mockDb.get.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(null);
 
-				const req = {} as any;
+			const req = {} as any;
 
-				// Ensure no SMTP env vars are present for this test
-				delete process.env.SMTP_SERVER;
-				delete process.env.SMTP_PORT;
-				delete process.env.SMTP_USERNAME;
-				delete process.env.SMTP_PASSWORD;
-				delete process.env.FROM_EMAIL;
+			// Ensure no SMTP env vars are present for this test
+			delete process.env.SMTP_SERVER;
+			delete process.env.SMTP_PORT;
+			delete process.env.SMTP_USERNAME;
+			delete process.env.SMTP_PASSWORD;
+			delete process.env.FROM_EMAIL;
 
-				const response = await ResendCredentials(req, { params: { id: '5' } });
-				const json = await response.json();
+			const response = await ResendCredentials(req, { params: { id: '5' } });
+			const json = await response.json();
 
-				expect(response.status).toBe(400);
-				expect(json).toEqual({ error: 'Email not configured. Set SMTP_SERVER and FROM_EMAIL in env' });
-			});
+			expect(response.status).toBe(400);
+			expect(json).toEqual({ error: 'Email not configured. Set SMTP_SERVER and FROM_EMAIL in env' });
+		});
 
 		it('returns 403 when not admin', async () => {
 			(getServerSession as jest.Mock).mockResolvedValue({

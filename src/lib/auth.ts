@@ -38,7 +38,6 @@ export async function authorizeCredentials(credentials: any) {
 	};
 }
 
-
 export const authOptions: NextAuthOptions = {
 	providers: [
 		CredentialsProvider({
