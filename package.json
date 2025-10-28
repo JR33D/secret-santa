@@ -1,6 +1,6 @@
 {
 	"name": "secret-santa-app",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"description": "Family Secret Santa application with Node.js and SQLite",
 	"private": true,
 	"scripts": {
