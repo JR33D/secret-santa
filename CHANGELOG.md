@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/JR33D/secret-santa/compare/v1.1.1...v1.2.0) (2025-10-28)
+
+
+### Features
+
+* **branding:** add Secret Santa project logo ([a78cb6e](https://github.com/JR33D/secret-santa/commit/a78cb6e57049b0e5a98e46cfdc8f5ab3ca67c5be))
+* **docs:** add comprehensive user and deployment guides ([bd3e6d8](https://github.com/JR33D/secret-santa/commit/bd3e6d86d9af8a1dfe5c91bc340e9cc8d5f7c1d1))
+
 ## [1.1.1](https://github.com/JR33D/secret-santa/compare/v1.1.0...v1.1.1) (2025-10-25)
 
 
