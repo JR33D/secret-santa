@@ -1,5 +1,6 @@
-'use client';
+ 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -43,7 +44,10 @@ export default function LoginPage() {
 		<div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-700 flex items-center justify-center p-6">
 			<div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
 				<div className="text-center mb-8">
-					<h1 className="text-4xl font-extrabold text-indigo-600 mb-2">🎅 Secret Santa</h1>
+					<div className="inline-flex items-center justify-center gap-3 mb-2">
+						<Image src="/images/logo_transparent.png" alt="Secret Santa" width={48} height={48} />
+						<h1 className="text-4xl font-extrabold text-indigo-600 mb-0">Secret Santa</h1>
+					</div>
 					<p className="text-gray-600">Sign in to continue</p>
 				</div>
 

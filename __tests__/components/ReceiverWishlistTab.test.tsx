@@ -47,7 +47,7 @@ describe('ReceiverWishlistTab Component', () => {
 		render(<ReceiverWishlistTab />);
 
 		await waitFor(() => {
-			expect(screen.getByText('🎅 Their Wishlist')).toBeInTheDocument();
+			expect(screen.getByText('Their Wishlist')).toBeInTheDocument();
 		});
 	});
 

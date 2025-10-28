@@ -1,6 +1,7 @@
 'use client';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function Header() {
 	const { data: session } = useSession();
@@ -9,7 +10,10 @@ export default function Header() {
 	if (!session) {
 		return (
 			<>
-				<h1 className="text-indigo-600 text-4xl font-extrabold mb-2">🎅 Family Secret Santa</h1>
+				<div className="flex items-center justify-center gap-3 mb-2">
+					<Image src="/images/logo_transparent.png" alt="Logo" width={48} height={48} />
+					<h1 className="text-indigo-600 text-4xl font-extrabold">Family Secret Santa</h1>
+				</div>
 				<p className="text-gray-600 mb-3">Organize your family&apos;s gift exchange with style!</p>
 			</>
 		);
@@ -30,7 +34,10 @@ export default function Header() {
 		<>
 			<div className="flex justify-between items-start mb-2">
 				<div>
-					<h1 className="text-indigo-600 text-4xl font-extrabold">🎅 Family Secret Santa</h1>
+					<div className="flex items-center gap-3">
+						<Image src="/images/logo_transparent.png" alt="Logo" width={64} height={64} />
+						<h1 className="text-indigo-600 text-4xl font-extrabold">Family Secret Santa</h1>
+					</div>
 					<p className="text-gray-600">Organize your family&apos;s gift exchange with style!</p>
 				</div>
 

@@ -43,7 +43,7 @@ export default function Page() {
 	// User tabs
 	const userTabs = [
 		{ id: 'my-wishlist', label: '🎁 My Wishlist' },
-		{ id: 'receiver-wishlist', label: '🎅 Their Wishlist' },
+		{ id: 'receiver-wishlist', label: 'Their Wishlist' },
 	];
 
 	const tabs = isAdmin ? adminTabs : userTabs;

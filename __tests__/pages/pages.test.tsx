@@ -34,7 +34,7 @@ describe('Page Components', () => {
 		it('renders login form', () => {
 			render(<LoginPage />);
 
-			expect(screen.getByText('🎅 Secret Santa')).toBeInTheDocument();
+			expect(screen.getByText('Secret Santa')).toBeInTheDocument();
 			expect(screen.getByText('Sign in to continue')).toBeInTheDocument();
 			expect(screen.getByLabelText('Username')).toBeInTheDocument();
 			expect(screen.getByLabelText('Password')).toBeInTheDocument();
@@ -186,7 +186,7 @@ describe('Page Components', () => {
 			render(<HomePage />);
 
 			expect(screen.getByText('🎁 My Wishlist')).toBeInTheDocument();
-			expect(screen.getByText('🎅 Their Wishlist')).toBeInTheDocument();
+			expect(screen.getByText('Their Wishlist')).toBeInTheDocument();
 
 			// Should not show admin tabs
 			expect(screen.queryByText('🏊 Pools')).not.toBeInTheDocument();

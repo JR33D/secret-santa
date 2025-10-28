@@ -1,5 +1,6 @@
-'use client';
+ 'use client';
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { apiGet } from '@/lib/api';
 
@@ -78,7 +79,12 @@ export default function ReceiverWishlistTab() {
 	if (!assignment) {
 		return (
 			<div>
-				<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">🎅 Their Wishlist</h2>
+				<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">
+					<span className="inline-flex items-center gap-3">
+						<Image src="/images/logo_transparent.png" alt="Logo" width={28} height={28} />
+						<span>Their Wishlist</span>
+					</span>
+				</h2>
 				<div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-lg text-center">
 					<p className="text-blue-800 text-lg mb-2">🎁 No assignment yet for {currentYear}</p>
 					<p className="text-blue-700 text-sm">Once the Secret Santa assignments are generated, you&apos;ll see your recipient&apos;s wishlist here!</p>
@@ -89,7 +95,12 @@ export default function ReceiverWishlistTab() {
 
 	return (
 		<div>
-			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">🎅 Their Wishlist</h2>
+			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">
+				<span className="inline-flex items-center gap-3">
+					<Image src="/images/logo_transparent.png" alt="Logo" width={28} height={28} />
+					<span>Their Wishlist</span>
+				</span>
+			</h2>
 
 			<div className="bg-gradient-to-r from-green-50 to-red-50 border-2 border-green-300 p-6 rounded-lg mb-6">
 				<div className="text-center">

@@ -7,9 +7,9 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-> 🎅 Organize your family's Secret Santa gift exchange with ease!
+<img src="public/images/logo_transparent.png" alt="Secret Santa" width="28" style="vertical-align: middle; margin-right: 8px;" /> Organize your family's Secret Santa gift exchange with ease!
 
-Family Secret Santa is a self-hosted web application that helps manage gift exchanges with features like wishlist management, assignment generation with constraints, email notifications, and assignment history tracking.
+Secret Santa is a self-hosted web application that helps manage gift exchanges with features like wishlist management, assignment generation with constraints, email notifications, and assignment history tracking.
 
 ---
 
@@ -155,7 +155,6 @@ See our [Contributing Guide](docs/CONTRIBUTING.md) for detailed instructions.
 
 - 🐛 [Report a bug](https://github.com/JR33D/secret-santa/issues/new?template=bug_report.yml)
 - ✨ [Request a feature](https://github.com/JR33D/secret-santa/issues/new?template=feature_request.yml)
-- 💬 [Start a discussion](https://github.com/JR33D/secret-santa/discussions)
 
 ---
 
@@ -219,6 +218,6 @@ If you find this project helpful, please consider:
 
 **Made with ❤️ for easier gift exchanges**
 
-[Documentation](docs/) · [Report Bug](https://github.com/JR33D/secret-santa/issues) · [Request Feature](https://github.com/JR33D/secret-santa/issues) · [Discussions](https://github.com/JR33D/secret-santa/discussions)
+[Documentation](docs/) · [Report Bug](https://github.com/JR33D/secret-santa/issues) · [Request Feature](https://github.com/JR33D/secret-santa/issues)
 
 </div>

@@ -22,7 +22,7 @@ describe('Header Component', () => {
 
 		render(<Header />);
 
-		expect(screen.getByText('🎅 Family Secret Santa')).toBeInTheDocument();
+	expect(screen.getByText('Family Secret Santa')).toBeInTheDocument();
 		expect(screen.getByText(/Organize your family's gift exchange/i)).toBeInTheDocument();
 	});
 
