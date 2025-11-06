@@ -18,10 +18,10 @@
 		"test:ci": "jest --ci --coverage --maxWorkers=2"
 	},
 	"dependencies": {
-		"bcryptjs": "^3.0.2",
+		"bcryptjs": "^3.0.3",
 		"dotenv": "^17.2.3",
 		"next": "^14.2.33",
-		"next-auth": "^4.24.11",
+		"next-auth": "^4.24.13",
 		"nodemailer": "^6.9.13",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
@@ -33,7 +33,7 @@
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.0",
 		"@testing-library/user-event": "^14.6.1",
-		"@types/bcryptjs": "^2.4.6",
+		"@types/bcryptjs": "^3.0.0",
 		"@types/jest": "^30.0.0",
 		"@types/node": "24.7.2",
 		"@types/nodemailer": "^7.0.2",
