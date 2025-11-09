@@ -102,7 +102,12 @@ describe('Restrictions Management Page', () => {
 		await waitFor(() => {
 			fireEvent.change(screen.getByLabelText('Select Pool'), { target: { value: '1' } });
 		});
-		await screen.findByText((content) => content.includes('Alice') && content.includes('Bob') && content.includes('❌')); // Wait for restrictions to load
+		
+		// Wait for restrictions to load - look for the restriction components
+		await waitFor(() => {
+			expect(screen.getByText(/Alice/i, { selector: 'strong' })).toBeInTheDocument();
+			expect(screen.getByText(/Bob/i, { selector: 'strong' })).toBeInTheDocument();
+		});
 
 		fireEvent.click(screen.getByRole('button', { name: /Delete/i }));
 

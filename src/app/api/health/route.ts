@@ -25,8 +25,6 @@ export async function GET() {
 			},
 			{ status: 503 },
 		);
-		// eslint-disable-next-line no-console
-		console.log('DEBUG: health catch returned ->', resp);
 		return resp;
 	}
 }
