@@ -1,23 +1,25 @@
 'use client';
-import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import Tabs from '@/components/Tabs';
-import PeopleTab from '@/components/PeopleTab';
-import PoolsTab from '@/components/PoolsTab';
-import WishlistTab from '@/components/WishlistTab';
-import RestrictionsTab from '@/components/RestrictionsTab';
-import GenerateTab from '@/components/GenerateTab';
-import HistoryTab from '@/components/HistoryTab';
-import EmailTab from '@/components/EmailTab';
-import UsersTab from '@/components/UsersTab';
-import MyWishlistTab from '@/components/MyWishlistTab';
-import ReceiverWishlistTab from '@/components/ReceiverWishlistTab';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-	const { data: session } = useSession();
-	const [active, setActive] = useState('');
+	const { data: session, status } = useSession();
 
-	if (!session) {
+	useEffect(() => {
+		if (status === 'authenticated' && session) {
+			const user = session.user as any;
+			const isAdmin = user.role === 'admin';
+
+			if (isAdmin) {
+				redirect('/pools'); // Redirect to the first admin tab
+			} else {
+				redirect('/my-wishlist'); // Redirect to the first user tab
+			}
+		}
+	}, [session, status]);
+
+	if (status === 'loading') {
 		return (
 			<div className="text-center py-8">
 				<p className="text-gray-600">Loading...</p>
@@ -25,60 +27,5 @@ export default function Page() {
 		);
 	}
 
-	const user = session.user as any;
-	const isAdmin = user.role === 'admin';
-
-	// Admin tabs
-	const adminTabs = [
-		{ id: 'pools', label: '🏊 Pools' },
-		{ id: 'people', label: '👥 People' },
-		{ id: 'users', label: '🔐 Users' },
-		{ id: 'wishlist', label: '🎁 Wishlists' },
-		{ id: 'restrictions', label: '🚫 Restrictions' },
-		{ id: 'generate', label: '✨ Generate' },
-		{ id: 'history', label: '📊 History' },
-		{ id: 'email', label: '📧 Email Config' },
-	];
-
-	// User tabs
-	const userTabs = [
-		{ id: 'my-wishlist', label: '🎁 My Wishlist' },
-		{ id: 'receiver-wishlist', label: 'Their Wishlist' },
-	];
-
-	const tabs = isAdmin ? adminTabs : userTabs;
-
-	// Set default active tab
-	if (!active) {
-		setActive(tabs[0].id);
-	}
-
-	return (
-		<>
-			<Tabs tabs={tabs} active={active} onChange={setActive} />
-			<div>
-				{/* Admin tabs */}
-				{isAdmin && (
-					<>
-						{active === 'pools' && <PoolsTab />}
-						{active === 'people' && <PeopleTab />}
-						{active === 'users' && <UsersTab />}
-						{active === 'wishlist' && <WishlistTab />}
-						{active === 'restrictions' && <RestrictionsTab />}
-						{active === 'generate' && <GenerateTab />}
-						{active === 'history' && <HistoryTab />}
-						{active === 'email' && <EmailTab />}
-					</>
-				)}
-
-				{/* User tabs */}
-				{!isAdmin && (
-					<>
-						{active === 'my-wishlist' && <MyWishlistTab />}
-						{active === 'receiver-wishlist' && <ReceiverWishlistTab />}
-					</>
-				)}
-			</div>
-		</>
-	);
+	return null; // Or a loading spinner if preferred
 }

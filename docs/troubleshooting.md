@@ -292,6 +292,7 @@ docker-compose exec secret-santa nc -zv smtp.gmail.com 587
    - Enable "Less secure app access" (if applicable)
 
 2. **Check SMTP server:**
+
    ```env
    SMTP_SERVER=smtp.gmail.com  # Correct
    SMTP_PORT=587                # TLS port
@@ -317,11 +318,13 @@ curl -v --url "smtp://smtp.gmail.com:587" \
 **Solutions:**
 
 1. **Set proper FROM_EMAIL:**
+
    ```env
    FROM_EMAIL=noreply@yourdomain.com
    ```
 
 2. **Add SPF record (if using custom domain):**
+
    ```
    v=spf1 include:_spf.google.com ~all
    ```
@@ -526,11 +529,11 @@ docker-compose exec secret-santa sqlite3 /app/data/secret-santa.db \
 
 ```yaml
 services:
-  secret-santa:
-    deploy:
-      resources:
-        limits:
-          memory: 1G
+ secret-santa:
+  deploy:
+   resources:
+    limits:
+     memory: 1G
 ```
 
 4. **Check logs for errors:**
@@ -549,9 +552,9 @@ docker-compose logs -f | grep error
 
 ```yaml
 deploy:
-  resources:
-    limits:
-      memory: 512M
+ resources:
+  limits:
+   memory: 512M
 ```
 
 2. **Restart container:**
@@ -587,7 +590,7 @@ sudo ufw allow 3000
 
 ```yaml
 ports:
-  - "0.0.0.0:3000:3000"
+ - '0.0.0.0:3000:3000'
 ```
 
 3. **Check network configuration:**
@@ -714,8 +717,8 @@ Add to docker-compose.yml:
 
 ```yaml
 environment:
-  - DEBUG=*
-  - NODE_ENV=development
+ - DEBUG=*
+ - NODE_ENV=development
 ```
 
 ---
@@ -737,34 +740,42 @@ If you can't resolve your issue:
 
 ```markdown
 ## Description
+
 Brief description of the issue
 
 ## Environment
+
 - OS: Ubuntu 22.04
 - Docker Version: 24.0.5
 - Image Version: v1.2.3
 - Deployment: Docker Compose
 
 ## Steps to Reproduce
+
 1. Step one
 2. Step two
 3. See error
 
 ## Expected Behavior
+
 What should happen
 
 ## Actual Behavior
+
 What actually happens
 
 ## Logs
 ```
+
 Paste relevant logs here
-```
+
+````
 
 ## Configuration (secrets removed)
 ```yaml
 Paste relevant config here
-```
+````
+
 ```
 
 ---
@@ -786,3 +797,4 @@ Paste relevant config here
 - [User Guide](user-guide.md)
 - [Docker Deployment](docker.md)
 - [Development Setup](development.md)
+```

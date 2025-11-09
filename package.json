@@ -12,6 +12,7 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"clean": "rimraf .next coverage build && echo 'Cleaned build artifacts!'",
+		"clean:packages": "rimraf package-lock.json node_modules && echo 'Cleaned package artifacts!'",
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage --i --runInBand",
