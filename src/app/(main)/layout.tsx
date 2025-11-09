@@ -1,6 +1,7 @@
 import '@/app/globals.css';
 import { SessionProvider } from '@/components/SessionProvider';
 import Header from '@/components/Header';
+import Navigation from '@/components/Navigation';
 
 export const metadata = {
 	title: 'Family Secret Santa',
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				<SessionProvider>
 					<div className="max-w-6xl mx-auto bg-white rounded-2xl p-8 shadow-xl">
 						<Header />
+						<Navigation />
 						{children}
 					</div>
 				</SessionProvider>
