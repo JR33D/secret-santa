@@ -17,9 +17,7 @@ describe('Restrictions Management Page', () => {
 		{ id: 103, name: 'Charlie', pool_id: 1 },
 		{ id: 104, name: 'David', pool_id: 2 },
 	];
-	const mockRestrictions = [
-		{ id: 1, giver_id: 101, giver_name: 'Alice', receiver_id: 102, receiver_name: 'Bob' },
-	];
+	const mockRestrictions = [{ id: 1, giver_id: 101, giver_name: 'Alice', receiver_id: 102, receiver_name: 'Bob' }];
 
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -102,7 +100,7 @@ describe('Restrictions Management Page', () => {
 		await waitFor(() => {
 			fireEvent.change(screen.getByLabelText('Select Pool'), { target: { value: '1' } });
 		});
-		
+
 		// Wait for restrictions to load - look for the restriction components
 		await waitFor(() => {
 			expect(screen.getByText(/Alice/i, { selector: 'strong' })).toBeInTheDocument();

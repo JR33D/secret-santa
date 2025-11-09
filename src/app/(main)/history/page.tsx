@@ -26,7 +26,7 @@ export default function Page() {
 
 	async function loadGraph() {
 		const url = poolId === 'all' ? '/api/history-graph' : `/api/history-graph?pool_id=${poolId}`;
-		const data = await apiGet<{ 
+		const data = await apiGet<{
 			nodes: string[];
 			links: { year: number; giver: string; receiver: string }[];
 		}>(url);

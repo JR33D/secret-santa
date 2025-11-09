@@ -106,7 +106,8 @@ describe('User Management Page', () => {
 
 		await waitFor(() => {
 			expect(global.confirm).toHaveBeenCalledWith('Generate a new temporary password and send it via email?');
-			            expect(screen.getByRole('heading', { name: '✅ Credentials Sent!' })).toBeInTheDocument();		});
+			expect(screen.getByRole('heading', { name: '✅ Credentials Sent!' })).toBeInTheDocument();
+		});
 	});
 
 	it('deletes a user', async () => {

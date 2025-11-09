@@ -12,16 +12,18 @@ export default withAuth(
 		}
 
 		// If authenticated, check for admin role on admin-only routes
-		if (token && token.role !== 'admin' && (
-			pathname.startsWith('/pools') ||
-			pathname.startsWith('/people') ||
-			pathname.startsWith('/users') ||
-			pathname.startsWith('/wishlist') || // Admin view of wishlists
-			pathname.startsWith('/restrictions') ||
-			pathname.startsWith('/generate') ||
-			pathname.startsWith('/history') ||
-			pathname.startsWith('/email')
-		)) {
+		if (
+			token &&
+			token.role !== 'admin' &&
+			(pathname.startsWith('/pools') ||
+				pathname.startsWith('/people') ||
+				pathname.startsWith('/users') ||
+				pathname.startsWith('/wishlist') || // Admin view of wishlists
+				pathname.startsWith('/restrictions') ||
+				pathname.startsWith('/generate') ||
+				pathname.startsWith('/history') ||
+				pathname.startsWith('/email'))
+		) {
 			// Redirect non-admin users from admin pages to their default page
 			return NextResponse.redirect(new URL('/my-wishlist', req.url));
 		}
@@ -48,7 +50,7 @@ export default withAuth(
 				return !!token;
 			},
 		},
-	}
+	},
 );
 
 export const config = {

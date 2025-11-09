@@ -17,6 +17,7 @@ Comprehensive guide for deploying Secret Santa using Docker in production enviro
 ## Overview
 
 The Secret Santa application is distributed as multi-architecture Docker images supporting:
+
 - `linux/amd64` (Intel/AMD 64-bit)
 - `linux/arm64` (ARM 64-bit, including Raspberry Pi 4, Apple Silicon)
 
@@ -33,15 +34,15 @@ The Secret Santa application is distributed as multi-architecture Docker images 
 
 ### Available Tags
 
-| Tag | Description | Use Case |
-|-----|-------------|----------|
-| `latest` | Most recent release | Development/Testing |
-| `stable` | Verified stable release | Production (recommended) |
-| `v1.2.3` | Specific version | Production (pinned) |
-| `v1.2` | Minor version | Auto-patch updates |
-| `v1` | Major version | Auto-minor updates |
-| `1.2.3-YYYYMMDD` | Dated release | Audit/Rollback |
-| `edge` | Bleeding edge (develop branch) | Testing only |
+| Tag              | Description                    | Use Case                 |
+| ---------------- | ------------------------------ | ------------------------ |
+| `latest`         | Most recent release            | Development/Testing      |
+| `stable`         | Verified stable release        | Production (recommended) |
+| `v1.2.3`         | Specific version               | Production (pinned)      |
+| `v1.2`           | Minor version                  | Auto-patch updates       |
+| `v1`             | Major version                  | Auto-minor updates       |
+| `1.2.3-YYYYMMDD` | Dated release                  | Audit/Rollback           |
+| `edge`           | Bleeding edge (develop branch) | Testing only             |
 
 ### Pulling Images
 
@@ -86,36 +87,36 @@ Create `docker-compose.yml`:
 version: '3.8'
 
 services:
-  secret-santa:
-    image: ghcr.io/jr33d/secret-santa:stable
-    container_name: secret-santa
-    ports:
-      - "3000:3000"
-    volumes:
-      - secret-santa-data:/app/data
-    environment:
-      - NODE_ENV=production
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - NEXTAUTH_URL=https://santa.example.com
-      - DOMAIN=https://santa.example.com
-      - ADMIN_USERNAME=admin
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - SMTP_SERVER=${SMTP_SERVER}
-      - SMTP_PORT=587
-      - SMTP_USERNAME=${SMTP_USERNAME}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - FROM_EMAIL=${FROM_EMAIL}
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+ secret-santa:
+  image: ghcr.io/jr33d/secret-santa:stable
+  container_name: secret-santa
+  ports:
+   - '3000:3000'
+  volumes:
+   - secret-santa-data:/app/data
+  environment:
+   - NODE_ENV=production
+   - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+   - NEXTAUTH_URL=https://santa.example.com
+   - DOMAIN=https://santa.example.com
+   - ADMIN_USERNAME=admin
+   - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+   - SMTP_SERVER=${SMTP_SERVER}
+   - SMTP_PORT=587
+   - SMTP_USERNAME=${SMTP_USERNAME}
+   - SMTP_PASSWORD=${SMTP_PASSWORD}
+   - FROM_EMAIL=${FROM_EMAIL}
+  restart: unless-stopped
+  healthcheck:
+   test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+   interval: 30s
+   timeout: 10s
+   retries: 3
+   start_period: 40s
 
 volumes:
-  secret-santa-data:
-    driver: local
+ secret-santa-data:
+  driver: local
 ```
 
 Create `.env` file:
@@ -155,25 +156,25 @@ Update `docker-compose.yml`:
 version: '3.8'
 
 services:
-  secret-santa:
-    image: ghcr.io/jr33d/secret-santa:stable
-    secrets:
-      - nextauth_secret
-      - admin_password
-      - smtp_password
-    environment:
-      - NEXTAUTH_SECRET_FILE=/run/secrets/nextauth_secret
-      - ADMIN_PASSWORD_FILE=/run/secrets/admin_password
-      - SMTP_PASSWORD_FILE=/run/secrets/smtp_password
-    # ... other configuration
+ secret-santa:
+  image: ghcr.io/jr33d/secret-santa:stable
+  secrets:
+   - nextauth_secret
+   - admin_password
+   - smtp_password
+  environment:
+   - NEXTAUTH_SECRET_FILE=/run/secrets/nextauth_secret
+   - ADMIN_PASSWORD_FILE=/run/secrets/admin_password
+   - SMTP_PASSWORD_FILE=/run/secrets/smtp_password
+  # ... other configuration
 
 secrets:
-  nextauth_secret:
-    file: ./secrets/nextauth_secret.txt
-  admin_password:
-    file: ./secrets/admin_password.txt
-  smtp_password:
-    file: ./secrets/smtp_password.txt
+ nextauth_secret:
+  file: ./secrets/nextauth_secret.txt
+ admin_password:
+  file: ./secrets/admin_password.txt
+ smtp_password:
+  file: ./secrets/smtp_password.txt
 ```
 
 ---
@@ -207,7 +208,7 @@ Create `/etc/nginx/sites-available/secret-santa`:
 server {
     listen 80;
     server_name santa.example.com;
-    
+
     # Redirect to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -242,7 +243,7 @@ server {
 
     # Rate Limiting
     limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
-    
+
     location /api/auth {
         limit_req zone=login burst=3 nodelay;
         proxy_pass http://localhost:3000;
@@ -291,19 +292,19 @@ Create `/etc/caddy/Caddyfile`:
 ```caddy
 santa.example.com {
     reverse_proxy localhost:3000
-    
+
     # Automatic HTTPS
     tls {
         protocols tls1.2 tls1.3
     }
-    
+
     # Security headers
     header {
         X-Frame-Options "SAMEORIGIN"
         X-Content-Type-Options "nosniff"
         X-XSS-Protection "1; mode=block"
     }
-    
+
     # Rate limiting
     rate_limit {
         zone login {
@@ -329,47 +330,47 @@ Create `docker-compose.yml` with Traefik:
 version: '3.8'
 
 services:
-  traefik:
-    image: traefik:v2.10
-    container_name: traefik
-    command:
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=admin@example.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "letsencrypt:/letsencrypt"
-    restart: unless-stopped
+ traefik:
+  image: traefik:v2.10
+  container_name: traefik
+  command:
+   - '--api.insecure=false'
+   - '--providers.docker=true'
+   - '--providers.docker.exposedbydefault=false'
+   - '--entrypoints.web.address=:80'
+   - '--entrypoints.websecure.address=:443'
+   - '--certificatesresolvers.letsencrypt.acme.tlschallenge=true'
+   - '--certificatesresolvers.letsencrypt.acme.email=admin@example.com'
+   - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+  ports:
+   - '80:80'
+   - '443:443'
+  volumes:
+   - '/var/run/docker.sock:/var/run/docker.sock:ro'
+   - 'letsencrypt:/letsencrypt'
+  restart: unless-stopped
 
-  secret-santa:
-    image: ghcr.io/jr33d/secret-santa:stable
-    container_name: secret-santa
-    environment:
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - NEXTAUTH_URL=https://santa.example.com
-      - DOMAIN=https://santa.example.com
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-    volumes:
-      - secret-santa-data:/app/data
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.secret-santa.rule=Host(`santa.example.com`)"
-      - "traefik.http.routers.secret-santa.entrypoints=websecure"
-      - "traefik.http.routers.secret-santa.tls.certresolver=letsencrypt"
-      - "traefik.http.services.secret-santa.loadbalancer.server.port=3000"
-    restart: unless-stopped
+ secret-santa:
+  image: ghcr.io/jr33d/secret-santa:stable
+  container_name: secret-santa
+  environment:
+   - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+   - NEXTAUTH_URL=https://santa.example.com
+   - DOMAIN=https://santa.example.com
+   - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+  volumes:
+   - secret-santa-data:/app/data
+  labels:
+   - 'traefik.enable=true'
+   - 'traefik.http.routers.secret-santa.rule=Host(`santa.example.com`)'
+   - 'traefik.http.routers.secret-santa.entrypoints=websecure'
+   - 'traefik.http.routers.secret-santa.tls.certresolver=letsencrypt'
+   - 'traefik.http.services.secret-santa.loadbalancer.server.port=3000'
+  restart: unless-stopped
 
 volumes:
-  secret-santa-data:
-  letsencrypt:
+ secret-santa-data:
+ letsencrypt:
 ```
 
 ---
@@ -505,11 +506,12 @@ curl http://localhost:3000/api/health
 ```
 
 Expected response:
+
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2024-01-15T12:00:00.000Z",
-  "database": "connected"
+	"status": "healthy",
+	"timestamp": "2024-01-15T12:00:00.000Z",
+	"database": "connected"
 }
 ```
 
@@ -530,36 +532,36 @@ Create `prometheus.yml`:
 
 ```yaml
 global:
-  scrape_interval: 15s
+ scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'docker'
-    static_configs:
-      - targets: ['localhost:9090']
+ - job_name: 'docker'
+   static_configs:
+    - targets: ['localhost:9090']
 ```
 
 Add to `docker-compose.yml`:
 
 ```yaml
 services:
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    ports:
-      - "9090:9090"
-    restart: unless-stopped
+ prometheus:
+  image: prom/prometheus
+  volumes:
+   - ./prometheus.yml:/etc/prometheus/prometheus.yml
+   - prometheus-data:/prometheus
+  ports:
+   - '9090:9090'
+  restart: unless-stopped
 
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana-data:/var/lib/grafana
-    restart: unless-stopped
+ grafana:
+  image: grafana/grafana
+  ports:
+   - '3001:3000'
+  environment:
+   - GF_SECURITY_ADMIN_PASSWORD=admin
+  volumes:
+   - grafana-data:/var/lib/grafana
+  restart: unless-stopped
 ```
 
 ### Log Management
@@ -583,11 +585,11 @@ Configure Docker daemon (`/etc/docker/daemon.json`):
 
 ```json
 {
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "10m",
-    "max-file": "3"
-  }
+	"log-driver": "json-file",
+	"log-opts": {
+		"max-size": "10m",
+		"max-file": "3"
+	}
 }
 ```
 
@@ -603,22 +605,22 @@ Using Loki:
 
 ```yaml
 services:
-  loki:
-    image: grafana/loki:latest
-    ports:
-      - "3100:3100"
-    volumes:
-      - loki-data:/loki
-    restart: unless-stopped
+ loki:
+  image: grafana/loki:latest
+  ports:
+   - '3100:3100'
+  volumes:
+   - loki-data:/loki
+  restart: unless-stopped
 
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - /var/log:/var/log
-      - /var/lib/docker/containers:/var/lib/docker/containers
-      - ./promtail-config.yml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-    restart: unless-stopped
+ promtail:
+  image: grafana/promtail:latest
+  volumes:
+   - /var/log:/var/log
+   - /var/lib/docker/containers:/var/lib/docker/containers
+   - ./promtail-config.yml:/etc/promtail/config.yml
+  command: -config.file=/etc/promtail/config.yml
+  restart: unless-stopped
 ```
 
 ---
@@ -631,17 +633,17 @@ Set container resource limits in `docker-compose.yml`:
 
 ```yaml
 services:
-  secret-santa:
-    image: ghcr.io/jr33d/secret-santa:stable
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.5'
-          memory: 256M
-    # ... other configuration
+ secret-santa:
+  image: ghcr.io/jr33d/secret-santa:stable
+  deploy:
+   resources:
+    limits:
+     cpus: '1.0'
+     memory: 512M
+    reservations:
+     cpus: '0.5'
+     memory: 256M
+  # ... other configuration
 ```
 
 ### Multiple Instances (Load Balancing)
@@ -652,32 +654,32 @@ For high availability, run multiple instances behind a load balancer:
 version: '3.8'
 
 services:
-  secret-santa-1:
-    image: ghcr.io/jr33d/secret-santa:stable
-    volumes:
-      - secret-santa-data:/app/data
-    environment:
-      # ... environment variables
-    restart: unless-stopped
+ secret-santa-1:
+  image: ghcr.io/jr33d/secret-santa:stable
+  volumes:
+   - secret-santa-data:/app/data
+  environment:
+   # ... environment variables
+  restart: unless-stopped
 
-  secret-santa-2:
-    image: ghcr.io/jr33d/secret-santa:stable
-    volumes:
-      - secret-santa-data:/app/data
-    environment:
-      # ... environment variables
-    restart: unless-stopped
+ secret-santa-2:
+  image: ghcr.io/jr33d/secret-santa:stable
+  volumes:
+   - secret-santa-data:/app/data
+  environment:
+   # ... environment variables
+  restart: unless-stopped
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - secret-santa-1
-      - secret-santa-2
-    restart: unless-stopped
+ nginx:
+  image: nginx:alpine
+  ports:
+   - '80:80'
+  volumes:
+   - ./nginx.conf:/etc/nginx/nginx.conf
+  depends_on:
+   - secret-santa-1
+   - secret-santa-2
+  restart: unless-stopped
 ```
 
 `nginx.conf`:
@@ -691,7 +693,7 @@ upstream secret-santa {
 
 server {
     listen 80;
-    
+
     location / {
         proxy_pass http://secret-santa;
         proxy_set_header Host $host;
@@ -705,6 +707,7 @@ server {
 #### Database Optimization
 
 SQLite performance tips:
+
 - Regular VACUUM operations
 - Enable WAL mode
 - Optimize indexes
@@ -722,11 +725,11 @@ Add Redis for session caching (future enhancement):
 
 ```yaml
 services:
-  redis:
-    image: redis:alpine
-    volumes:
-      - redis-data:/data
-    restart: unless-stopped
+ redis:
+  image: redis:alpine
+  volumes:
+   - redis-data:/data
+  restart: unless-stopped
 ```
 
 ---
@@ -803,13 +806,13 @@ docker scan ghcr.io/jr33d/secret-santa:stable
 
 ```yaml
 services:
-  secret-santa:
-    networks:
-      - secret-santa-network
+ secret-santa:
+  networks:
+   - secret-santa-network
 
 networks:
-  secret-santa-network:
-    driver: bridge
+ secret-santa-network:
+  driver: bridge
 ```
 
 ### Secrets Management

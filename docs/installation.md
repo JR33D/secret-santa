@@ -52,16 +52,19 @@ docker run -d \
 Visit http://localhost:3000
 
 **Default Login:**
+
 - Username: `admin`
 - Password: `changeme123` (change immediately!)
 
 ### Environment Variables
 
 Required:
+
 - `NEXTAUTH_SECRET` - Secret for session encryption (generate with `openssl rand -base64 32`)
 - `ADMIN_PASSWORD` - Initial admin password
 
 Optional:
+
 - `ADMIN_USERNAME` - Admin username (default: `admin`)
 - `NEXTAUTH_URL` - Base URL (default: `http://localhost:3000`)
 - `DOMAIN` - Domain for email links (default: `http://localhost:3000`)
@@ -278,7 +281,7 @@ Navigate to http://localhost:3000
 
 ### 5. Configure Email (Optional)
 
-If you didn't set email environment variables during installation it will not send emails. 
+If you didn't set email environment variables during installation it will not send emails.
 The SMTP settings can only be set with the environment variables.
 
 ---
@@ -290,32 +293,37 @@ The SMTP settings can only be set with the environment variables.
 Visit http://localhost:3000/api/health
 
 Expected response:
+
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2024-01-15T12:00:00.000Z",
-  "database": "connected"
+	"status": "healthy",
+	"timestamp": "2024-01-15T12:00:00.000Z",
+	"database": "connected"
 }
 ```
 
 ### Database Location
 
 **Docker:**
+
 - Data persists in the `secret-santa-data` volume
 - Check with: `docker volume inspect secret-santa-data`
 
 **Local Development:**
+
 - Database file: `./data/secret-santa.db`
 - Ensure this directory exists
 
 ### Logs
 
 **Docker:**
+
 ```bash
 docker logs secret-santa -f
 ```
 
 **Docker Compose:**
+
 ```bash
 docker-compose logs -f
 ```

@@ -110,9 +110,9 @@ describe('People Management Page', () => {
 
 		// Get all select elements and find the one with "All Pools" option
 		const selects = screen.getAllByRole('combobox');
-		const filterSelect = selects.find(select => {
+		const filterSelect = selects.find((select) => {
 			const options = Array.from(select.querySelectorAll('option'));
-			return options.some(opt => opt.textContent === 'All Pools');
+			return options.some((opt) => opt.textContent === 'All Pools');
 		});
 
 		fireEvent.change(filterSelect!, { target: { value: '2' } }); // Filter by Friends pool

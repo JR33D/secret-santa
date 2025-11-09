@@ -27,21 +27,23 @@ All API routes (except health check and auth endpoints) require authentication.
 Uses NextAuth.js for authentication.
 
 **Request Body:**
+
 ```json
 {
-  "username": "admin",
-  "password": "your_password"
+	"username": "admin",
+	"password": "your_password"
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "user": {
-    "id": "1",
-    "username": "admin",
-    "role": "admin"
-  }
+	"user": {
+		"id": "1",
+		"username": "admin",
+		"role": "admin"
+	}
 }
 ```
 
@@ -52,21 +54,24 @@ Uses NextAuth.js for authentication.
 **Authentication:** Required
 
 **Request Body:**
+
 ```json
 {
-  "currentPassword": "old_password",
-  "newPassword": "new_password"
+	"currentPassword": "old_password",
+	"newPassword": "new_password"
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "message": "Password changed successfully"
+	"message": "Password changed successfully"
 }
 ```
 
 **Errors:**
+
 - `401` - Unauthorized
 - `400` - Invalid passwords or passwords don't meet requirements
 - `404` - User not found
@@ -82,15 +87,16 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "name": "Family",
-    "description": "Family gift exchange",
-    "member_count": 5,
-    "created_at": "2024-01-15T10:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"name": "Family",
+		"description": "Family gift exchange",
+		"member_count": 5,
+		"created_at": "2024-01-15T10:00:00.000Z"
+	}
 ]
 ```
 
@@ -101,24 +107,27 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Request Body:**
+
 ```json
 {
-  "name": "Family",
-  "description": "Family gift exchange"
+	"name": "Family",
+	"description": "Family gift exchange"
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "id": 1,
-  "name": "Family",
-  "description": "Family gift exchange",
-  "message": "Pool created successfully"
+	"id": 1,
+	"name": "Family",
+	"description": "Family gift exchange",
+	"message": "Pool created successfully"
 }
 ```
 
 **Errors:**
+
 - `400` - Name is required or already exists
 
 ### Update Pool
@@ -128,17 +137,19 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Request Body:**
+
 ```json
 {
-  "name": "Updated Family",
-  "description": "Updated description"
+	"name": "Updated Family",
+	"description": "Updated description"
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "message": "Pool updated successfully"
+	"message": "Pool updated successfully"
 }
 ```
 
@@ -149,13 +160,15 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "message": "Pool deleted successfully"
+	"message": "Pool deleted successfully"
 }
 ```
 
 **Errors:**
+
 - `400` - Cannot delete pool with people in it
 
 ---
@@ -167,21 +180,23 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `GET /api/people`
 
 **Query Parameters:**
+
 - `pool_id` (optional) - Filter by pool
 
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "pool_id": 1,
-    "pool_name": "Family",
-    "created_at": "2024-01-15T10:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"name": "John Doe",
+		"email": "john@example.com",
+		"pool_id": 1,
+		"pool_name": "Family",
+		"created_at": "2024-01-15T10:00:00.000Z"
+	}
 ]
 ```
 
@@ -192,26 +207,29 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Request Body:**
+
 ```json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "pool_id": 1
+	"name": "John Doe",
+	"email": "john@example.com",
+	"pool_id": 1
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "id": 1,
-  "name": "John Doe",
-  "email": "john@example.com",
-  "pool_id": 1,
-  "message": "Person added successfully"
+	"id": 1,
+	"name": "John Doe",
+	"email": "john@example.com",
+	"pool_id": 1,
+	"message": "Person added successfully"
 }
 ```
 
 **Errors:**
+
 - `400` - Name, email, or pool_id missing
 - `400` - Invalid pool selected
 - `400` - Invalid email format
@@ -223,9 +241,10 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "success": true
+	"success": true
 }
 ```
 
@@ -240,26 +259,27 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "username": "admin",
-    "role": "admin",
-    "person_id": null,
-    "must_change_password": 0,
-    "created_at": "2024-01-15T10:00:00.000Z"
-  },
-  {
-    "id": 2,
-    "username": "johndoe",
-    "role": "user",
-    "person_id": 5,
-    "person_name": "John Doe",
-    "person_email": "john@example.com",
-    "must_change_password": 1,
-    "created_at": "2024-01-15T10:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"username": "admin",
+		"role": "admin",
+		"person_id": null,
+		"must_change_password": 0,
+		"created_at": "2024-01-15T10:00:00.000Z"
+	},
+	{
+		"id": 2,
+		"username": "johndoe",
+		"role": "user",
+		"person_id": 5,
+		"person_name": "John Doe",
+		"person_email": "john@example.com",
+		"must_change_password": 1,
+		"created_at": "2024-01-15T10:00:00.000Z"
+	}
 ]
 ```
 
@@ -270,26 +290,29 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Request Body:**
+
 ```json
 {
-  "person_id": 5
+	"person_id": 5
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "id": 2,
-  "username": "johndoe",
-  "tempPassword": "RandomPass123",
-  "person_name": "John Doe",
-  "person_email": "john@example.com",
-  "emailSent": true,
-  "message": "User created and credentials emailed successfully"
+	"id": 2,
+	"username": "johndoe",
+	"tempPassword": "RandomPass123",
+	"person_name": "John Doe",
+	"person_email": "john@example.com",
+	"emailSent": true,
+	"message": "User created and credentials emailed successfully"
 }
 ```
 
 **Errors:**
+
 - `400` - Person ID required
 - `404` - Person not found
 - `400` - User already exists for this person
@@ -301,13 +324,15 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "message": "User deleted successfully"
+	"message": "User deleted successfully"
 }
 ```
 
 **Errors:**
+
 - `400` - Cannot delete own account
 - `400` - Cannot delete last admin user
 - `404` - User not found
@@ -319,14 +344,15 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "username": "johndoe",
-  "tempPassword": "NewRandomPass456",
-  "person_name": "John Doe",
-  "person_email": "john@example.com",
-  "emailSent": true,
-  "message": "New password generated and emailed successfully"
+	"username": "johndoe",
+	"tempPassword": "NewRandomPass456",
+	"person_name": "John Doe",
+	"person_email": "john@example.com",
+	"emailSent": true,
+	"message": "New password generated and emailed successfully"
 }
 ```
 
@@ -338,21 +364,23 @@ Uses NextAuth.js for authentication.
 
 **Endpoint:** `GET /api/wishlist/[personId]`
 
-**Authentication:** 
+**Authentication:**
+
 - Admin can view any wishlist
 - Users can view their own and their assignment's wishlist
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "person_id": 5,
-    "item_name": "Book",
-    "link": "https://example.com/book",
-    "image_url": "https://example.com/book.jpg",
-    "created_at": "2024-01-15T10:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"person_id": 5,
+		"item_name": "Book",
+		"link": "https://example.com/book",
+		"image_url": "https://example.com/book.jpg",
+		"created_at": "2024-01-15T10:00:00.000Z"
+	}
 ]
 ```
 
@@ -360,26 +388,29 @@ Uses NextAuth.js for authentication.
 
 **Endpoint:** `POST /api/wishlist/[personId]`
 
-**Authentication:** 
+**Authentication:**
+
 - Admin can add for anyone
 - Users can add for themselves
 
 **Request Body:**
+
 ```json
 {
-  "item_name": "Book",
-  "link": "https://example.com/book",
-  "image_url": "https://example.com/book.jpg"
+	"item_name": "Book",
+	"link": "https://example.com/book",
+	"image_url": "https://example.com/book.jpg"
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "id": 1,
-  "item_name": "Book",
-  "link": "https://example.com/book",
-  "image_url": "https://example.com/book.jpg"
+	"id": 1,
+	"item_name": "Book",
+	"link": "https://example.com/book",
+	"image_url": "https://example.com/book.jpg"
 }
 ```
 
@@ -390,9 +421,10 @@ Uses NextAuth.js for authentication.
 **Authentication:** Required
 
 **Response:**
+
 ```json
 {
-  "success": true
+	"success": true
 }
 ```
 
@@ -407,15 +439,16 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "giver_id": 1,
-    "receiver_id": 2,
-    "giver_name": "Alice",
-    "receiver_name": "Bob"
-  }
+	{
+		"id": 1,
+		"giver_id": 1,
+		"receiver_id": 2,
+		"giver_name": "Alice",
+		"receiver_name": "Bob"
+	}
 ]
 ```
 
@@ -426,23 +459,26 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Request Body:**
+
 ```json
 {
-  "giver_id": 1,
-  "receiver_id": 2
+	"giver_id": 1,
+	"receiver_id": 2
 }
 ```
 
 **Response:**
+
 ```json
 {
-  "id": 1,
-  "giver_id": 1,
-  "receiver_id": 2
+	"id": 1,
+	"giver_id": 1,
+	"receiver_id": 2
 }
 ```
 
 **Errors:**
+
 - `400` - Restriction already exists (unique constraint)
 
 ### Delete Restriction
@@ -452,9 +488,10 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "success": true
+	"success": true
 }
 ```
 
@@ -467,24 +504,26 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `GET /api/assignments`
 
 **Query Parameters:**
+
 - `pool_id` (optional) - Filter by pool
 
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "year": 2024,
-    "giver_id": 1,
-    "receiver_id": 2,
-    "pool_id": 1,
-    "giver_name": "Alice",
-    "receiver_name": "Bob",
-    "pool_name": "Family",
-    "created_at": "2024-01-15T10:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"year": 2024,
+		"giver_id": 1,
+		"receiver_id": 2,
+		"pool_id": 1,
+		"giver_name": "Alice",
+		"receiver_name": "Bob",
+		"pool_name": "Family",
+		"created_at": "2024-01-15T10:00:00.000Z"
+	}
 ]
 ```
 
@@ -493,23 +532,25 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `GET /api/assignments/[year]`
 
 **Query Parameters:**
+
 - `pool_id` (optional) - Filter by pool
 
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 [
-  {
-    "id": 1,
-    "year": 2024,
-    "giver_id": 1,
-    "receiver_id": 2,
-    "pool_id": 1,
-    "giver_name": "Alice",
-    "receiver_name": "Bob",
-    "pool_name": "Family"
-  }
+	{
+		"id": 1,
+		"year": 2024,
+		"giver_id": 1,
+		"receiver_id": 2,
+		"pool_id": 1,
+		"giver_name": "Alice",
+		"receiver_name": "Bob",
+		"pool_name": "Family"
+	}
 ]
 ```
 
@@ -518,24 +559,27 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `GET /api/my-assignments`
 
 **Query Parameters:**
+
 - `person_id` (required) - Person ID
 - `year` (required) - Year
 
 **Authentication:** User or Admin
 
 **Response:**
+
 ```json
 [
-  {
-    "year": 2024,
-    "receiver_id": 2,
-    "receiver_name": "Bob",
-    "receiver_email": "bob@example.com"
-  }
+	{
+		"year": 2024,
+		"receiver_id": 2,
+		"receiver_name": "Bob",
+		"receiver_email": "bob@example.com"
+	}
 ]
 ```
 
 **Errors:**
+
 - `401` - Unauthorized
 - `400` - person_id and year are required
 - `403` - Can only view own assignment (unless admin)
@@ -545,19 +589,22 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `POST /api/generate/[year]`
 
 **Query Parameters:**
+
 - `pool_id` (required) - Pool ID
 
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "success": true,
-  "message": "Successfully generated 5 assignments for 2024!"
+	"success": true,
+	"message": "Successfully generated 5 assignments for 2024!"
 }
 ```
 
 **Errors:**
+
 - `400` - Pool ID required
 - `400` - Need at least 2 people in pool
 - `400` - Assignments already exist for this year/pool
@@ -568,14 +615,16 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `DELETE /api/assignments/[year]`
 
 **Query Parameters:**
+
 - `pool_id` (optional) - Filter by pool
 
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "message": "Assignments deleted successfully"
+	"message": "Assignments deleted successfully"
 }
 ```
 
@@ -584,23 +633,25 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `POST /api/send-notifications/[year]`
 
 **Query Parameters:**
+
 - `pool_id` (required) - Pool ID
 
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 [
-  {
-    "giver": "Alice",
-    "success": true,
-    "message": "Email sent"
-  },
-  {
-    "giver": "Bob",
-    "success": false,
-    "message": "Email address not found"
-  }
+	{
+		"giver": "Alice",
+		"success": true,
+		"message": "Email sent"
+	},
+	{
+		"giver": "Bob",
+		"success": false,
+		"message": "Email address not found"
+	}
 ]
 ```
 
@@ -611,26 +662,28 @@ Uses NextAuth.js for authentication.
 **Endpoint:** `GET /api/history-graph`
 
 **Query Parameters:**
+
 - `pool_id` (optional) - Filter by pool
 
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "nodes": ["Alice", "Bob", "Charlie"],
-  "links": [
-    {
-      "year": 2024,
-      "giver": "Alice",
-      "receiver": "Bob"
-    },
-    {
-      "year": 2024,
-      "giver": "Bob",
-      "receiver": "Charlie"
-    }
-  ]
+	"nodes": ["Alice", "Bob", "Charlie"],
+	"links": [
+		{
+			"year": 2024,
+			"giver": "Alice",
+			"receiver": "Bob"
+		},
+		{
+			"year": 2024,
+			"giver": "Bob",
+			"receiver": "Charlie"
+		}
+	]
 }
 ```
 
@@ -645,13 +698,14 @@ Uses NextAuth.js for authentication.
 **Authentication:** Admin only
 
 **Response:**
+
 ```json
 {
-  "smtp_server": "smtp.gmail.com",
-  "smtp_port": 587,
-  "smtp_username": "user@gmail.com",
-  "from_email": "noreply@example.com",
-  "source": "env"
+	"smtp_server": "smtp.gmail.com",
+	"smtp_port": 587,
+	"smtp_username": "user@gmail.com",
+	"from_email": "noreply@example.com",
+	"source": "env"
 }
 ```
 
@@ -666,9 +720,10 @@ Uses NextAuth.js for authentication.
 **Note:** This endpoint returns 403 in environment-only mode. Email configuration must be managed via environment variables.
 
 **Response:**
+
 ```json
 {
-  "error": "Email configuration is managed via environment variables in this deployment; POST is disabled."
+	"error": "Email configuration is managed via environment variables in this deployment; POST is disabled."
 }
 ```
 
@@ -683,25 +738,28 @@ Uses NextAuth.js for authentication.
 **Authentication:** None required
 
 **Response (Healthy):**
+
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2024-01-15T12:00:00.000Z",
-  "database": "connected"
+	"status": "healthy",
+	"timestamp": "2024-01-15T12:00:00.000Z",
+	"database": "connected"
 }
 ```
 
 **Response (Unhealthy):**
+
 ```json
 {
-  "status": "unhealthy",
-  "timestamp": "2024-01-15T12:00:00.000Z",
-  "database": "disconnected",
-  "error": "Connection error"
+	"status": "unhealthy",
+	"timestamp": "2024-01-15T12:00:00.000Z",
+	"database": "disconnected",
+	"error": "Connection error"
 }
 ```
 
 **HTTP Status:**
+
 - `200` - Healthy
 - `503` - Unhealthy
 
@@ -713,7 +771,7 @@ Uses NextAuth.js for authentication.
 
 ```json
 {
-  "error": "Error message description"
+	"error": "Error message description"
 }
 ```
 
@@ -730,30 +788,34 @@ Uses NextAuth.js for authentication.
 ### Example Errors
 
 **Validation Error:**
+
 ```json
 {
-  "error": "Name and email are required"
+	"error": "Name and email are required"
 }
 ```
 
 **Authentication Error:**
+
 ```json
 {
-  "error": "Unauthorized"
+	"error": "Unauthorized"
 }
 ```
 
 **Permission Error:**
+
 ```json
 {
-  "error": "Unauthorized - Admin access required"
+	"error": "Unauthorized - Admin access required"
 }
 ```
 
 **Not Found:**
+
 ```json
 {
-  "error": "Person not found"
+	"error": "Person not found"
 }
 ```
 
@@ -764,6 +826,7 @@ Uses NextAuth.js for authentication.
 No built-in rate limiting in the application. Implement at reverse proxy level (nginx, Caddy, Traefik).
 
 **Recommended Limits:**
+
 - Login endpoint: 5 requests per minute per IP
 - General API: 100 requests per minute per user
 
@@ -781,6 +844,7 @@ No built-in rate limiting in the application. Implement at reverse proxy level (
 ### Role-Based Access
 
 **Admin Routes:**
+
 - All `/api/pools/*`
 - All `/api/people/*`
 - All `/api/users/*`
@@ -792,6 +856,7 @@ No built-in rate limiting in the application. Implement at reverse proxy level (
 - All `/api/history-graph`
 
 **User Routes:**
+
 - `/api/wishlist/*` (own wishlist and assigned recipient)
 - `/api/my-assignments` (own assignment only)
 - `/api/change-password`
@@ -805,44 +870,46 @@ No built-in rate limiting in the application. Implement at reverse proxy level (
 ```typescript
 // Helper functions
 async function apiGet<T>(url: string): Promise<T> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: response.statusText }));
-    throw new Error(error.error || `HTTP ${response.status}`);
-  }
-  return response.json();
+	const response = await fetch(url);
+	if (!response.ok) {
+		const error = await response.json().catch(() => ({ error: response.statusText }));
+		throw new Error(error.error || `HTTP ${response.status}`);
+	}
+	return response.json();
 }
 
 async function apiPost<T>(url: string, data?: any): Promise<T> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: data ? JSON.stringify(data) : undefined,
-  });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: response.statusText }));
-    throw new Error(error.error || `HTTP ${response.status}`);
-  }
-  return response.json();
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: data ? JSON.stringify(data) : undefined,
+	});
+	if (!response.ok) {
+		const error = await response.json().catch(() => ({ error: response.statusText }));
+		throw new Error(error.error || `HTTP ${response.status}`);
+	}
+	return response.json();
 }
 
 // Usage examples
 const pools = await apiGet('/api/pools');
-const newPool = await apiPost('/api/pools', { 
-  name: 'Friends', 
-  description: 'Friend group' 
+const newPool = await apiPost('/api/pools', {
+	name: 'Friends',
+	description: 'Friend group',
 });
 ```
 
 ### cURL Examples
 
 **Get Pools:**
+
 ```bash
 curl -X GET http://localhost:3000/api/pools \
   -H "Cookie: next-auth.session-token=YOUR_SESSION_TOKEN"
 ```
 
 **Create Pool:**
+
 ```bash
 curl -X POST http://localhost:3000/api/pools \
   -H "Content-Type: application/json" \
@@ -851,6 +918,7 @@ curl -X POST http://localhost:3000/api/pools \
 ```
 
 **Delete Pool:**
+
 ```bash
 curl -X DELETE http://localhost:3000/api/pools/1 \
   -H "Cookie: next-auth.session-token=YOUR_SESSION_TOKEN"
@@ -865,18 +933,18 @@ class SecretSantaAPI:
     def __init__(self, base_url):
         self.base_url = base_url
         self.session = requests.Session()
-    
+
     def login(self, username, password):
         response = self.session.post(
             f"{self.base_url}/api/auth/signin",
             json={"username": username, "password": password}
         )
         return response.json()
-    
+
     def get_pools(self):
         response = self.session.get(f"{self.base_url}/api/pools")
         return response.json()
-    
+
     def create_pool(self, name, description=""):
         response = self.session.post(
             f"{self.base_url}/api/pools",
@@ -906,11 +974,11 @@ Future versions to be determined.
 
 ```typescript
 interface Pool {
-  id: number;
-  name: string;
-  description: string;
-  member_count?: number;
-  created_at: string;
+	id: number;
+	name: string;
+	description: string;
+	member_count?: number;
+	created_at: string;
 }
 ```
 
@@ -918,12 +986,12 @@ interface Pool {
 
 ```typescript
 interface Person {
-  id: number;
-  name: string;
-  email: string;
-  pool_id: number;
-  pool_name?: string;
-  created_at: string;
+	id: number;
+	name: string;
+	email: string;
+	pool_id: number;
+	pool_name?: string;
+	created_at: string;
 }
 ```
 
@@ -931,14 +999,14 @@ interface Person {
 
 ```typescript
 interface User {
-  id: number;
-  username: string;
-  role: 'admin' | 'user';
-  person_id?: number;
-  person_name?: string;
-  person_email?: string;
-  must_change_password: number;
-  created_at: string;
+	id: number;
+	username: string;
+	role: 'admin' | 'user';
+	person_id?: number;
+	person_name?: string;
+	person_email?: string;
+	must_change_password: number;
+	created_at: string;
 }
 ```
 
@@ -946,12 +1014,12 @@ interface User {
 
 ```typescript
 interface WishlistItem {
-  id: number;
-  person_id: number;
-  item_name: string;
-  link?: string;
-  image_url?: string;
-  created_at: string;
+	id: number;
+	person_id: number;
+	item_name: string;
+	link?: string;
+	image_url?: string;
+	created_at: string;
 }
 ```
 
@@ -959,11 +1027,11 @@ interface WishlistItem {
 
 ```typescript
 interface Restriction {
-  id: number;
-  giver_id: number;
-  receiver_id: number;
-  giver_name: string;
-  receiver_name: string;
+	id: number;
+	giver_id: number;
+	receiver_id: number;
+	giver_name: string;
+	receiver_name: string;
 }
 ```
 
@@ -971,15 +1039,15 @@ interface Restriction {
 
 ```typescript
 interface Assignment {
-  id: number;
-  year: number;
-  giver_id: number;
-  receiver_id: number;
-  pool_id: number;
-  giver_name: string;
-  receiver_name: string;
-  pool_name: string;
-  created_at: string;
+	id: number;
+	year: number;
+	giver_id: number;
+	receiver_id: number;
+	pool_id: number;
+	giver_name: string;
+	receiver_name: string;
+	pool_name: string;
+	created_at: string;
 }
 ```
 
@@ -990,12 +1058,14 @@ interface Assignment {
 ### Tables
 
 **pools**
+
 - `id` INTEGER PRIMARY KEY AUTOINCREMENT
 - `name` TEXT UNIQUE NOT NULL
 - `description` TEXT
 - `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 
 **people**
+
 - `id` INTEGER PRIMARY KEY AUTOINCREMENT
 - `name` TEXT NOT NULL
 - `email` TEXT NOT NULL
@@ -1003,6 +1073,7 @@ interface Assignment {
 - `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 
 **users**
+
 - `id` INTEGER PRIMARY KEY AUTOINCREMENT
 - `username` TEXT UNIQUE NOT NULL
 - `password_hash` TEXT NOT NULL
@@ -1012,6 +1083,7 @@ interface Assignment {
 - `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 
 **wishlist_items**
+
 - `id` INTEGER PRIMARY KEY AUTOINCREMENT
 - `person_id` INTEGER NOT NULL (FK → people.id)
 - `item_name` TEXT NOT NULL
@@ -1020,12 +1092,14 @@ interface Assignment {
 - `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 
 **restrictions**
+
 - `id` INTEGER PRIMARY KEY AUTOINCREMENT
 - `giver_id` INTEGER NOT NULL (FK → people.id)
 - `receiver_id` INTEGER NOT NULL (FK → people.id)
 - UNIQUE(giver_id, receiver_id)
 
 **assignments**
+
 - `id` INTEGER PRIMARY KEY AUTOINCREMENT
 - `year` INTEGER NOT NULL
 - `giver_id` INTEGER NOT NULL (FK → people.id)
@@ -1124,23 +1198,23 @@ http --session=admin POST :3000/api/pools name="Family" description="Family pool
 import { GET, POST } from '@/app/api/pools/route';
 
 describe('Pools API', () => {
-  it('returns all pools', async () => {
-    const response = await GET();
-    const pools = await response.json();
-    
-    expect(Array.isArray(pools)).toBe(true);
-  });
-  
-  it('creates a pool', async () => {
-    const req = {
-      json: async () => ({ name: 'Test', description: 'Test pool' })
-    };
-    
-    const response = await POST(req as any);
-    const result = await response.json();
-    
-    expect(result.name).toBe('Test');
-  });
+	it('returns all pools', async () => {
+		const response = await GET();
+		const pools = await response.json();
+
+		expect(Array.isArray(pools)).toBe(true);
+	});
+
+	it('creates a pool', async () => {
+		const req = {
+			json: async () => ({ name: 'Test', description: 'Test pool' }),
+		};
+
+		const response = await POST(req as any);
+		const result = await response.json();
+
+		expect(result.name).toBe('Test');
+	});
 });
 ```
 
@@ -1177,12 +1251,14 @@ All endpoints are **stable** and supported.
 ## Future API Enhancements
 
 **Planned Features:**
+
 - Pagination support
 - Bulk operations
 - Export/Import functionality
 - Audit logs API
 
 **Under Consideration:**
+
 - OAuth2 authentication
 - API versioning in URL
 
@@ -1191,6 +1267,7 @@ All endpoints are **stable** and supported.
 ## Contributing to API
 
 See [Contributing Guide](CONTRIBUTING.md) for:
+
 - Adding new endpoints
 - Modifying existing endpoints
 - Breaking change guidelines

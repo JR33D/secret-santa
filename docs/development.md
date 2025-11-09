@@ -150,6 +150,7 @@ BREAKING CHANGE: API now requires Bearer token"
 ```
 
 **Commit Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -180,6 +181,7 @@ npm run lint:fix
 ```
 
 **Pre-commit checklist:**
+
 - [ ] Code formatted with Prettier
 - [ ] No ESLint errors
 - [ ] TypeScript compiles without errors
@@ -228,10 +230,10 @@ describe('MyComponent', () => {
 
   it('handles user interaction', async () => {
     render(<MyComponent />);
-    
+
     const button = screen.getByRole('button');
     fireEvent.click(button);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Clicked!')).toBeInTheDocument();
     });
@@ -261,25 +263,25 @@ import { getDb } from '@/lib/db';
 jest.mock('@/lib/db');
 
 describe('GET /api/my-route', () => {
-  let mockDb: any;
+	let mockDb: any;
 
-  beforeEach(() => {
-    mockDb = {
-      all: jest.fn(),
-      get: jest.fn(),
-      run: jest.fn(),
-    };
-    (getDb as jest.Mock).mockResolvedValue(mockDb);
-  });
+	beforeEach(() => {
+		mockDb = {
+			all: jest.fn(),
+			get: jest.fn(),
+			run: jest.fn(),
+		};
+		(getDb as jest.Mock).mockResolvedValue(mockDb);
+	});
 
-  it('returns data successfully', async () => {
-    mockDb.all.mockResolvedValue([{ id: 1, name: 'Test' }]);
+	it('returns data successfully', async () => {
+		mockDb.all.mockResolvedValue([{ id: 1, name: 'Test' }]);
 
-    const response = await GET();
-    const json = await response.json();
+		const response = await GET();
+		const json = await response.json();
 
-    expect(json).toEqual([{ id: 1, name: 'Test' }]);
-  });
+		expect(json).toEqual([{ id: 1, name: 'Test' }]);
+	});
 });
 ```
 
@@ -344,6 +346,7 @@ npm start
 ### Build Output
 
 Next.js standalone output:
+
 - `.next/standalone` - Production server
 - `.next/static` - Static assets
 - `public` - Public files
@@ -376,6 +379,7 @@ docker-compose -f docker-compose.dev.yml logs -f
 ```
 
 **Features:**
+
 - Hot reload with volume mounting
 - Runs `npm run dev` inside container
 - Persists database between restarts
@@ -473,21 +477,21 @@ Create `.vscode/launch.json`:
 
 ```json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Next.js: debug server-side",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm run dev"
-    },
-    {
-      "name": "Next.js: debug client-side",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:3000"
-    }
-  ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Next.js: debug server-side",
+			"type": "node-terminal",
+			"request": "launch",
+			"command": "npm run dev"
+		},
+		{
+			"name": "Next.js: debug client-side",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://localhost:3000"
+		}
+	]
 }
 ```
 
@@ -545,6 +549,7 @@ Access Mailpit UI at http://localhost:8025
 ### Using Gmail
 
 Create app password:
+
 1. Enable 2FA on Gmail
 2. Visit https://myaccount.google.com/apppasswords
 3. Generate app password
@@ -656,6 +661,7 @@ open .next/analyze/client.html
 ### Optimization Tips
 
 1. **Lazy load components:**
+
 ```typescript
 const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
   loading: () => <div>Loading...</div>
@@ -663,6 +669,7 @@ const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
 ```
 
 2. **Optimize images:**
+
 ```typescript
 import Image from 'next/image';
 
@@ -670,6 +677,7 @@ import Image from 'next/image';
 ```
 
 3. **Memoize expensive operations:**
+
 ```typescript
 const expensiveValue = useMemo(() => computeExpensive(data), [data]);
 ```
@@ -693,20 +701,24 @@ const expensiveValue = useMemo(() => computeExpensive(data), [data]);
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] All tests pass
 - [ ] New tests added
 - [ ] Manually tested
 
 ## Screenshots (if applicable)
+
 Add screenshots here
 ```
 
@@ -715,17 +727,20 @@ Add screenshots here
 ## Resources
 
 ### Documentation
+
 - [Next.js Docs](https://nextjs.org/docs)
 - [React Docs](https://react.dev)
 - [TypeScript Docs](https://www.typescriptlang.org/docs/)
 - [Jest Docs](https://jestjs.io/docs/getting-started)
 
 ### Tools
+
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
 - [SQLite Docs](https://www.sqlite.org/docs.html)
 
 ### Community
+
 - [GitHub Issues](https://github.com/JR33D/secret-santa/issues)
 - [Contributing Guide](CONTRIBUTING.md)
 

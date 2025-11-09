@@ -7,26 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0](https://github.com/JR33D/secret-santa/compare/v1.1.1...v1.2.0) (2025-10-28)
 
-
 ### Features
 
-* **branding:** add Secret Santa project logo ([a78cb6e](https://github.com/JR33D/secret-santa/commit/a78cb6e57049b0e5a98e46cfdc8f5ab3ca67c5be))
-* **docs:** add comprehensive user and deployment guides ([bd3e6d8](https://github.com/JR33D/secret-santa/commit/bd3e6d86d9af8a1dfe5c91bc340e9cc8d5f7c1d1))
+- **branding:** add Secret Santa project logo ([a78cb6e](https://github.com/JR33D/secret-santa/commit/a78cb6e57049b0e5a98e46cfdc8f5ab3ca67c5be))
+- **docs:** add comprehensive user and deployment guides ([bd3e6d8](https://github.com/JR33D/secret-santa/commit/bd3e6d86d9af8a1dfe5c91bc340e9cc8d5f7c1d1))
 
 ## [1.1.1](https://github.com/JR33D/secret-santa/compare/v1.1.0...v1.1.1) (2025-10-25)
 
-
 ### Bug Fixes
 
-* **docker:** separate development and production configurations into distinct files ([550d61a](https://github.com/JR33D/secret-santa/commit/550d61ade35ee0fb022426966edbe99532903eb2))
-* update restrictions route import path ([550d61a](https://github.com/JR33D/secret-santa/commit/550d61ade35ee0fb022426966edbe99532903eb2))
+- **docker:** separate development and production configurations into distinct files ([550d61a](https://github.com/JR33D/secret-santa/commit/550d61ade35ee0fb022426966edbe99532903eb2))
+- update restrictions route import path ([550d61a](https://github.com/JR33D/secret-santa/commit/550d61ade35ee0fb022426966edbe99532903eb2))
 
 ## [1.1.0](https://github.com/JR33D/secret-santa/compare/v1.0.1...v1.1.0) (2025-10-25)
 
-
 ### Features
 
-* add DOMAIN variable to email templates and notifications for dynamic links ([#5](https://github.com/JR33D/secret-santa/issues/5)) ([bc52a34](https://github.com/JR33D/secret-santa/commit/bc52a34c8d40287ce0c577dd8b61c55906003e32))
+- add DOMAIN variable to email templates and notifications for dynamic links ([#5](https://github.com/JR33D/secret-santa/issues/5)) ([bc52a34](https://github.com/JR33D/secret-santa/commit/bc52a34c8d40287ce0c577dd8b61c55906003e32))
 
 ## [1.0.1](https://github.com/JR33D/secret-santa/compare/v1.0.0...v1.0.1) (2025-10-25)
 

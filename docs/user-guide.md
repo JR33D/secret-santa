@@ -21,18 +21,21 @@ Complete guide to using the Secret Santa application for organizing gift exchang
 3. Click "Sign In"
 
 **First Time Login:**
+
 - If you received a temporary password, you'll be required to change it
 - Choose a strong password (minimum 8 characters)
 
 ### User Roles
 
 **Admin:**
+
 - Full access to all features
 - Can manage pools, people, restrictions
 - Can generate assignments
 - Can view all data
 
 **User:**
+
 - Can manage their own wishlist
 - Can view their Secret Santa assignment
 - Can view their recipient's wishlist
@@ -73,6 +76,7 @@ Pools organize participants into separate gift exchange groups (e.g., Family, Fr
 3. Click **Add Person**
 
 **Email Validation:**
+
 - Must be a valid email format
 - Required for sending notifications
 - Required for creating user accounts
@@ -103,6 +107,7 @@ Create user accounts so family members can log in and manage their wishlists.
    - Email status
 
 **Email Notification:**
+
 - If email is configured, credentials are automatically sent
 - If not configured, share credentials manually
 - Users must change their password on first login
@@ -124,6 +129,7 @@ If a user forgets their password:
 4. Confirm deletion
 
 **Restrictions:**
+
 - Cannot delete your own account
 - Cannot delete the last admin account
 
@@ -161,6 +167,7 @@ Restrictions prevent certain people from being assigned to each other (e.g., spo
 4. Click **Add Restriction**
 
 **Example:**
+
 - Giver: Alice
 - Cannot Give To: Bob
 - Result: Alice will never be assigned to give a gift to Bob
@@ -168,6 +175,7 @@ Restrictions prevent certain people from being assigned to each other (e.g., spo
 #### Viewing Restrictions
 
 Restrictions are displayed by pool:
+
 - **Alice** → ❌ → **Bob**
 
 #### Deleting Restrictions
@@ -191,18 +199,21 @@ Restrictions are displayed by pool:
 4. Click **🎲 Generate**
 
 **What Happens:**
+
 - Algorithm generates valid assignments
 - Respects all restrictions
 - Ensures no one is assigned to themselves
 - Creates a circular chain
 
 **Possible Issues:**
+
 - "Cannot generate valid assignments" - Too many restrictions
 - "Assignments already exist" - Delete existing assignments first
 
 #### Viewing Assignments
 
 After generation, you'll see:
+
 - **John Doe** → 🎁 → **Jane Smith**
 - Total assignments for the pool
 
@@ -230,6 +241,7 @@ To regenerate for the same year:
 4. Review email results
 
 **Each Email Contains:**
+
 - Recipient name
 - Their wishlist (if available)
 - Login link
@@ -241,10 +253,12 @@ Configure SMTP settings for sending notifications.
 **Note:** This deployment uses environment variables for SMTP configuration. Fields are read-only in the UI.
 
 **To Update Email Settings:**
+
 1. Update environment variables in your deployment
 2. Restart the container
 
 **Environment Variables:**
+
 - `SMTP_SERVER` - SMTP server address
 - `SMTP_PORT` - SMTP port (default: 587)
 - `SMTP_USERNAME` - SMTP username
@@ -267,11 +281,13 @@ Visual representation of all assignments:
 #### Assignment Chains
 
 Text representation showing:
+
 - Year and pool
 - Complete gift-giving chains
 - Loop detection
 
 **Example:**
+
 ```
 2024 - Family:
 Alice → Bob → Charlie → Alice ✓ (Loop)
@@ -296,6 +312,7 @@ John → Jane → Bob
 3. Click **Add to Wishlist**
 
 **Tips:**
+
 - Be specific with item names
 - Include links to make shopping easier
 - Add multiple options at different price points
@@ -318,6 +335,7 @@ John → Jane → Bob
    - Links to items they want
 
 **Before Assignment:**
+
 - You'll see a message that no assignment exists yet
 - Check back after admin generates assignments
 
@@ -339,6 +357,7 @@ John → Jane → Bob
 4. Click **Change Password**
 
 **Password Requirements:**
+
 - Minimum 8 characters
 - Passwords must match
 
@@ -351,27 +370,32 @@ John → Jane → Bob
 #### Planning Timeline
 
 **4 Weeks Before:**
+
 - Create pool
 - Add all participants
 - Create user accounts
 - Send login credentials
 
 **3 Weeks Before:**
+
 - Remind participants to create wishlists
 - Add any restrictions
 
 **2 Weeks Before:**
+
 - Generate assignments
 - Send email notifications
 - Verify all participants received emails
 
 **1 Week Before:**
+
 - Final reminder to participants
 - Answer any questions
 
 #### Pool Organization
 
 **Separate pools for:**
+
 - Different family groups
 - Friend groups vs. family
 - Office vs. personal
@@ -380,12 +404,14 @@ John → Jane → Bob
 #### Restriction Guidelines
 
 **Common restrictions:**
+
 - Spouses/partners
 - Siblings
 - Parent-child pairs
 - Recent years (if tracking history)
 
 **Avoid over-restricting:**
+
 - Too many restrictions may make assignment impossible
 - Keep restrictions minimal and necessary
 
@@ -394,12 +420,14 @@ John → Jane → Bob
 #### Wishlist Tips
 
 **Do:**
+
 - Add 5-10 items at varying price points
 - Include specific product links
 - Update regularly
 - Be realistic about what you want
 
 **Don't:**
+
 - Add only expensive items
 - Be too vague
 - Forget to check your wishlist
@@ -408,6 +436,7 @@ John → Jane → Bob
 #### Being a Good Secret Santa
 
 **Do:**
+
 - Check wishlist early
 - Order in time for delivery
 - Respect budget guidelines
@@ -415,6 +444,7 @@ John → Jane → Bob
 - Have fun with it!
 
 **Don't:**
+
 - Wait until last minute
 - Ignore the wishlist completely
 - Exceed agreed budget significantly
