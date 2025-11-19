@@ -62,7 +62,7 @@ jest.mock('bcryptjs', () => ({
 // Expose sqlite.open to the global test environment so modules that require/import
 // sqlite dynamically can pick up the mocked open function reliably.
 try {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	// eslint-disable-next-line global-require
 	const sqlite = require('sqlite');
 	// handle different shapes
 	global.__sqlite_open = sqlite.open ?? sqlite.default?.open ?? sqlite;

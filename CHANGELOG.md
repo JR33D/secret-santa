@@ -7,10 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0](https://github.com/JR33D/secret-santa/compare/v1.2.0...v1.3.0) (2025-11-09)
 
-
 ### Features
 
-* **tabs:** add deep linking support ([ddef0c4](https://github.com/JR33D/secret-santa/commit/ddef0c48dd3ebc02fc16c1cc6e9e0d39054e8f02))
+- **tabs:** add deep linking support ([ddef0c4](https://github.com/JR33D/secret-santa/commit/ddef0c48dd3ebc02fc16c1cc6e9e0d39054e8f02))
 
 ## [1.2.0](https://github.com/JR33D/secret-santa/compare/v1.1.1...v1.2.0) (2025-10-28)
 
