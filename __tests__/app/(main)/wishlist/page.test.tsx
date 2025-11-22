@@ -1,141 +1,123 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Page from '@/app/(main)/wishlist/page';
+import Page from '@/app/(main)/my-wishlist/page';
+import { useSession } from 'next-auth/react';
 import * as api from '@/lib/api';
 
+jest.mock('next-auth/react');
 jest.mock('@/lib/api');
 
-interface WishlistItemData {
-	item_name: string;
-	link: string;
-	image_url: string;
-}
+// Mock next/image to avoid width/height requirement errors
+jest.mock('next/image', () => ({
+	__esModule: true,
+	default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+		// eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+		return <img {...props} />;
+	},
+}));
 
-describe('Manage Wishlists Page', () => {
-	const mockPeople = [
-		{ id: 101, name: 'Alice' },
-		{ id: 102, name: 'Bob' },
-	];
+describe('My Wishlist Page', () => {
+	const mockSession = {
+		data: {
+			user: { id: '1', name: 'Test User', email: 'test@example.com', personId: 101 },
+		},
+		status: 'authenticated',
+	};
+
 	const mockWishlistItems = [
-		{ id: 1, item_name: 'Book', link: 'http://book.com' },
-		{ id: 2, item_name: 'Gadget', link: '' },
+		{ id: 1, item_name: 'Book', link: 'http://book.com', image_url: 'http://book.com/image.jpg' },
+		{ id: 2, item_name: 'Gadget', link: '', image_url: '' },
 	];
 
-	let currentWishlistItems: typeof mockWishlistItems;
 	beforeEach(() => {
 		jest.clearAllMocks();
-		currentWishlistItems = [...mockWishlistItems];
-
-		(api.apiGet as jest.Mock).mockImplementation((url: string) => {
-			if (url === '/api/people') return Promise.resolve(mockPeople);
-			if (url.startsWith('/api/wishlist/')) {
-				const id = url.split('/').pop();
-				if (id === '101') return Promise.resolve(currentWishlistItems);
-				if (id === '102') return Promise.resolve([]);
-				return Promise.resolve([]);
-			}
-			return Promise.resolve([]);
-		});
-
-		(api.apiPost as jest.Mock).mockImplementation((url: string, data: WishlistItemData) => {
-			if (url === '/api/wishlist/101') {
-				const newItem = {
-					id: Date.now(),
-					item_name: data.item_name,
-					link: data.link,
-					image_url: data.image_url,
-				};
-				currentWishlistItems.push(newItem);
-			}
-			return Promise.resolve({});
-		});
-
-		(api.apiDelete as jest.Mock).mockImplementation((url: string) => {
-			const id = Number(url.split('/').pop());
-			currentWishlistItems = currentWishlistItems.filter((item) => item.id !== id);
-			return Promise.resolve({});
-		});
-
+		(useSession as jest.Mock).mockReturnValue(mockSession);
+		(api.apiGet as jest.Mock).mockResolvedValue(mockWishlistItems);
+		(api.apiPost as jest.Mock).mockResolvedValue({});
+		(api.apiDelete as jest.Mock).mockResolvedValue({});
 		global.alert = jest.fn();
 		global.confirm = jest.fn(() => true);
 	});
 
-	const selectPerson = async (id: string) => {
-		await screen.findByText('Alice'); // Wait for people to load
-		await act(async () => {
-			fireEvent.change(screen.getByLabelText('Select Person'), { target: { value: id } });
-		});
-	};
-
-	it('renders the manage wishlists page', async () => {
+	it('renders the my wishlist page', async () => {
 		render(<Page />);
-		expect(screen.getByText('Manage Wishlists')).toBeInTheDocument();
-		expect(screen.getByLabelText('Select Person')).toBeInTheDocument();
-		expect(screen.getByPlaceholderText('Item name')).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /Add Item/i })).toBeInTheDocument();
-		expect(screen.getByText('Wishlist Items')).toBeInTheDocument();
-		await screen.findByText('Alice');
-		await screen.findByText('Bob');
-	});
 
-	it('loads people on mount', async () => {
-		render(<Page />);
-		await waitFor(() => expect(api.apiGet).toHaveBeenCalledWith('/api/people'));
-	});
-
-	it('loads wishlist items when a person is selected', async () => {
-		render(<Page />);
-		await selectPerson('101');
+		expect(screen.getByText('🎁 My Wishlist')).toBeInTheDocument();
+		expect(screen.getByText('Add New Item')).toBeInTheDocument();
+		expect(screen.getByPlaceholderText('Item name *')).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /Add to Wishlist/i })).toBeInTheDocument();
+		expect(screen.getByText('Your Wishlist Items')).toBeInTheDocument();
 
 		await waitFor(() => {
-			expect(api.apiGet).toHaveBeenCalledWith('/api/wishlist/101');
 			expect(screen.getByText('Book')).toBeInTheDocument();
 			expect(screen.getByText('Gadget')).toBeInTheDocument();
 		});
 	});
 
-	it("adds a new item to the selected person's wishlist", async () => {
+	it('loads wishlist items on mount if personId is available', async () => {
 		render(<Page />);
-		await selectPerson('101');
-
-		await act(async () => {
-			fireEvent.change(screen.getByPlaceholderText('Item name'), { target: { value: 'New Toy' } });
-			fireEvent.change(screen.getByPlaceholderText('Link (optional)'), { target: { value: 'http://toy.com' } });
-			fireEvent.change(screen.getByPlaceholderText('Image URL (optional)'), { target: { value: 'http://newitem.com/image.jpg' } });
-			fireEvent.click(screen.getByRole('button', { name: /Add Item/i }));
+		await waitFor(() => {
+			expect(api.apiGet).toHaveBeenCalledWith('/api/wishlist/101');
 		});
+	});
+
+	it('does not load items if personId is not available', () => {
+		(useSession as jest.Mock).mockReturnValue({
+			data: { user: { id: '1', name: 'Test User', email: 'test@example.com' } }, // No personId
+			status: 'authenticated',
+		});
+		render(<Page />);
+		expect(api.apiGet).not.toHaveBeenCalled();
+		expect(screen.getByText('Your account is not linked to a person. Please contact an administrator.')).toBeInTheDocument();
+	});
+
+	it('adds a new item to the wishlist', async () => {
+		render(<Page />);
+
+		fireEvent.change(screen.getByPlaceholderText('Item name *'), { target: { value: 'New Item' } });
+		fireEvent.change(screen.getByPlaceholderText('Link (optional)'), { target: { value: 'http://newitem.com' } });
+		fireEvent.change(screen.getByPlaceholderText('Image URL (optional)'), { target: { value: 'http://newitem.com/image.jpg' } });
+		fireEvent.click(screen.getByRole('button', { name: /Add to Wishlist/i }));
 
 		await waitFor(() => {
 			expect(api.apiPost).toHaveBeenCalledWith('/api/wishlist/101', {
-				item_name: 'New Toy',
-				link: 'http://toy.com',
+				item_name: 'New Item',
+				link: 'http://newitem.com',
 				image_url: 'http://newitem.com/image.jpg',
 			});
-			expect(screen.getByText('New Toy')).toBeInTheDocument();
+			expect(api.apiGet).toHaveBeenCalledTimes(2); // Initial load + reload after add
 		});
 	});
 
-	it("removes an item from the selected person's wishlist", async () => {
+	it('removes an item from the wishlist', async () => {
 		render(<Page />);
-		await selectPerson('101');
-
-		await screen.findByText('Book'); // ensure items are rendered
-		const removeButtons = await screen.findAllByRole('button', { name: /Remove/i });
-
-		await act(async () => {
-			fireEvent.click(removeButtons[0]);
-		});
 
 		await waitFor(() => {
+			expect(screen.getByText('Book')).toBeInTheDocument();
+		});
+
+		fireEvent.click(screen.getAllByRole('button', { name: /Remove/i })[0]); // Click remove for 'Book'
+
+		await waitFor(() => {
+			expect(global.confirm).toHaveBeenCalledWith('Remove this item from your wishlist?');
 			expect(api.apiDelete).toHaveBeenCalledWith('/api/wishlist/item/1');
-			expect(screen.queryByText('Book')).not.toBeInTheDocument();
+			expect(api.apiGet).toHaveBeenCalledTimes(2); // Initial load + reload after delete
 		});
 	});
 
-	it('shows empty items message when no items for selected person', async () => {
+	it('shows empty wishlist message when no items', async () => {
+		(api.apiGet as jest.Mock).mockResolvedValue([]); // No items
 		render(<Page />);
-		await selectPerson('102'); // Bob has no items
-		await waitFor(() => expect(screen.getByText('No items yet')).toBeInTheDocument());
+
+		await waitFor(() => {
+			expect(screen.getByText('Your wishlist is empty')).toBeInTheDocument();
+		});
+	});
+
+	it('shows loading state', () => {
+		(api.apiGet as jest.Mock).mockReturnValue(new Promise(() => {})); // Never resolve
+		render(<Page />);
+		expect(screen.getByText('Loading...')).toBeInTheDocument();
 	});
 });

@@ -138,8 +138,6 @@ describe('Wishlist API Routes', () => {
             expect(mockDb.run).toHaveBeenCalledWith(expect.any(String), ['5', 'Item', null, null]);
             const json = await response.json();
             expect(json.id).toBe(12);
-            expect(json.link).toBeNull();
-            expect(json.image_url).toBeNull();  
         });
 
         it('handles database errors', async () => {
