@@ -1,9 +1,12 @@
+/**
+ * @jest-environment node
+ */
 describe('auth nextauth route', () => {
 	beforeEach(() => {
 		jest.resetModules();
 	});
 
-	it('calls NextAuth with authOptions and exports the handler as GET and POST', () => {
+	it('calls NextAuth with authOptions and exports the handler as GET and POST', async () => {
 		const fakeHandler = () => new Response('ok');
 
 		// Mock next-auth default export to capture the options passed and return our fake handler
@@ -15,7 +18,7 @@ describe('auth nextauth route', () => {
 		jest.doMock('@/lib/auth', () => ({ authOptions: sentinelOptions }));
 
 		// Load the route module after mocks are in place
-		const route = require('@/app/api/auth/[...nextauth]/route');
+		const route = await import('@/app/api/auth/[...nextauth]/route');
 
 		expect(nextAuthMock).toHaveBeenCalledWith(sentinelOptions);
 		expect(route.GET).toBe(fakeHandler);

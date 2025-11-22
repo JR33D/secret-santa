@@ -1,15 +1,12 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-
 describe('App pages', () => {
 	describe('root page redirect', () => {
-		it('calls redirect to /login', () => {
+		it('calls redirect to /login', async () => {
 			const redirectMock = jest.fn();
 			jest.mock('next/navigation', () => ({ redirect: redirectMock }));
 
 			// Clear module cache and require the page module
 			jest.resetModules();
-			const Home = require('@/app/page').default;
+			const { default: Home } = await import('@/app/page');
 
 			// Call the component function (server component) which should call redirect
 			Home();

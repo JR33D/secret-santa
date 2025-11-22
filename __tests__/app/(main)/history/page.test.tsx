@@ -6,8 +6,8 @@ import * as api from '@/lib/api';
 
 jest.mock('@/lib/api');
 
-// Mock canvas context
-const mockGetContext = jest.fn(() => ({
+// Mock canvas context with proper typing
+const mockCtx = {
 	clearRect: jest.fn(),
 	fillText: jest.fn(),
 	beginPath: jest.fn(),
@@ -18,10 +18,12 @@ const mockGetContext = jest.fn(() => ({
 	arc: jest.fn(),
 	fillRect: jest.fn(),
 	canvas: { width: 500, height: 500 },
-}));
+};
+
+const mockGetContext = jest.fn(() => mockCtx);
 
 beforeAll(() => {
-	jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(mockGetContext);
+	jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(mockGetContext as unknown as typeof HTMLCanvasElement.prototype.getContext);
 });
 
 afterAll(() => {
@@ -61,10 +63,13 @@ describe('Assignment History Page', () => {
 		render(<Page />);
 
 		await screen.findByText('Assignment History');
+
 		expect(screen.getByLabelText('Filter by Pool')).toBeInTheDocument();
 		expect(screen.getByLabelText('Assignment History Graph')).toBeInTheDocument();
 		expect(screen.getByText('All Chains')).toBeInTheDocument();
-		expect(screen.getByText('Family')).toBeInTheDocument();
+
+		const familyOption = await screen.findByText('Family');
+		expect(familyOption).toBeInTheDocument();
 	});
 
 	it('loads pools and graph data on mount', async () => {
@@ -80,17 +85,13 @@ describe('Assignment History Page', () => {
 	it('draws the graph on canvas', async () => {
 		render(<Page />);
 
-		// Wait until the graph drawing effect has run
 		await waitFor(() => {
 			expect(mockGetContext).toHaveBeenCalledWith('2d');
 		});
 
-		// Retrieve the **same** mocked context instance used
-		const ctx = mockGetContext.mock.results[0].value;
-
-		expect(ctx.clearRect).toHaveBeenCalled();
-		expect(ctx.beginPath).toHaveBeenCalled();
-		expect(ctx.stroke).toHaveBeenCalled();
+		expect(mockCtx.clearRect).toHaveBeenCalled();
+		expect(mockCtx.beginPath).toHaveBeenCalled();
+		expect(mockCtx.stroke).toHaveBeenCalled();
 	});
 
 	it('displays chains correctly', async () => {
@@ -98,7 +99,6 @@ describe('Assignment History Page', () => {
 
 		await screen.findByText(/2023 - Family:/i);
 
-		// Look for names instead of trying to match arrows ✓ or layout spacing
 		expect(screen.getByText(/Alice/i)).toBeInTheDocument();
 		expect(screen.getByText(/Bob/i)).toBeInTheDocument();
 		expect(screen.getByText(/Charlie/i)).toBeInTheDocument();

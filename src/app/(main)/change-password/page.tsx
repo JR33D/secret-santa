@@ -38,13 +38,13 @@ export default function ChangePasswordPage() {
 			alert('Password changed successfully!');
 			router.push('/');
 			router.refresh();
-		} catch (err: any) {
-			setError(err.message || 'Failed to change password');
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : 'Failed to change password');
 			setLoading(false);
 		}
 	};
 
-	const mustChange = (session?.user as any)?.mustChangePassword;
+	const mustChange = session?.user?.mustChangePassword;
 
 	return (
 		<div>

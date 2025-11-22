@@ -1,49 +1,80 @@
-// Tests for middleware behavior. We mock next-auth/middleware to return the inner function
-jest.mock('next-auth/middleware', () => ({ withAuth: (fn: any) => fn }));
+/**
+ * @jest-environment node
+ */
+import { NextFetchEvent } from 'next/server';
+
+// Mock next-auth/middleware to return the inner function
+jest.mock('next-auth/middleware', () => ({
+	withAuth: <T extends (...args: unknown[]) => unknown>(fn: T) => fn,
+}));
 
 jest.mock('next/server', () => ({
 	NextResponse: {
-		redirect: (u: any) => ({ redirected: true, url: u.toString() }),
+		redirect: (u: URL) => ({ redirected: true, url: u.toString() }),
 		next: () => ({ ok: true }),
+		json: <T = unknown>(body: T, init: { status?: number } = {}) => ({
+			...((body as object) || {}),
+			status: init.status ?? 200,
+			json: async () => body,
+		}),
 	},
 }));
 
-import middleware, { config } from '@/lib/middleware';
+import proxy, { config } from '@/lib/proxy';
 
-describe('middleware', () => {
+interface MockToken {
+	mustChangePassword?: boolean;
+	role?: string;
+}
+
+interface MockNextUrl {
+	pathname: string;
+}
+
+interface MockRequest {
+	nextauth: {
+		token: MockToken;
+	};
+	nextUrl: MockNextUrl;
+	url: string;
+}
+
+// Create a mock NextFetchEvent
+const mockEvent = {} as NextFetchEvent;
+
+describe('proxy', () => {
 	it('redirects when user must change password', () => {
-		const req: any = {
+		const req = {
 			nextauth: { token: { mustChangePassword: true } },
 			nextUrl: { pathname: '/something' },
 			url: 'https://example.test/something',
-		};
+		} as MockRequest;
 
-		const res = (middleware as any)(req);
+		const res = proxy(req as Parameters<typeof proxy>[0], mockEvent);
 		expect(res).toMatchObject({ redirected: true });
-		expect(String(res.url)).toContain('/change-password');
+		expect(String((res as { url: string }).url)).toContain('/change-password');
 	});
 
 	it('blocks non-admin on admin-only paths', () => {
-		const req: any = {
+		const req = {
 			nextauth: { token: { role: 'user' } },
 			nextUrl: { pathname: '/api/people' },
 			url: 'https://example.test/api/people',
-		};
+		} as MockRequest;
 
-		const res = (middleware as any)(req);
-		// The middleware returns a plain object with status 403 in that branch
+		const res = proxy(req as Parameters<typeof proxy>[0], mockEvent);
 		expect(res).toBeDefined();
-		expect(res.status).toBe(403);
+		expect((res as { status: number }).status).toBe(403);
 	});
 
 	it('allows when authorized and not admin-only', () => {
-		const req: any = {
+		const req = {
 			nextauth: { token: { role: 'user' } },
 			nextUrl: { pathname: '/home' },
 			url: 'https://example.test/home',
-		};
+		} as MockRequest;
 
-		const res = (middleware as any)(req);
+		const res = proxy(req as Parameters<typeof proxy>[0], mockEvent);
 		expect(res).toMatchObject({ ok: true });
 	});
 

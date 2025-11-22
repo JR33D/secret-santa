@@ -1,11 +1,20 @@
+/**
+ * @jest-environment node
+ */
+import { NextRequest } from 'next/server';
 import { GET as getAssignments } from '@/app/api/assignments/route';
 import { GET as getAssignmentsByYear, DELETE as deleteAssignmentsByYear } from '@/app/api/assignments/[year]/route';
 import { getDb } from '@/lib/db';
 
 jest.mock('@/lib/db');
 
+interface MockDatabase {
+	all: jest.Mock;
+	run: jest.Mock;
+}
+
 describe('Assignments API Routes', () => {
-	let mockDb: any;
+	let mockDb: MockDatabase;
 
 	beforeEach(() => {
 		mockDb = {
@@ -27,7 +36,6 @@ describe('Assignments API Routes', () => {
 			const req = new Request('http://localhost/api/assignments');
 			const response = await getAssignments(req);
 
-			// Check if response exists before calling json()
 			expect(response).toBeDefined();
 			const json = await response.json();
 
@@ -69,8 +77,8 @@ describe('Assignments API Routes', () => {
 			const fakeData = [{ id: 1, giver_name: 'Alice', receiver_name: 'Bob', pool_name: 'Family' }];
 			mockDb.all.mockResolvedValue(fakeData);
 
-			const req = new Request('http://localhost/api/assignments/2025');
-			const response = await getAssignmentsByYear(req, { params: { year: '2025' } });
+			const req = new NextRequest('http://localhost/api/assignments/2025');
+			const response = await getAssignmentsByYear(req, { params: Promise.resolve({ year: '2025' }) });
 
 			expect(response).toBeDefined();
 			const json = await response.json();
@@ -83,8 +91,8 @@ describe('Assignments API Routes', () => {
 			const fakeData = [{ id: 2, giver_name: 'Carol', receiver_name: 'Dave', pool_name: 'Friends' }];
 			mockDb.all.mockResolvedValue(fakeData);
 
-			const req = new Request('http://localhost/api/assignments/2025?pool_id=3');
-			const response = await getAssignmentsByYear(req, { params: { year: '2025' } });
+			const req = new NextRequest('http://localhost/api/assignments/2025?pool_id=3');
+			const response = await getAssignmentsByYear(req, { params: Promise.resolve({ year: '2025' }) });
 
 			expect(response).toBeDefined();
 			const json = await response.json();
@@ -95,9 +103,9 @@ describe('Assignments API Routes', () => {
 
 		it('handles errors gracefully', async () => {
 			mockDb.all.mockRejectedValue(new Error('DB Error'));
-			const req = new Request('http://localhost/api/assignments/2025');
+			const req = new NextRequest('http://localhost/api/assignments/2025');
 
-			const response = await getAssignmentsByYear(req, { params: { year: '2025' } });
+			const response = await getAssignmentsByYear(req, { params: Promise.resolve({ year: '2025' }) });
 
 			expect(response).toBeDefined();
 			expect(response.status).toBe(500);
@@ -109,9 +117,9 @@ describe('Assignments API Routes', () => {
 
 	describe('/assignments/[year] DELETE', () => {
 		it('deletes assignments for a specific year', async () => {
-			const req = new Request('http://localhost/api/assignments/2025', { method: 'DELETE' });
+			const req = new NextRequest('http://localhost/api/assignments/2025', { method: 'DELETE' });
 
-			const response = await deleteAssignmentsByYear(req, { params: { year: '2025' } });
+			const response = await deleteAssignmentsByYear(req, { params: Promise.resolve({ year: '2025' }) });
 
 			expect(response).toBeDefined();
 			const json = await response.json();
@@ -121,9 +129,9 @@ describe('Assignments API Routes', () => {
 		});
 
 		it('deletes assignments filtered by pool_id', async () => {
-			const req = new Request('http://localhost/api/assignments/2025?pool_id=2', { method: 'DELETE' });
+			const req = new NextRequest('http://localhost/api/assignments/2025?pool_id=2', { method: 'DELETE' });
 
-			const response = await deleteAssignmentsByYear(req, { params: { year: '2025' } });
+			const response = await deleteAssignmentsByYear(req, { params: Promise.resolve({ year: '2025' }) });
 
 			expect(response).toBeDefined();
 			const json = await response.json();
@@ -134,9 +142,9 @@ describe('Assignments API Routes', () => {
 
 		it('handles errors gracefully', async () => {
 			mockDb.run.mockRejectedValue(new Error('DB Error'));
-			const req = new Request('http://localhost/api/assignments/2025', { method: 'DELETE' });
+			const req = new NextRequest('http://localhost/api/assignments/2025', { method: 'DELETE' });
 
-			const response = await deleteAssignmentsByYear(req, { params: { year: '2025' } });
+			const response = await deleteAssignmentsByYear(req, { params: Promise.resolve({ year: '2025' }) });
 
 			expect(response).toBeDefined();
 			expect(response.status).toBe(500);

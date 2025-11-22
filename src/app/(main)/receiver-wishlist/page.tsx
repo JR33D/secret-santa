@@ -23,7 +23,7 @@ export default function Page() {
 	const [items, setItems] = useState<Item[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const personId = (session?.user as any)?.personId;
+	const personId = session?.user?.personId;
 	const currentYear = new Date().getFullYear();
 
 	useEffect(() => {
@@ -38,7 +38,7 @@ export default function Page() {
 		setLoading(true);
 		try {
 			// Get all assignments for current user
-			const assignments = await apiGet<any[]>(`/api/my-assignment?person_id=${personId}&year=${currentYear}`);
+			const assignments = await apiGet<Assignment[]>(`/api/my-assignment?person_id=${personId}&year=${currentYear}`);
 
 			if (assignments.length > 0) {
 				const currentAssignment = assignments[0];
@@ -51,8 +51,8 @@ export default function Page() {
 				setAssignment(null);
 				setItems([]);
 			}
-		} catch (err) {
-			console.error(err);
+		} catch (err: unknown) {
+			console.error(err instanceof Error ? err.message : err);
 			setAssignment(null);
 			setItems([]);
 		} finally {
@@ -132,11 +132,11 @@ export default function Page() {
 
 								{item.image_url && (
 									<div className="mt-4">
-										<img
+										<Image
 											src={item.image_url}
 											alt={item.item_name}
 											className="max-w-md max-h-64 rounded-lg border-2 border-gray-200 shadow-sm"
-											onError={(e) => {
+											onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
 												(e.target as HTMLImageElement).style.display = 'none';
 											}}
 										/>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Page from '@/app/(main)/pools/page';
 import * as api from '@/lib/api';
@@ -46,16 +46,24 @@ describe('Pools Management Page', () => {
 	it('adds a new pool', async () => {
 		render(<Page />);
 
+		await waitFor(() => expect(screen.getByText('Manage Pools')).toBeInTheDocument());
+
+		// Update controlled inputs
 		fireEvent.change(screen.getByLabelText('Pool Name'), { target: { value: 'Coworkers' } });
 		fireEvent.change(screen.getByLabelText('Description (Optional)'), { target: { value: 'Office gift exchange' } });
-		fireEvent.click(screen.getByRole('button', { name: /Create Pool/i }));
 
+		// Click the button
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: /Create Pool/i }));
+		});
+
+		// Wait for async effects
 		await waitFor(() => {
 			expect(api.apiPost).toHaveBeenCalledWith('/api/pools', {
 				name: 'Coworkers',
 				description: 'Office gift exchange',
 			});
-			expect(api.apiGet).toHaveBeenCalledTimes(2); // Initial load + reload after add
+			expect(api.apiGet).toHaveBeenCalledTimes(2); // initial load + reload
 		});
 	});
 

@@ -1,5 +1,6 @@
 'use client';
 import { useSession, signOut } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -19,7 +20,7 @@ export default function Header() {
 		);
 	}
 
-	const user = session.user as any;
+	const user = session.user as Session['user'];
 
 	const handleLogout = async () => {
 		await signOut({ redirect: false });
@@ -43,8 +44,8 @@ export default function Header() {
 
 				<div className="flex items-center gap-3">
 					<div className="text-right">
-						<div className="text-sm font-semibold text-gray-700">{user.role === 'admin' ? '👑 Admin' : '👤 User'}</div>
-						<div className="text-xs text-gray-500">{session.user?.name || user.username}</div>
+						<div className="text-sm font-semibold text-gray-700">{user?.role === 'admin' ? '👑 Admin' : '👤 User'}</div>
+						<div className="text-xs text-gray-500">{session.user?.name || user?.email || user?.username}</div>
 					</div>
 
 					<div className="flex flex-col gap-1">

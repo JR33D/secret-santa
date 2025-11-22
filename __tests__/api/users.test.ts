@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+import { NextRequest } from 'next/server';
 import { GET, POST } from '@/app/api/users/route';
 import { DELETE } from '@/app/api/users/[id]/route';
 import { POST as ResendCredentials } from '@/app/api/users/[id]/resend-credentials/route';
@@ -13,9 +17,20 @@ jest.mock('@/lib/email-templates', () => ({
 	getEmailSubject: jest.fn(() => 'Test Subject'),
 }));
 
+interface MockDatabase {
+	all: jest.Mock;
+	get: jest.Mock;
+	run: jest.Mock;
+	exec: jest.Mock;
+}
+
+interface MockTransporter {
+	sendMail: jest.Mock;
+}
+
 describe('Users API Routes', () => {
-	let mockDb: any;
-	let mockTransporter: any;
+	let mockDb: MockDatabase;
+	let mockTransporter: MockTransporter;
 
 	beforeEach(() => {
 		mockDb = {
@@ -42,24 +57,8 @@ describe('Users API Routes', () => {
 
 	describe('GET /api/users', () => {
 		const mockUsers = [
-			{
-				id: 1,
-				username: 'admin',
-				role: 'admin',
-				person_id: null,
-				must_change_password: 0,
-				created_at: '2024-01-01',
-			},
-			{
-				id: 2,
-				username: 'johndoe',
-				role: 'user',
-				person_id: 5,
-				person_name: 'John Doe',
-				person_email: 'john@example.com',
-				must_change_password: 1,
-				created_at: '2024-01-15',
-			},
+			{ id: 1, username: 'admin', role: 'admin', person_id: null, must_change_password: 0, created_at: '2024-01-01' },
+			{ id: 2, username: 'johndoe', role: 'user', person_id: 5, person_name: 'John Doe', person_email: 'john@example.com', must_change_password: 1, created_at: '2024-01-15' },
 		];
 
 		it('returns all users when admin', async () => {
@@ -74,9 +73,7 @@ describe('Users API Routes', () => {
 		});
 
 		it('returns 403 when not admin', async () => {
-			(getServerSession as jest.Mock).mockResolvedValue({
-				user: { id: '2', role: 'user' },
-			});
+			(getServerSession as jest.Mock).mockResolvedValue({ user: { id: '2', role: 'user' } });
 
 			const response = await GET();
 			const json = await response.json();
@@ -107,12 +104,7 @@ describe('Users API Routes', () => {
 	});
 
 	describe('POST /api/users', () => {
-		const mockPerson = {
-			id: 5,
-			name: 'John Doe',
-			email: 'john@example.com',
-		};
-
+		const mockPerson = { id: 5, name: 'John Doe', email: 'john@example.com' };
 		const mockEmailConfig = {
 			smtp_server: 'smtp.example.com',
 			smtp_port: 587,
@@ -122,24 +114,21 @@ describe('Users API Routes', () => {
 		};
 
 		it('creates user and sends email successfully', async () => {
-			mockDb.get
-				.mockResolvedValueOnce(mockPerson) // Get person
-				.mockResolvedValueOnce(null) // Check existing user
-				.mockResolvedValueOnce(null); // Check username availability
+			mockDb.get.mockResolvedValueOnce(mockPerson).mockResolvedValueOnce(null).mockResolvedValueOnce(null);
 			mockDb.run.mockResolvedValue({ lastID: 10 });
 
-			// Provide env SMTP config
 			process.env.SMTP_SERVER = mockEmailConfig.smtp_server;
 			process.env.SMTP_PORT = String(mockEmailConfig.smtp_port);
 			process.env.SMTP_USERNAME = mockEmailConfig.smtp_username;
 			process.env.SMTP_PASSWORD = mockEmailConfig.smtp_password;
 			process.env.FROM_EMAIL = mockEmailConfig.from_email;
 
-			const req = {
-				json: jest.fn().mockResolvedValue({ person_id: 5 }),
-			};
+			const req = new Request('http://localhost/api/users', {
+				method: 'POST',
+				body: JSON.stringify({ person_id: 5 }),
+			});
 
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(json).toMatchObject({
@@ -154,30 +143,27 @@ describe('Users API Routes', () => {
 		});
 
 		it('generates unique username when conflict exists', async () => {
-			mockDb.get
-				.mockResolvedValueOnce(mockPerson)
-				.mockResolvedValueOnce(null)
-				.mockResolvedValueOnce({ id: 1 }) // Username exists
-				.mockResolvedValueOnce(null) // Username with number available
-				.mockResolvedValueOnce(mockEmailConfig);
+			mockDb.get.mockResolvedValueOnce(mockPerson).mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 1 }).mockResolvedValueOnce(null);
 			mockDb.run.mockResolvedValue({ lastID: 10 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({ person_id: 5 }),
-			};
+			const req = new Request('http://localhost/api/users', {
+				method: 'POST',
+				body: JSON.stringify({ person_id: 5 }),
+			});
 
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(json.username).toBe('johndoe1');
 		});
 
 		it('returns 400 when person_id missing', async () => {
-			const req = {
-				json: jest.fn().mockResolvedValue({}),
-			};
+			const req = new Request('http://localhost/api/users', {
+				method: 'POST',
+				body: JSON.stringify({}),
+			});
 
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -187,11 +173,12 @@ describe('Users API Routes', () => {
 		it('returns 404 when person not found', async () => {
 			mockDb.get.mockResolvedValue(null);
 
-			const req = {
-				json: jest.fn().mockResolvedValue({ person_id: 999 }),
-			};
+			const req = new Request('http://localhost/api/users', {
+				method: 'POST',
+				body: JSON.stringify({ person_id: 999 }),
+			});
 
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(404);
@@ -199,13 +186,14 @@ describe('Users API Routes', () => {
 		});
 
 		it('returns 400 when user already exists for person', async () => {
-			mockDb.get.mockResolvedValueOnce(mockPerson).mockResolvedValueOnce({ id: 5 }); // User exists
+			mockDb.get.mockResolvedValueOnce(mockPerson).mockResolvedValueOnce({ id: 5 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({ person_id: 5 }),
-			};
+			const req = new Request('http://localhost/api/users', {
+				method: 'POST',
+				body: JSON.stringify({ person_id: 5 }),
+			});
 
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -213,21 +201,21 @@ describe('Users API Routes', () => {
 		});
 
 		it('creates user even when email fails', async () => {
-			mockDb.get.mockResolvedValueOnce(mockPerson).mockResolvedValueOnce(null).mockResolvedValueOnce(null).mockResolvedValueOnce(null); // No email config
+			mockDb.get.mockResolvedValueOnce(mockPerson).mockResolvedValueOnce(null).mockResolvedValueOnce(null).mockResolvedValueOnce(null);
 			mockDb.run.mockResolvedValue({ lastID: 10 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({ person_id: 5 }),
-			};
+			const req = new Request('http://localhost/api/users', {
+				method: 'POST',
+				body: JSON.stringify({ person_id: 5 }),
+			});
 
-			// Ensure no SMTP env vars are present for this test
 			delete process.env.SMTP_SERVER;
 			delete process.env.SMTP_PORT;
 			delete process.env.SMTP_USERNAME;
 			delete process.env.SMTP_PASSWORD;
 			delete process.env.FROM_EMAIL;
 
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(json.emailSent).toBe(false);
@@ -236,15 +224,14 @@ describe('Users API Routes', () => {
 		});
 
 		it('returns 403 when not admin', async () => {
-			(getServerSession as jest.Mock).mockResolvedValue({
-				user: { id: '2', role: 'user' },
+			(getServerSession as jest.Mock).mockResolvedValue({ user: { id: '2', role: 'user' } });
+
+			const req = new Request('http://localhost/api/users', {
+				method: 'POST',
+				body: JSON.stringify({ person_id: 5 }),
 			});
 
-			const req = {
-				json: jest.fn().mockResolvedValue({ person_id: 5 }),
-			};
-
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(403);
@@ -254,13 +241,11 @@ describe('Users API Routes', () => {
 
 	describe('DELETE /api/users/[id]', () => {
 		it('deletes user successfully', async () => {
-			mockDb.get
-				.mockResolvedValueOnce({ role: 'user' }) // User to delete
-				.mockResolvedValueOnce({ count: 2 }); // Admin count
+			mockDb.get.mockResolvedValueOnce({ role: 'user' }).mockResolvedValueOnce({ count: 2 });
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {} as any;
-			const response = await DELETE(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/users/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('DELETE FROM users WHERE id = ?', [5]);
@@ -268,8 +253,8 @@ describe('Users API Routes', () => {
 		});
 
 		it('prevents deleting own account', async () => {
-			const req = {} as any;
-			const response = await DELETE(req, { params: { id: '1' } });
+			const req = new NextRequest('http://localhost/api/users/1', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '1' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -279,8 +264,8 @@ describe('Users API Routes', () => {
 		it('prevents deleting last admin', async () => {
 			mockDb.get.mockResolvedValueOnce({ role: 'admin' }).mockResolvedValueOnce({ count: 1 });
 
-			const req = {} as any;
-			const response = await DELETE(req, { params: { id: '2' } });
+			const req = new NextRequest('http://localhost/api/users/2', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '2' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -290,8 +275,8 @@ describe('Users API Routes', () => {
 		it('returns 404 when user not found', async () => {
 			mockDb.get.mockResolvedValue(null);
 
-			const req = {} as any;
-			const response = await DELETE(req, { params: { id: '999' } });
+			const req = new NextRequest('http://localhost/api/users/999', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '999' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(404);
@@ -299,12 +284,10 @@ describe('Users API Routes', () => {
 		});
 
 		it('returns 403 when not admin', async () => {
-			(getServerSession as jest.Mock).mockResolvedValue({
-				user: { id: '2', role: 'user' },
-			});
+			(getServerSession as jest.Mock).mockResolvedValue({ user: { id: '2', role: 'user' } });
 
-			const req = {} as any;
-			const response = await DELETE(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/users/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(403);
@@ -313,13 +296,7 @@ describe('Users API Routes', () => {
 	});
 
 	describe('POST /api/users/[id]/resend-credentials', () => {
-		const mockUser = {
-			id: 5,
-			username: 'johndoe',
-			person_name: 'John Doe',
-			person_email: 'john@example.com',
-		};
-
+		const mockUser = { id: 5, username: 'johndoe', person_name: 'John Doe', person_email: 'john@example.com' };
 		const mockEmailConfig = {
 			smtp_server: 'smtp.example.com',
 			smtp_port: 587,
@@ -332,15 +309,14 @@ describe('Users API Routes', () => {
 			mockDb.get.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(null);
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			// Provide env SMTP config
 			process.env.SMTP_SERVER = mockEmailConfig.smtp_server;
 			process.env.SMTP_PORT = String(mockEmailConfig.smtp_port);
 			process.env.SMTP_USERNAME = mockEmailConfig.smtp_username;
 			process.env.SMTP_PASSWORD = mockEmailConfig.smtp_password;
 			process.env.FROM_EMAIL = mockEmailConfig.from_email;
 
-			const req = {} as any;
-			const response = await ResendCredentials(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/users/5/resend-credentials', { method: 'POST' });
+			const response = await ResendCredentials(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?', [expect.any(String), 5]);
@@ -356,8 +332,8 @@ describe('Users API Routes', () => {
 		it('returns 404 when user not found', async () => {
 			mockDb.get.mockResolvedValue(null);
 
-			const req = {} as any;
-			const response = await ResendCredentials(req, { params: { id: '999' } });
+			const req = new NextRequest('http://localhost/api/users/999/resend-credentials', { method: 'POST' });
+			const response = await ResendCredentials(req, { params: Promise.resolve({ id: '999' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(404);
@@ -365,13 +341,10 @@ describe('Users API Routes', () => {
 		});
 
 		it('returns 400 when user has no email', async () => {
-			mockDb.get.mockResolvedValue({
-				...mockUser,
-				person_email: null,
-			});
+			mockDb.get.mockResolvedValue({ ...mockUser, person_email: null });
 
-			const req = {} as any;
-			const response = await ResendCredentials(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/users/5/resend-credentials', { method: 'POST' });
+			const response = await ResendCredentials(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -381,16 +354,15 @@ describe('Users API Routes', () => {
 		it('returns 400 when email not configured', async () => {
 			mockDb.get.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(null);
 
-			const req = {} as any;
+			const req = new NextRequest('http://localhost/api/users/5/resend-credentials', { method: 'POST' });
 
-			// Ensure no SMTP env vars are present for this test
 			delete process.env.SMTP_SERVER;
 			delete process.env.SMTP_PORT;
 			delete process.env.SMTP_USERNAME;
 			delete process.env.SMTP_PASSWORD;
 			delete process.env.FROM_EMAIL;
 
-			const response = await ResendCredentials(req, { params: { id: '5' } });
+			const response = await ResendCredentials(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -398,12 +370,10 @@ describe('Users API Routes', () => {
 		});
 
 		it('returns 403 when not admin', async () => {
-			(getServerSession as jest.Mock).mockResolvedValue({
-				user: { id: '2', role: 'user' },
-			});
+			(getServerSession as jest.Mock).mockResolvedValue({ user: { id: '2', role: 'user' } });
 
-			const req = {} as any;
-			const response = await ResendCredentials(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/users/5/resend-credentials', { method: 'POST' });
+			const response = await ResendCredentials(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(403);

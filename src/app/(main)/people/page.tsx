@@ -28,8 +28,8 @@ export default function Page() {
 		try {
 			const data = await apiGet<Person[]>('/api/people');
 			setPeople(data);
-		} catch (err) {
-			console.error(err);
+		} catch (err: unknown) {
+			console.error(err instanceof Error ? err.message : err);
 		} finally {
 			setLoading(false);
 		}
@@ -73,8 +73,8 @@ export default function Page() {
 			setEmail('');
 			setEmailError('');
 			load();
-		} catch (err: any) {
-			alert(String(err.message || err));
+		} catch (err: unknown) {
+			alert(String(err instanceof Error ? err.message : err));
 		}
 	}
 
@@ -83,8 +83,8 @@ export default function Page() {
 		try {
 			await apiDelete(`/api/people/${id}`);
 			load();
-		} catch (err) {
-			console.error(err);
+		} catch (err: unknown) {
+			console.error(err instanceof Error ? err.message : err);
 		}
 	}
 

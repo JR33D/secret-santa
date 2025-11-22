@@ -2,7 +2,7 @@ import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 
 export default withAuth(
-	function middleware(req) {
+	function proxy(req) {
 		const token = req.nextauth.token;
 		const path = req.nextUrl.pathname;
 
@@ -17,7 +17,7 @@ export default withAuth(
 		const isAdminOnlyPath = adminOnlyPaths.some((p) => path.startsWith(p));
 
 		if (isAdminOnlyPath && token?.role !== 'admin') {
-			return { status: 403, json: async () => ({ error: 'Unauthorized - Admin access required' }) } as any;
+			return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 403 });
 		}
 
 		return NextResponse.next();

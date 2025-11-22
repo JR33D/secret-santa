@@ -1,4 +1,4 @@
-import { getEnvEmailConfig, isEmailConfigValid } from '@/lib/email-config';
+import { getEnvEmailConfig, isEmailConfigValid, EmailConfig } from '@/lib/email-config';
 
 describe('Email Config helpers', () => {
 	const OLD_ENV = process.env;
@@ -36,13 +36,13 @@ describe('Email Config helpers', () => {
 	it('validates minimal email config correctly', () => {
 		expect(isEmailConfigValid(null)).toBe(false);
 
-		const missingFrom = { smtp_server: 'smtp.example.com', smtp_port: 25 } as any;
+		const missingFrom = { smtp_server: 'smtp.example.com', smtp_port: 25 } as EmailConfig;
 		expect(isEmailConfigValid(missingFrom)).toBe(false);
 
-		const missingServer = { smtp_port: 25, from_email: 'noreply@example.com' } as any;
+		const missingServer = { smtp_port: 25, from_email: 'noreply@example.com' } as EmailConfig;
 		expect(isEmailConfigValid(missingServer)).toBe(false);
 
-		const good = { smtp_server: 'smtp', smtp_port: 25, from_email: 'noreply@example.com' } as any;
+		const good = { smtp_server: 'smtp', smtp_port: 25, from_email: 'noreply@example.com' } as EmailConfig;
 		expect(isEmailConfigValid(good)).toBe(true);
 	});
 

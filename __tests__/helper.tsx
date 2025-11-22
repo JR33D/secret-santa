@@ -51,7 +51,7 @@ export const createMockDb = () => ({
 });
 
 // API response helpers
-export const mockSuccessResponse = (data: any) =>
+export const mockSuccessResponse = (data: unknown) =>
 	Promise.resolve({
 		ok: true,
 		json: async () => data,

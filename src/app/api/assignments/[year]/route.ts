@@ -1,9 +1,12 @@
+import { NextRequest } from 'next/server';
 import { getDb } from '@/lib/db';
 
-export async function GET(request: Request, { params }: { params: { year: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ year: string }> }) {
 	try {
+		const { year } = await context.params;
 		const db = await getDb();
-		const year = parseInt(params.year);
+
+		const parsedYear = parseInt(year);
 		const { searchParams } = new URL(request.url);
 		const poolId = searchParams.get('pool_id');
 
@@ -20,7 +23,7 @@ export async function GET(request: Request, { params }: { params: { year: string
       WHERE a.year = ?
     `;
 
-		const queryParams: any[] = [year];
+		const queryParams: (string | number)[] = [parsedYear];
 
 		if (poolId) {
 			query += ' AND a.pool_id = ?';
@@ -31,26 +34,28 @@ export async function GET(request: Request, { params }: { params: { year: string
 
 		const assignments = await db.all(query, queryParams);
 		return Response.json(assignments, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }
 
-export async function DELETE(request: Request, { params }: { params: { year: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ year: string }> }) {
 	try {
+		const { year } = await context.params;
 		const db = await getDb();
-		const year = parseInt(params.year);
+
+		const parsedYear = parseInt(year);
 		const { searchParams } = new URL(request.url);
 		const poolId = searchParams.get('pool_id');
 
 		if (poolId) {
-			await db.run('DELETE FROM assignments WHERE year = ? AND pool_id = ?', [year, parseInt(poolId)]);
+			await db.run('DELETE FROM assignments WHERE year = ? AND pool_id = ?', [parsedYear, parseInt(poolId)]);
 		} else {
-			await db.run('DELETE FROM assignments WHERE year = ?', [year]);
+			await db.run('DELETE FROM assignments WHERE year = ?', [parsedYear]);
 		}
 
 		return Response.json({ message: 'Assignments deleted successfully' }, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }

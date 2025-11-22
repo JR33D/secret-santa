@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       LEFT JOIN pools p ON a.pool_id = p.id
     `;
 
-		const params: any[] = [];
+		const params: (string | number)[] = [];
 
 		if (poolId) {
 			query += ' WHERE a.pool_id = ?';
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
 		const assignments = await db.all(query, params);
 		return Response.json(assignments, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }

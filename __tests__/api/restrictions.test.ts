@@ -1,11 +1,20 @@
+/**
+ * @jest-environment node
+ */
+import { NextRequest } from 'next/server';
 import { GET, POST } from '@/app/api/restrictions/route';
 import { DELETE } from '@/app/api/restrictions/[id]/route';
 import { getDb } from '@/lib/db';
 
 jest.mock('@/lib/db');
 
+interface MockDatabase {
+	all: jest.Mock;
+	run: jest.Mock;
+}
+
 describe('Restrictions API Routes', () => {
-	let mockDb: any;
+	let mockDb: MockDatabase;
 
 	beforeEach(() => {
 		mockDb = {
@@ -22,20 +31,8 @@ describe('Restrictions API Routes', () => {
 	describe('GET /api/restrictions', () => {
 		it('returns all restrictions with names', async () => {
 			const mockRestrictions = [
-				{
-					id: 1,
-					giver_id: 1,
-					receiver_id: 2,
-					giver_name: 'Alice',
-					receiver_name: 'Bob',
-				},
-				{
-					id: 2,
-					giver_id: 2,
-					receiver_id: 3,
-					giver_name: 'Bob',
-					receiver_name: 'Charlie',
-				},
+				{ id: 1, giver_id: 1, receiver_id: 2, giver_name: 'Alice', receiver_name: 'Bob' },
+				{ id: 2, giver_id: 2, receiver_id: 3, giver_name: 'Bob', receiver_name: 'Charlie' },
 			];
 			mockDb.all.mockResolvedValue(mockRestrictions);
 
@@ -60,8 +57,6 @@ describe('Restrictions API Routes', () => {
 		it('handles database errors gracefully', async () => {
 			mockDb.all.mockRejectedValue(new Error('DB Error'));
 
-			// The current implementation doesn't have error handling
-			// This would throw an error
 			await expect(GET()).rejects.toThrow('DB Error');
 		});
 	});
@@ -70,49 +65,38 @@ describe('Restrictions API Routes', () => {
 		it('creates a new restriction successfully', async () => {
 			mockDb.run.mockResolvedValue({ lastID: 5 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					giver_id: 1,
-					receiver_id: 2,
-				}),
-			};
+			const req = new Request('http://localhost/api/restrictions', {
+				method: 'POST',
+				body: JSON.stringify({ giver_id: 1, receiver_id: 2 }),
+			});
 
-			const response = await POST(req as any);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('INSERT INTO restrictions (giver_id, receiver_id) VALUES (?, ?)', [1, 2]);
-			expect(json).toEqual({
-				id: 5,
-				giver_id: 1,
-				receiver_id: 2,
-			});
+			expect(json).toEqual({ id: 5, giver_id: 1, receiver_id: 2 });
 		});
 
 		it('handles database errors', async () => {
 			mockDb.run.mockRejectedValue(new Error('UNIQUE constraint failed'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					giver_id: 1,
-					receiver_id: 2,
-				}),
-			};
+			const req = new Request('http://localhost/api/restrictions', {
+				method: 'POST',
+				body: JSON.stringify({ giver_id: 1, receiver_id: 2 }),
+			});
 
-			// The current implementation doesn't have error handling
-			await expect(POST(req as any)).rejects.toThrow();
+			await expect(POST(req)).rejects.toThrow();
 		});
 
 		it('handles duplicate restrictions', async () => {
 			mockDb.run.mockRejectedValue(new Error('UNIQUE constraint failed: restrictions.giver_id, restrictions.receiver_id'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					giver_id: 1,
-					receiver_id: 2,
-				}),
-			};
+			const req = new Request('http://localhost/api/restrictions', {
+				method: 'POST',
+				body: JSON.stringify({ giver_id: 1, receiver_id: 2 }),
+			});
 
-			await expect(POST(req as any)).rejects.toThrow('UNIQUE constraint');
+			await expect(POST(req)).rejects.toThrow('UNIQUE constraint');
 		});
 	});
 
@@ -120,8 +104,8 @@ describe('Restrictions API Routes', () => {
 		it('deletes a restriction successfully', async () => {
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {} as any;
-			const response = await DELETE(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/restrictions/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('DELETE FROM restrictions WHERE id = ?', ['5']);
@@ -131,8 +115,8 @@ describe('Restrictions API Routes', () => {
 		it('handles deletion of non-existent restriction', async () => {
 			mockDb.run.mockResolvedValue({ changes: 0 });
 
-			const req = {} as any;
-			const response = await DELETE(req, { params: { id: '999' } });
+			const req = new NextRequest('http://localhost/api/restrictions/999', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '999' }) });
 			const json = await response.json();
 
 			expect(json).toEqual({ success: true });
@@ -141,10 +125,9 @@ describe('Restrictions API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.run.mockRejectedValue(new Error('DB Error'));
 
-			const req = {} as any;
+			const req = new NextRequest('http://localhost/api/restrictions/5', { method: 'DELETE' });
 
-			// The current implementation doesn't have error handling
-			await expect(DELETE(req, { params: { id: '5' } })).rejects.toThrow('DB Error');
+			await expect(DELETE(req, { params: Promise.resolve({ id: '5' }) })).rejects.toThrow('DB Error');
 		});
 	});
 });

@@ -1,7 +1,17 @@
+/**
+ * @jest-environment node
+ */
+import bcrypt from 'bcryptjs';
+import { getDb } from '@/lib/db';
+import { hashPassword, generatePassword, initializeAdmin, authOptions, authorizeCredentials } from '@/lib/auth';
+
 jest.mock('bcryptjs');
 jest.mock('@/lib/db');
-const { getDb } = require('@/lib/db');
-const { hashPassword, generatePassword, initializeAdmin } = require('@/lib/auth');
+
+interface Db {
+	get: jest.Mock;
+	run: jest.Mock;
+}
 
 describe('auth helpers', () => {
 	beforeEach(() => {
@@ -19,12 +29,11 @@ describe('auth helpers', () => {
 		const p2 = generatePassword(8);
 		expect(typeof p1).toBe('string');
 		expect(p1).toHaveLength(8);
-		// Likely different
 		expect(p1).not.toBe(p2);
 	});
 
 	describe('initializeAdmin', () => {
-		const mockDb: any = { get: jest.fn(), run: jest.fn() };
+		const mockDb: Db = { get: jest.fn(), run: jest.fn() };
 
 		beforeEach(() => {
 			(getDb as jest.Mock).mockResolvedValue(mockDb);
@@ -75,8 +84,7 @@ describe('auth helpers', () => {
 });
 
 describe('auth provider authorize', () => {
-	const mockDb: any = { get: jest.fn() };
-	const bcrypt = require('bcryptjs');
+	const mockDb: Db = { get: jest.fn(), run: jest.fn() };
 
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -84,27 +92,24 @@ describe('auth provider authorize', () => {
 	});
 
 	it('returns null when credentials missing', async () => {
-		const { authOptions } = require('@/lib/auth');
-		const provider: any = (authOptions.providers as any)[0];
-		const res = await provider.authorize?.(undefined as any);
+		const provider = authOptions.providers[0];
+		// @ts-expect-error - testing with undefined credentials
+		const res = await provider.authorize?.(undefined);
 		expect(res).toBeNull();
 	});
 
 	it('returns null when user not found', async () => {
 		mockDb.get.mockResolvedValue(null);
-		const { authOptions } = require('@/lib/auth');
-		const provider: any = (authOptions.providers as any)[0];
-		const res = await provider.authorize?.({ username: 'noone', password: 'pw' } as any);
+		const provider = authOptions.providers[0];
+		// @ts-expect-error - testing authorize function directly
+		const res = await provider.authorize?.({ username: 'noone', password: 'pw' });
 		expect(res).toBeNull();
 	});
 
 	it('returns user object when credentials match', async () => {
-		// test the extracted helper directly
-		const bcrypt = require('bcryptjs');
 		mockDb.get.mockResolvedValue({ id: 7, username: 'sam', password_hash: 'hashed_pw', role: 'user', person_id: 12, must_change_password: 0 });
 		(bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-		const { authorizeCredentials } = require('@/lib/auth');
 		const res = await authorizeCredentials({ username: 'sam', password: 'pw' });
 
 		expect(res).not.toBeNull();
@@ -114,14 +119,10 @@ describe('auth provider authorize', () => {
 	});
 
 	it('returns null when password is incorrect using helper', async () => {
-		const bcrypt = require('bcryptjs');
 		mockDb.get.mockResolvedValue({ id: 8, username: 'joe', password_hash: 'hashed_pw', role: 'user', person_id: 5, must_change_password: 0 });
 		(bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-		const { authorizeCredentials } = require('@/lib/auth');
 		const res = await authorizeCredentials({ username: 'joe', password: 'wrong' });
 		expect(res).toBeNull();
 	});
-
-	// Successful authorize flow is covered indirectly by other integration tests
 });

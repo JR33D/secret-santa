@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiDelete } from '@/lib/api';
 
 type Person = { id: number; name: string; email: string };
+
 type User = {
 	id: number;
 	username: string;
@@ -14,7 +15,7 @@ type User = {
 	created_at: string;
 };
 
-type CredentialsModalData = {
+type CreateUserResponse = {
 	username: string;
 	tempPassword: string;
 	person_name: string;
@@ -22,6 +23,8 @@ type CredentialsModalData = {
 	emailSent: boolean;
 	emailError?: string;
 };
+
+type CredentialsModalData = CreateUserResponse;
 
 export default function Page() {
 	const [users, setUsers] = useState<User[]>([]);
@@ -40,8 +43,8 @@ export default function Page() {
 		try {
 			const data = await apiGet<User[]>('/api/users');
 			setUsers(data);
-		} catch (err) {
-			console.error(err);
+		} catch (err: unknown) {
+			console.error(err instanceof Error ? err.message : err);
 		} finally {
 			setLoading(false);
 		}
@@ -51,35 +54,24 @@ export default function Page() {
 		try {
 			const data = await apiGet<Person[]>('/api/people');
 			setPeople(data);
-		} catch (err) {
-			console.error(err);
+		} catch (err: unknown) {
+			console.error(err instanceof Error ? err.message : err);
 		}
 	}
 
 	async function createUser() {
-		if (!selectedPersonId) {
-			alert('Please select a person');
-			return;
-		}
+		if (!selectedPersonId) return alert('Please select a person');
 
 		try {
-			const result = await apiPost<any>('/api/users', {
+			const result = await apiPost<CreateUserResponse>('/api/users', {
 				person_id: Number(selectedPersonId),
 			});
 
-			setCredentialsModal({
-				username: result.username,
-				tempPassword: result.tempPassword,
-				person_name: result.person_name,
-				person_email: result.person_email,
-				emailSent: result.emailSent,
-				emailError: result.emailError,
-			});
-
+			setCredentialsModal(result);
 			setSelectedPersonId('');
 			loadUsers();
-		} catch (err: any) {
-			alert(err.message || 'Failed to create user');
+		} catch (err: unknown) {
+			alert(err instanceof Error ? err.message : 'Failed to create user');
 		}
 	}
 
@@ -87,18 +79,10 @@ export default function Page() {
 		if (!confirm('Generate a new temporary password and send it via email?')) return;
 
 		try {
-			const result = await apiPost<any>(`/api/users/${userId}/resend-credentials`);
-
-			setCredentialsModal({
-				username: result.username,
-				tempPassword: result.tempPassword,
-				person_name: result.person_name,
-				person_email: result.person_email,
-				emailSent: result.emailSent,
-				emailError: result.emailError,
-			});
-		} catch (err: any) {
-			alert(err.message || 'Failed to resend credentials');
+			const result = await apiPost<CreateUserResponse>(`/api/users/${userId}/resend-credentials`);
+			setCredentialsModal(result);
+		} catch (err: unknown) {
+			alert(err instanceof Error ? err.message : 'Failed to resend credentials');
 		}
 	}
 
@@ -108,16 +92,13 @@ export default function Page() {
 		try {
 			await apiDelete(`/api/users/${id}`);
 			loadUsers();
-		} catch (err: any) {
-			alert(err.message || 'Failed to delete user');
+		} catch (err: unknown) {
+			alert(err instanceof Error ? err.message : 'Failed to delete user');
 		}
 	}
 
-	const closeCredentialsModal = () => {
-		setCredentialsModal(null);
-	};
+	const closeCredentialsModal = () => setCredentialsModal(null);
 
-	// Filter out people who already have user accounts
 	const availablePeople = people.filter((p) => !users.some((u) => u.person_id === p.id));
 
 	return (
@@ -188,7 +169,7 @@ export default function Page() {
 					</div>
 				) : (
 					<div className="flex gap-3">
-						<select value={selectedPersonId} onChange={(e) => setSelectedPersonId(e.target.value)} className="flex-1 p-2 border rounded">
+						<select value={selectedPersonId} onChange={(e) => setSelectedPersonId(e.target.value)} className="flex-1 p-2 border rounded" disabled={loading}>
 							<option value="">Select a person...</option>
 							{availablePeople.map((p) => (
 								<option key={p.id} value={String(p.id)}>
@@ -197,7 +178,11 @@ export default function Page() {
 							))}
 						</select>
 
-						<button onClick={createUser} disabled={!selectedPersonId} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+						<button
+							onClick={createUser}
+							disabled={!selectedPersonId || loading}
+							className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+						>
 							Create User
 						</button>
 					</div>

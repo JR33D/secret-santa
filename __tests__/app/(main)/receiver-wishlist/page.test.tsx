@@ -8,11 +8,11 @@ import * as api from '@/lib/api';
 jest.mock('next-auth/react');
 jest.mock('@/lib/api');
 
-// Mock next/image
+// Mock next/image to avoid width/height requirement errors
 jest.mock('next/image', () => ({
 	__esModule: true,
-	default: (props: any) => {
-		// eslint-disable-next-line @next/next/no-img-element
+	default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+		// eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
 		return <img {...props} />;
 	},
 }));

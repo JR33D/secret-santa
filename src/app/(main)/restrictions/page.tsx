@@ -19,37 +19,52 @@ export default function Page() {
 	const [giver, setGiver] = useState('');
 	const [receiver, setReceiver] = useState('');
 	const [restrictions, setRestrictions] = useState<Restriction[]>([]);
+	const [loading, setLoading] = useState(false);
 
+	// Load pools and restrictions on mount
 	useEffect(() => {
-		loadPools();
-		loadRestrictions();
-	}, []);
+		let isMounted = true;
 
-	useEffect(() => {
-		if (poolId) {
-			loadPeople();
-		} else {
-			setPeople([]);
+		async function fetchPools() {
+			const data = await apiGet<Pool[]>('/api/pools');
+			if (isMounted) {
+				setPools(data);
+				if (data.length > 0 && !poolId) setPoolId(String(data[0].id));
+			}
 		}
+
+		async function fetchRestrictions() {
+			const data = await apiGet<Restriction[]>('/api/restrictions');
+			if (isMounted) setRestrictions(data);
+		}
+
+		fetchPools();
+		fetchRestrictions();
+
+		return () => {
+			isMounted = false;
+		};
 	}, [poolId]);
 
-	async function loadPools() {
-		const data = await apiGet<Pool[]>('/api/pools');
-		setPools(data);
-		if (data.length > 0 && !poolId) {
-			setPoolId(String(data[0].id));
+	// Load people when poolId changes
+	useEffect(() => {
+		let isMounted = true;
+
+		async function fetchPeople() {
+			if (!poolId) {
+				if (isMounted) setPeople([]);
+				return;
+			}
+			const data = await apiGet<Person[]>(`/api/people?pool_id=${poolId}`);
+			if (isMounted) setPeople(data);
 		}
-	}
 
-	async function loadPeople() {
-		if (!poolId) return;
-		const data = await apiGet<Person[]>(`/api/people?pool_id=${poolId}`);
-		setPeople(data);
-	}
+		fetchPeople();
 
-	async function loadRestrictions() {
-		setRestrictions(await apiGet<Restriction[]>('/api/restrictions'));
-	}
+		return () => {
+			isMounted = false;
+		};
+	}, [poolId]);
 
 	async function addRestriction() {
 		if (!giver || !receiver) {
@@ -61,6 +76,7 @@ export default function Page() {
 			return;
 		}
 
+		setLoading(true);
 		try {
 			await apiPost('/api/restrictions', {
 				giver_id: Number(giver),
@@ -68,25 +84,33 @@ export default function Page() {
 			});
 			setGiver('');
 			setReceiver('');
-			loadRestrictions();
-		} catch (error: any) {
-			alert(error.message || 'Error adding restriction');
+			const data = await apiGet<Restriction[]>('/api/restrictions');
+			setRestrictions(data);
+		} catch (error: unknown) {
+			alert(error instanceof Error ? error.message : 'Error adding restriction');
+		} finally {
+			setLoading(false);
 		}
 	}
 
-	async function remove(id: number) {
+	async function removeRestriction(id: number) {
 		if (!confirm('Remove this restriction?')) return;
-		await apiDelete(`/api/restrictions/${id}`);
-		loadRestrictions();
+
+		setLoading(true);
+		try {
+			await apiDelete(`/api/restrictions/${id}`);
+			const data = await apiGet<Restriction[]>('/api/restrictions');
+			setRestrictions(data);
+		} catch (error: unknown) {
+			alert(error instanceof Error ? error.message : 'Error removing restriction');
+		} finally {
+			setLoading(false);
+		}
 	}
 
-	// Filter restrictions to show only those within the selected pool
-	const filteredRestrictions = poolId
-		? restrictions.filter((r) => {
-				const giverPerson = people.find((p) => p.id === r.giver_id);
-				return giverPerson !== undefined;
-			})
-		: restrictions;
+	// Filter restrictions to only those within the selected pool
+	const peopleIds = new Set(people.map((p) => p.id));
+	const filteredRestrictions = poolId ? restrictions.filter((r) => peopleIds.has(r.giver_id)) : restrictions;
 
 	return (
 		<div>
@@ -158,7 +182,7 @@ export default function Page() {
 								</div>
 							</div>
 
-							<button onClick={addRestriction} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+							<button onClick={addRestriction} disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
 								Add Restriction
 							</button>
 						</>
@@ -175,7 +199,7 @@ export default function Page() {
 								<div>
 									<strong>{r.giver_name}</strong> → ❌ → <strong>{r.receiver_name}</strong>
 								</div>
-								<button onClick={() => remove(r.id)} className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition">
+								<button onClick={() => removeRestriction(r.id)} disabled={loading} className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition">
 									Delete
 								</button>
 							</div>
