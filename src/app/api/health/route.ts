@@ -14,14 +14,14 @@ export async function GET() {
 			},
 			{ status: 200 },
 		);
-	} catch (error: any) {
+	} catch (error: unknown) {
 		// debug - ensure the fallback path returns what we expect
 		const resp = Response.json(
 			{
 				status: 'unhealthy',
 				timestamp: new Date().toISOString(),
 				database: 'disconnected',
-				error: error.message,
+				error: error instanceof Error ? error.message : 'An unknown error occurred',
 			},
 			{ status: 503 },
 		);

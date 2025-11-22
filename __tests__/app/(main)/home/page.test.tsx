@@ -32,9 +32,13 @@ describe('HomePage', () => {
 
 		try {
 			render(<HomePage />);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			// Next.js redirect throws an error to stop rendering
-			expect(e.message).toContain('NEXT_REDIRECT');
+			if (e instanceof Error) {
+				expect(e.message).toContain('NEXT_REDIRECT');
+			} else {
+				fail('Expected an error to be thrown');
+			}
 		}
 
 		expect(redirect as jest.Mock).toHaveBeenCalledWith('/pools');
@@ -50,9 +54,13 @@ describe('HomePage', () => {
 
 		try {
 			render(<HomePage />);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			// Next.js redirect throws an error to stop rendering
-			expect(e.message).toContain('NEXT_REDIRECT');
+			if (e instanceof Error) {
+				expect(e.message).toContain('NEXT_REDIRECT');
+			} else {
+				fail('Expected an error to be thrown');
+			}
 		}
 
 		expect(redirect as jest.Mock).toHaveBeenCalledWith('/my-wishlist');

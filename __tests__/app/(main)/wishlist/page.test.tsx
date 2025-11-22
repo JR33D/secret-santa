@@ -6,19 +6,23 @@ import * as api from '@/lib/api';
 
 jest.mock('@/lib/api');
 
+interface WishlistItemData {
+	item_name: string;
+	link: string;
+	image_url: string;
+}
+
 describe('Manage Wishlists Page', () => {
 	const mockPeople = [
 		{ id: 101, name: 'Alice' },
 		{ id: 102, name: 'Bob' },
 	];
-
 	const mockWishlistItems = [
 		{ id: 1, item_name: 'Book', link: 'http://book.com' },
 		{ id: 2, item_name: 'Gadget', link: '' },
 	];
 
 	let currentWishlistItems: typeof mockWishlistItems;
-
 	beforeEach(() => {
 		jest.clearAllMocks();
 		currentWishlistItems = [...mockWishlistItems];
@@ -34,7 +38,7 @@ describe('Manage Wishlists Page', () => {
 			return Promise.resolve([]);
 		});
 
-		(api.apiPost as jest.Mock).mockImplementation((url: string, data: any) => {
+		(api.apiPost as jest.Mock).mockImplementation((url: string, data: WishlistItemData) => {
 			if (url === '/api/wishlist/101') {
 				const newItem = {
 					id: Date.now(),

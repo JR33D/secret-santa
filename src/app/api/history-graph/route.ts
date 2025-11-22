@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       JOIN people r ON a.receiver_id = r.id
     `;
 
-		const params: any[] = [];
+		const params: (string | number)[] = [];
 
 		if (poolId) {
 			query += ' WHERE a.pool_id = ?';
@@ -28,21 +28,22 @@ export async function GET(request: Request) {
 
 		// Extract unique nodes
 		const nodesSet = new Set<string>();
-		assignments.forEach((a: any) => {
+		type AssignmentResult = { year: number; giver: string; receiver: string };
+		assignments.forEach((a: AssignmentResult) => {
 			nodesSet.add(a.giver);
 			nodesSet.add(a.receiver);
 		});
 
 		const nodes = Array.from(nodesSet);
 
-		const links = assignments.map((a: any) => ({
+		const links = assignments.map((a: AssignmentResult) => ({
 			year: a.year,
 			giver: a.giver,
 			receiver: a.receiver,
 		}));
 
 		return Response.json({ nodes, links }, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }

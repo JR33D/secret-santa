@@ -8,7 +8,7 @@ import { getEnvEmailConfig, isEmailConfigValid } from '@/lib/email-config';
 export async function GET() {
 	try {
 		const session = await getServerSession(authOptions);
-		if (!session || (session.user as any).role !== 'admin') {
+		if (!session || session.user?.role !== 'admin') {
 			return Response.json({ error: 'Unauthorized' }, { status: 403 });
 		}
 
@@ -29,15 +29,15 @@ export async function GET() {
     `);
 
 		return Response.json(users, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }
 
 export async function POST(request: Request) {
 	try {
 		const session = await getServerSession(authOptions);
-		if (!session || (session.user as any).role !== 'admin') {
+		if (!session || session.user?.role !== 'admin') {
 			return Response.json({ error: 'Unauthorized' }, { status: 403 });
 		}
 
@@ -125,8 +125,8 @@ export async function POST(request: Request) {
 			} else {
 				emailError = 'Email not configured (set SMTP_SERVER and FROM_EMAIL in env)';
 			}
-		} catch (error: any) {
-			emailError = error.message || 'Failed to send email';
+		} catch (error: unknown) {
+			emailError = error instanceof Error ? error.message : 'Failed to send email';
 		}
 
 		return Response.json(
@@ -142,7 +142,10 @@ export async function POST(request: Request) {
 			},
 			{ status: 200 },
 		);
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		if (error instanceof Error && error.message.includes('UNIQUE')) {
+			return Response.json({ error: 'User already exists for this person' }, { status: 400 });
+		}
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }

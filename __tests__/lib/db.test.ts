@@ -1,14 +1,23 @@
-import { getDb } from '@/lib/db';
-import { open } from 'sqlite';
-import sqlite3 from 'sqlite3';
+import { open, Database } from 'sqlite';
 import { initializeAdmin } from '@/lib/auth';
 
 jest.mock('sqlite');
 jest.mock('sqlite3');
 jest.mock('@/lib/auth');
 
+interface MockDb extends Omit<Database, 'exec' | 'run' | 'get' | 'all'> {
+	exec: jest.Mock<Promise<void>>;
+	run: jest.Mock<Promise<{ lastID: number; changes: number }>>;
+	get: jest.Mock<Promise<unknown>>;
+	all: jest.Mock<Promise<unknown[]>>;
+}
+
+declare const global: {
+	__sqlite_open: jest.Mock;
+};
+
 describe('Database Module', () => {
-	let mockDb: any;
+	let mockDb: MockDb;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -20,26 +29,26 @@ describe('Database Module', () => {
 			run: jest.fn().mockResolvedValue({ lastID: 1, changes: 1 }),
 			get: jest.fn().mockResolvedValue(null),
 			all: jest.fn().mockResolvedValue([]),
-		};
+		} as unknown as MockDb;
 
 		(open as jest.Mock).mockResolvedValue(mockDb);
 		// Ensure the DB module picks up the same mocked open function when required
-		(global as any).__sqlite_open = open;
+		global.__sqlite_open = open as jest.Mock;
 		(initializeAdmin as jest.Mock).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
 		// Clean up the global pointer so other tests aren't affected
 		try {
-			delete (global as any).__sqlite_open;
-		} catch (e) {}
-		jest.resetModules();
+			delete global.__sqlite_open;
+		} catch {}
+			jest.resetModules();
 	});
 
 	describe('getDb', () => {
 		it('opens database connection', async () => {
 			// Re-require to get fresh instance
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			const db = await getDb();
 
 			expect(open).toHaveBeenCalled();
@@ -52,7 +61,7 @@ describe('Database Module', () => {
 		it('uses DB_DIR environment variable when set', async () => {
 			process.env.DB_DIR = '/custom/path/db.sqlite';
 
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			expect(open).toHaveBeenCalled();
@@ -64,7 +73,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates all required tables', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			expect(mockDb.exec).toHaveBeenCalled();
@@ -80,7 +89,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates indexes', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -92,7 +101,7 @@ describe('Database Module', () => {
 		});
 
 		it('initializes admin user', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			// initializeAdmin may be triggered internally; ensure DB exec ran (tables created)
@@ -100,7 +109,7 @@ describe('Database Module', () => {
 		});
 
 		it('returns same instance on multiple calls', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			const db1 = await getDb();
 			const db2 = await getDb();
 
@@ -109,7 +118,7 @@ describe('Database Module', () => {
 		});
 
 		it('sets up foreign key constraints', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -121,7 +130,7 @@ describe('Database Module', () => {
 		});
 
 		it('sets up unique constraints', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -132,7 +141,7 @@ describe('Database Module', () => {
 		});
 
 		it('sets up cascade deletions', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -142,7 +151,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates users table with role check constraint', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -151,7 +160,7 @@ describe('Database Module', () => {
 		});
 
 		it('sets default values correctly', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -163,21 +172,21 @@ describe('Database Module', () => {
 		it('handles database initialization errors', async () => {
 			(open as jest.Mock).mockRejectedValue(new Error('Cannot open database'));
 
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await expect(getDb()).rejects.toThrow('Cannot open database');
 		});
 
 		it('handles table creation errors', async () => {
 			mockDb.exec.mockRejectedValue(new Error('SQL syntax error'));
 
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await expect(getDb()).rejects.toThrow('SQL syntax error');
 		});
 
 		it('handles admin initialization errors gracefully', async () => {
 			(initializeAdmin as jest.Mock).mockRejectedValue(new Error('Admin init failed'));
 
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			// admin init errors may or may not propagate depending on module loading order; ensure getDb still returns a DB instance or throws
 			await expect(getDb()).resolves.toBeDefined();
 		});
@@ -185,7 +194,7 @@ describe('Database Module', () => {
 
 	describe('Table Schemas', () => {
 		it('creates pools table with correct schema', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -198,7 +207,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates people table with correct schema', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -212,7 +221,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates assignments table with correct schema', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -227,7 +236,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates users table with correct schema', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -242,7 +251,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates wishlist_items table with correct schema', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -256,7 +265,7 @@ describe('Database Module', () => {
 		});
 
 		it('creates restrictions table with correct schema', async () => {
-			const { getDb } = require('@/lib/db');
+			const { getDb } = await import('@/lib/db');
 			await getDb();
 
 			const execCall = mockDb.exec.mock.calls[0][0];
@@ -266,14 +275,6 @@ describe('Database Module', () => {
 			expect(restrictionsTable).toContain('giver_id INTEGER NOT NULL');
 			expect(restrictionsTable).toContain('receiver_id INTEGER NOT NULL');
 			expect(restrictionsTable).toContain('UNIQUE(giver_id, receiver_id)');
-		});
-
-		it('creates email_config table with correct schema', async () => {
-			const { getDb } = require('@/lib/db');
-			await getDb();
-
-			const execCall = mockDb.exec.mock.calls[0][0];
-			// email_config table is no longer created; SMTP is managed via environment variables
 		});
 	});
 });

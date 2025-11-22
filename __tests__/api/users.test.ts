@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { GET, POST } from '@/app/api/users/route';
 import { DELETE } from '@/app/api/users/[id]/route';
 import { POST as ResendCredentials } from '@/app/api/users/[id]/resend-credentials/route';
@@ -13,9 +16,26 @@ jest.mock('@/lib/email-templates', () => ({
 	getEmailSubject: jest.fn(() => 'Test Subject'),
 }));
 
+interface MockDatabase {
+	all: jest.Mock;
+	get: jest.Mock;
+	run: jest.Mock;
+	exec: jest.Mock;
+}
+
+interface MockTransporter {
+	sendMail: jest.Mock;
+}
+
+interface PostUsersRequest {
+    json: () => Promise<{ person_id?: number }>;
+}
+
+type EmptyRequest = object;
+
 describe('Users API Routes', () => {
-	let mockDb: any;
-	let mockTransporter: any;
+	let mockDb: MockDatabase;
+	let mockTransporter: MockTransporter;
 
 	beforeEach(() => {
 		mockDb = {
@@ -139,7 +159,7 @@ describe('Users API Routes', () => {
 				json: jest.fn().mockResolvedValue({ person_id: 5 }),
 			};
 
-			const response = await POST(req as any);
+			const response = await POST(req as PostUsersRequest);
 			const json = await response.json();
 
 			expect(json).toMatchObject({
@@ -166,7 +186,7 @@ describe('Users API Routes', () => {
 				json: jest.fn().mockResolvedValue({ person_id: 5 }),
 			};
 
-			const response = await POST(req as any);
+			const response = await POST(req as PostUsersRequest);
 			const json = await response.json();
 
 			expect(json.username).toBe('johndoe1');
@@ -177,7 +197,7 @@ describe('Users API Routes', () => {
 				json: jest.fn().mockResolvedValue({}),
 			};
 
-			const response = await POST(req as any);
+			const response = await POST(req as PostUsersRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -191,7 +211,7 @@ describe('Users API Routes', () => {
 				json: jest.fn().mockResolvedValue({ person_id: 999 }),
 			};
 
-			const response = await POST(req as any);
+			const response = await POST(req as PostUsersRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(404);
@@ -205,7 +225,7 @@ describe('Users API Routes', () => {
 				json: jest.fn().mockResolvedValue({ person_id: 5 }),
 			};
 
-			const response = await POST(req as any);
+			const response = await POST(req as PostUsersRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -227,7 +247,7 @@ describe('Users API Routes', () => {
 			delete process.env.SMTP_PASSWORD;
 			delete process.env.FROM_EMAIL;
 
-			const response = await POST(req as any);
+			const response = await POST(req as PostUsersRequest);
 			const json = await response.json();
 
 			expect(json.emailSent).toBe(false);
@@ -244,7 +264,7 @@ describe('Users API Routes', () => {
 				json: jest.fn().mockResolvedValue({ person_id: 5 }),
 			};
 
-			const response = await POST(req as any);
+			const response = await POST(req as PostUsersRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(403);
@@ -259,7 +279,7 @@ describe('Users API Routes', () => {
 				.mockResolvedValueOnce({ count: 2 }); // Admin count
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await DELETE(req, { params: { id: '5' } });
 			const json = await response.json();
 
@@ -268,7 +288,7 @@ describe('Users API Routes', () => {
 		});
 
 		it('prevents deleting own account', async () => {
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await DELETE(req, { params: { id: '1' } });
 			const json = await response.json();
 
@@ -279,7 +299,7 @@ describe('Users API Routes', () => {
 		it('prevents deleting last admin', async () => {
 			mockDb.get.mockResolvedValueOnce({ role: 'admin' }).mockResolvedValueOnce({ count: 1 });
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await DELETE(req, { params: { id: '2' } });
 			const json = await response.json();
 
@@ -290,7 +310,7 @@ describe('Users API Routes', () => {
 		it('returns 404 when user not found', async () => {
 			mockDb.get.mockResolvedValue(null);
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await DELETE(req, { params: { id: '999' } });
 			const json = await response.json();
 
@@ -303,7 +323,7 @@ describe('Users API Routes', () => {
 				user: { id: '2', role: 'user' },
 			});
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await DELETE(req, { params: { id: '5' } });
 			const json = await response.json();
 
@@ -339,7 +359,7 @@ describe('Users API Routes', () => {
 			process.env.SMTP_PASSWORD = mockEmailConfig.smtp_password;
 			process.env.FROM_EMAIL = mockEmailConfig.from_email;
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await ResendCredentials(req, { params: { id: '5' } });
 			const json = await response.json();
 
@@ -356,7 +376,7 @@ describe('Users API Routes', () => {
 		it('returns 404 when user not found', async () => {
 			mockDb.get.mockResolvedValue(null);
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await ResendCredentials(req, { params: { id: '999' } });
 			const json = await response.json();
 
@@ -370,7 +390,7 @@ describe('Users API Routes', () => {
 				person_email: null,
 			});
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await ResendCredentials(req, { params: { id: '5' } });
 			const json = await response.json();
 
@@ -381,7 +401,7 @@ describe('Users API Routes', () => {
 		it('returns 400 when email not configured', async () => {
 			mockDb.get.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(null);
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 
 			// Ensure no SMTP env vars are present for this test
 			delete process.env.SMTP_SERVER;
@@ -402,7 +422,7 @@ describe('Users API Routes', () => {
 				user: { id: '2', role: 'user' },
 			});
 
-			const req = {} as any;
+			const req = {} as EmptyRequest;
 			const response = await ResendCredentials(req, { params: { id: '5' } });
 			const json = await response.json();
 

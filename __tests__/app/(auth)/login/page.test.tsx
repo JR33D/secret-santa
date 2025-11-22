@@ -2,9 +2,8 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import LoginPage from '@/app/(auth)/login/login-page';
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import * as api from '@/lib/api';
 
 jest.mock('next-auth/react');
 jest.mock('next/navigation');

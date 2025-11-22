@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { POST } from '@/app/api/send-notifications/[year]/route';
 import { getDb } from '@/lib/db';
 import nodemailer from 'nodemailer';
@@ -5,9 +8,20 @@ import nodemailer from 'nodemailer';
 jest.mock('@/lib/db');
 jest.mock('nodemailer');
 
+interface MockDatabase {
+	get: jest.Mock;
+	all: jest.Mock;
+}
+
+interface MockTransporter {
+	sendMail: jest.Mock;
+}
+
+type PostRequest = object;
+
 describe('Send Notifications API Route', () => {
-	let mockDb: any;
-	let mockTransporter: any;
+	let mockDb: MockDatabase;
+	let mockTransporter: MockTransporter;
 
 	beforeEach(() => {
 		mockDb = {
@@ -57,7 +71,7 @@ describe('Send Notifications API Route', () => {
 			delete process.env.SMTP_SERVER;
 			delete process.env.FROM_EMAIL;
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			const response = await POST(req, { params: { year: '2024' } });
 			const json = await response.json();
 
@@ -75,7 +89,7 @@ describe('Send Notifications API Route', () => {
 			mockDb.all.mockResolvedValueOnce(mockAssignments);
 			mockDb.all.mockResolvedValue([]); // No wishlist items
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			const response = await POST(req, { params: { year: '2024' } });
 			const json = await response.json();
 
@@ -117,7 +131,7 @@ describe('Send Notifications API Route', () => {
 
 			mockDb.all.mockResolvedValueOnce([mockAssignments[0]]).mockResolvedValueOnce(wishlistItems); // Wishlist for receiver
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			await POST(req, { params: { year: '2024' } });
 
 			const emailCall = mockTransporter.sendMail.mock.calls[0][0];
@@ -136,7 +150,7 @@ describe('Send Notifications API Route', () => {
 
 			mockDb.all.mockResolvedValueOnce([mockAssignments[0]]).mockResolvedValueOnce([]); // No wishlist items
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			await POST(req, { params: { year: '2024' } });
 
 			const emailCall = mockTransporter.sendMail.mock.calls[0][0];
@@ -154,7 +168,7 @@ describe('Send Notifications API Route', () => {
 
 			mockTransporter.sendMail.mockRejectedValue(new Error('SMTP Error'));
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			const response = await POST(req, { params: { year: '2024' } });
 			const json = await response.json();
 
@@ -177,7 +191,7 @@ describe('Send Notifications API Route', () => {
 
 			mockTransporter.sendMail.mockRejectedValueOnce(new Error('Failed for Alice')).mockResolvedValueOnce({ messageId: 'success' });
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			const response = await POST(req, { params: { year: '2024' } });
 			const json = await response.json();
 
@@ -195,7 +209,7 @@ describe('Send Notifications API Route', () => {
 
 			mockDb.all.mockResolvedValueOnce([mockAssignments[0]]).mockResolvedValue([]);
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			await POST(req, { params: { year: '2024' } });
 
 			const emailCall = mockTransporter.sendMail.mock.calls[0][0];
@@ -216,10 +230,10 @@ describe('Send Notifications API Route', () => {
 
 			mockDb.all.mockResolvedValue([]);
 
-			const req = {} as any;
+			const req = {} as PostRequest;
 			await POST(req, { params: { year: '2025' } });
 
-			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('WHERE a.year = ?'), [2025]);
+			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('WHERE a.year = ?'), ['2025']);
 		});
 	});
 });

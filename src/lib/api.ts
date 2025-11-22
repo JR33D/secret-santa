@@ -9,7 +9,7 @@ export async function apiGet<T>(url: string): Promise<T> {
 	return response.json();
 }
 
-export async function apiPost<T>(url: string, data?: any): Promise<T> {
+export async function apiPost<T>(url: string, data?: unknown): Promise<T> {
 	const response = await fetch(url, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -22,7 +22,7 @@ export async function apiPost<T>(url: string, data?: any): Promise<T> {
 	return response.json();
 }
 
-export async function apiDelete(url: string): Promise<any> {
+export async function apiDelete(url: string): Promise<unknown> {
 	const response = await fetch(url, {
 		method: 'DELETE',
 	});
@@ -33,7 +33,7 @@ export async function apiDelete(url: string): Promise<any> {
 	return response.json();
 }
 
-export async function apiPatch<T>(url: string, data: any): Promise<T> {
+export async function apiPatch<T>(url: string, data: unknown): Promise<T> {
 	const response = await fetch(url, {
 		method: 'PATCH',
 		headers: { 'Content-Type': 'application/json' },

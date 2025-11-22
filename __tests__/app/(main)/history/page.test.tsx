@@ -60,11 +60,15 @@ describe('Assignment History Page', () => {
 	it('renders the assignment history page', async () => {
 		render(<Page />);
 
-		await screen.findByText('Assignment History');
+		await screen.findByText('Assignment History'); // wait for header
+
 		expect(screen.getByLabelText('Filter by Pool')).toBeInTheDocument();
 		expect(screen.getByLabelText('Assignment History Graph')).toBeInTheDocument();
 		expect(screen.getByText('All Chains')).toBeInTheDocument();
-		expect(screen.getByText('Family')).toBeInTheDocument();
+
+		// Wait for async data to populate
+		const familyOption = await screen.findByText('Family');
+		expect(familyOption).toBeInTheDocument();
 	});
 
 	it('loads pools and graph data on mount', async () => {

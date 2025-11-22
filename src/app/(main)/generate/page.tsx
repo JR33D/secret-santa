@@ -4,6 +4,8 @@ import { apiPost, apiGet, apiDelete } from '@/lib/api';
 
 type Assignment = { giver_name: string; receiver_name: string; pool_name: string };
 type Pool = { id: number; name: string; member_count: number };
+type AllAssignments = { id: number }[];
+type NotificationResult = { person_name: string; status: string }[];
 
 export default function Page() {
 	const [year, setYear] = useState<string>(String(new Date().getFullYear()));
@@ -12,70 +14,81 @@ export default function Page() {
 	const [result, setResult] = useState<string | null>(null);
 	const [assignments, setAssignments] = useState<Assignment[]>([]);
 	const [allCount, setAllCount] = useState(0);
+	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		loadPools();
-	}, []);
-
-	useEffect(() => {
-		if (poolId) {
-			loadAssignments();
-		}
-	}, [year, poolId]);
-
+	// Load all pools
 	async function loadPools() {
 		const data = await apiGet<Pool[]>('/api/pools');
 		setPools(data);
-		if (data.length > 0 && !poolId) {
-			setPoolId(String(data[0].id));
-		}
+		if (data.length > 0 && !poolId) setPoolId(String(data[0].id));
 	}
 
-	async function generate() {
-		if (!poolId) {
-			alert('Please select a pool');
-			return;
-		}
-
-		setResult('Generating...');
-		try {
-			const res = await apiPost<{ success: boolean; message: string }>(`/api/generate/${year}?pool_id=${poolId}`);
-			setResult(res.message);
-			loadAssignments();
-		} catch (error: any) {
-			setResult(`Error: ${error.message || error}`);
-		}
-	}
-
+	// Load assignments for selected pool and year
 	async function loadAssignments() {
 		if (!poolId) return;
 
 		const data = await apiGet<Assignment[]>(`/api/assignments/${year}?pool_id=${poolId}`);
 		setAssignments(data);
 
-		const all = await apiGet<any[]>('/api/assignments');
+		const all = await apiGet<AllAssignments>('/api/assignments');
 		setAllCount(all.length);
 	}
 
-	async function deleteAssignments() {
-		if (!confirm(`Delete all ${year} assignments for this pool?`)) return;
+	// Generate assignments
+	async function generate() {
+		if (!poolId) return alert('Please select a pool');
+		setResult('Generating...');
+		setLoading(true);
 
 		try {
-			await apiDelete(`/api/assignments/${year}?pool_id=${poolId}`);
-			setResult('Assignments deleted successfully');
-			loadAssignments();
-		} catch (error: any) {
-			setResult(`Error: ${error.message || error}`);
+			const res = await apiPost<{ success: boolean; message: string }>(`/api/generate/${year}?pool_id=${poolId}`);
+			setResult(res.message);
+			await loadAssignments();
+		} catch (err: unknown) {
+			setResult(`Error: ${err instanceof Error ? err.message : String(err)}`);
+		} finally {
+			setLoading(false);
 		}
 	}
 
+	// Delete assignments
+	async function deleteAssignments() {
+		if (!poolId || !confirm(`Delete all ${year} assignments for this pool?`)) return;
+		setLoading(true);
+		try {
+			await apiDelete(`/api/assignments/${year}?pool_id=${poolId}`);
+			setResult('Assignments deleted successfully');
+			await loadAssignments();
+		} catch (err: unknown) {
+			setResult(`Error: ${err instanceof Error ? err.message : String(err)}`);
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	// Send notifications
 	async function sendNotifications() {
-		if (!confirm('Send email notifications to all participants?')) return;
-		const res = await apiPost<any[]>(`/api/send-notifications/${year}?pool_id=${poolId}`);
-		setResult('Email results:\n' + JSON.stringify(res, null, 2));
+		if (!poolId || !confirm('Send email notifications to all participants?')) return;
+		setLoading(true);
+		try {
+			const res = await apiPost<NotificationResult>(`/api/send-notifications/${year}?pool_id=${poolId}`);
+			setResult('Email results:\n' + JSON.stringify(res, null, 2));
+		} catch (err: unknown) {
+			setResult(`Error: ${err instanceof Error ? err.message : String(err)}`);
+		} finally {
+			setLoading(false);
+		}
 	}
 
 	const selectedPool = pools.find((p) => String(p.id) === poolId);
+
+	useEffect(() => {
+		loadPools();
+	}, []);
+
+	useEffect(() => {
+		if (poolId) loadAssignments();
+	}, [year, poolId]);
 
 	return (
 		<div>
@@ -89,10 +102,13 @@ export default function Page() {
 				<>
 					<div className="grid md:grid-cols-3 gap-4 mb-4">
 						<div>
-							<label htmlFor="pool-select" className="block font-semibold mb-1">
-								Pool
-							</label>
-							<select id="pool-select" value={poolId} onChange={(e) => setPoolId(e.target.value)} className="w-full p-2 border rounded">
+							<label htmlFor="pool-select" className="block font-semibold mb-1">Pool</label>
+							<select
+								id="pool-select"
+								value={poolId}
+								onChange={(e) => setPoolId(e.target.value)}
+								className="w-full p-2 border rounded"
+							>
 								<option value="">Select pool...</option>
 								{pools.map((p) => (
 									<option key={p.id} value={String(p.id)}>
@@ -101,14 +117,24 @@ export default function Page() {
 								))}
 							</select>
 						</div>
+
 						<div>
-							<label htmlFor="year-input" className="block font-semibold mb-1">
-								Year
-							</label>
-							<input id="year-input" type="number" value={year} onChange={(e) => setYear(e.target.value)} className="w-full p-2 border rounded" />
+							<label htmlFor="year-input" className="block font-semibold mb-1">Year</label>
+							<input
+								id="year-input"
+								type="number"
+								value={year}
+								onChange={(e) => setYear(e.target.value)}
+								className="w-full p-2 border rounded"
+							/>
 						</div>
+
 						<div className="flex items-end">
-							<button onClick={generate} disabled={!poolId} className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+							<button
+								onClick={generate}
+								disabled={!poolId || loading}
+								className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+							>
 								🎲 Generate
 							</button>
 						</div>
@@ -122,18 +148,19 @@ export default function Page() {
 
 					{result && (
 						<div className="mt-4">
-							<div className={`p-3 rounded whitespace-pre-wrap ${result.includes('Error') || result.includes('already exist') ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}`}>{result}</div>
+							<div className={`p-3 rounded whitespace-pre-wrap ${result.includes('Error') || result.includes('already exist') ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}`}>
+								{result}
+							</div>
 						</div>
 					)}
 
 					<div id="currentAssignments" className="mt-6">
 						<div className="flex justify-between items-center mb-2">
 							<h3 className="text-indigo-600 text-xl font-semibold">
-								Assignments for {year}
-								{selectedPool && ` - ${selectedPool.name}`}
+								Assignments for {year}{selectedPool && ` - ${selectedPool.name}`}
 							</h3>
 							{assignments.length > 0 && (
-								<button onClick={deleteAssignments} className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition">
+								<button onClick={deleteAssignments} disabled={loading} className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
 									Delete All
 								</button>
 							)}
@@ -150,12 +177,15 @@ export default function Page() {
 										</span>
 									</div>
 								))}
-
 								<p className="text-sm text-gray-500 mt-2">
 									📊 Showing {assignments.length} assignments for this pool. Total in system: {allCount}
 								</p>
 
-								<button onClick={sendNotifications} className="mt-3 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+								<button
+									onClick={sendNotifications}
+									disabled={loading}
+									className="mt-3 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+								>
 									📧 Send Email Notifications
 								</button>
 							</>

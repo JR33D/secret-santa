@@ -1,11 +1,19 @@
+/**
+ * @jest-environment node
+ */
 import { GET as getAssignments } from '@/app/api/assignments/route';
 import { GET as getAssignmentsByYear, DELETE as deleteAssignmentsByYear } from '@/app/api/assignments/[year]/route';
 import { getDb } from '@/lib/db';
 
 jest.mock('@/lib/db');
 
+interface MockDatabase {
+	all: jest.Mock;
+	run: jest.Mock;
+}
+
 describe('Assignments API Routes', () => {
-	let mockDb: any;
+	let mockDb: MockDatabase;
 
 	beforeEach(() => {
 		mockDb = {

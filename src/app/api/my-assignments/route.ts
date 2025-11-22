@@ -18,8 +18,8 @@ export async function GET(request: Request) {
 		}
 
 		// Verify the user is requesting their own assignment
-		const userPersonId = (session.user as any).personId;
-		if (String(userPersonId) !== personId && (session.user as any).role !== 'admin') {
+		const userPersonId = session?.user?.personId;
+		if (String(userPersonId) !== personId && session?.user?.role !== 'admin') {
 			return Response.json({ error: 'You can only view your own assignment' }, { status: 403 });
 		}
 
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 		);
 
 		return Response.json(assignments, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }

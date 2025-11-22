@@ -13,27 +13,26 @@ export default function Page() {
 	const [link, setLink] = useState('');
 	const [image, setImage] = useState('');
 
+	// Load people safely inside useEffect
 	useEffect(() => {
-		loadPeople();
+		async function fetchPeople() {
+			const p = await apiGet<Person[]>('/api/people');
+			setPeople(p);
+		}
+		fetchPeople();
 	}, []);
 
-	async function loadPeople() {
-		const p = await apiGet<Person[]>('/api/people');
-		setPeople(p);
-	}
-
-	async function loadItems(pid?: string) {
-		const id = pid ?? personId;
-		if (!id) {
-			setItems([]);
-			return;
-		}
-		const data = await apiGet<Item[]>(`/api/wishlist/${id}`);
-		setItems(data);
-	}
-
+	// Load wishlist items when personId changes
 	useEffect(() => {
-		loadItems();
+		async function fetchItems() {
+			if (!personId) {
+				setItems([]);
+				return;
+			}
+			const data = await apiGet<Item[]>(`/api/wishlist/${personId}`);
+			setItems(data);
+		}
+		fetchItems();
 	}, [personId]);
 
 	async function addItem() {
@@ -41,16 +40,21 @@ export default function Page() {
 			alert('Please select a person and provide an item name');
 			return;
 		}
+
 		await apiPost(`/api/wishlist/${personId}`, { item_name: itemName, link, image_url: image });
 		setItemName('');
 		setLink('');
 		setImage('');
-		loadItems();
+
+		// Refresh items
+		const data = await apiGet<Item[]>(`/api/wishlist/${personId}`);
+		setItems(data);
 	}
 
 	async function removeItem(id: number) {
 		await apiDelete(`/api/wishlist/item/${id}`);
-		loadItems();
+		const data = await apiGet<Item[]>(`/api/wishlist/${personId}`);
+		setItems(data);
 	}
 
 	return (
@@ -62,7 +66,12 @@ export default function Page() {
 					<label htmlFor="person-select" className="block font-semibold mb-1">
 						Select Person
 					</label>
-					<select id="person-select" className="w-full p-2 border rounded" value={personId} onChange={(e) => setPersonId(e.target.value)}>
+					<select
+						id="person-select"
+						className="w-full p-2 border rounded"
+						value={personId}
+						onChange={(e) => setPersonId(e.target.value)}
+					>
 						<option value="">Select...</option>
 						{people.map((p) => (
 							<option key={p.id} value={String(p.id)}>
@@ -101,7 +110,10 @@ export default function Page() {
 							)}
 						</div>
 						<div className="flex flex-col items-end">
-							<button onClick={() => removeItem(i.id)} className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition">
+							<button
+								onClick={() => removeItem(i.id)}
+								className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
+							>
 								Remove
 							</button>
 						</div>

@@ -33,13 +33,19 @@ describe('Generate Assignments Page', () => {
 		global.confirm = jest.fn(() => true);
 		global.alert = jest.fn();
 	});
-
+	
 	it('renders the generate assignments page', async () => {
 		render(<Page />);
+
+		// Wait for header
 		await screen.findByText('Generate Assignments');
+
+		// Wait for one of the pool options to appear
+		await screen.findByText(/Family \(3 people\)/i);
+
+		// Now you can safely query the label
 		expect(screen.getByLabelText('Pool')).toBeInTheDocument();
 		expect(screen.getByLabelText('Year')).toBeInTheDocument();
-		await screen.findByText(/Family \(3 people\)/i);
 	});
 
 	it('loads pools on mount', async () => {

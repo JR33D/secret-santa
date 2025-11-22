@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { GET as getHealth } from '@/app/api/health/route';
 import { GET as getMyAssignment } from '@/app/api/my-assignments/route';
 import { POST as changePassword } from '@/app/api/change-password/route';
@@ -9,8 +12,22 @@ jest.mock('@/lib/db');
 jest.mock('next-auth');
 jest.mock('bcryptjs');
 
+interface MockDatabase {
+	all: jest.Mock;
+	get: jest.Mock;
+	run: jest.Mock;
+}
+
+interface MockRequest {
+    url: string;
+}
+
+interface ChangePasswordRequest {
+    json: () => Promise<{ currentPassword?: string; newPassword?: string }>;
+}
+
 describe('Other API Routes', () => {
-	let mockDb: any;
+	let mockDb: MockDatabase;
 
 	beforeEach(() => {
 		mockDb = {
@@ -83,7 +100,7 @@ describe('Other API Routes', () => {
 			mockDb.all.mockResolvedValue(mockAssignments);
 
 			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as any);
+			const response = await getMyAssignment(req as MockRequest);
 			const json = await response.json();
 
 			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('WHERE a.giver_id = ? AND a.year = ?'), [10, 2024]);
@@ -97,7 +114,7 @@ describe('Other API Routes', () => {
 			mockDb.all.mockResolvedValue(mockAssignments);
 
 			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as any);
+			const response = await getMyAssignment(req as MockRequest);
 			const json = await response.json();
 
 			expect(json).toEqual(mockAssignments);
@@ -107,7 +124,7 @@ describe('Other API Routes', () => {
 			(getServerSession as jest.Mock).mockResolvedValue(null);
 
 			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as any);
+			const response = await getMyAssignment(req as MockRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(401);
@@ -116,7 +133,7 @@ describe('Other API Routes', () => {
 
 		it('returns 400 when person_id missing', async () => {
 			const req = { url: 'http://localhost/api/my-assignment?year=2024' };
-			const response = await getMyAssignment(req as any);
+			const response = await getMyAssignment(req as MockRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -125,7 +142,7 @@ describe('Other API Routes', () => {
 
 		it('returns 400 when year missing', async () => {
 			const req = { url: 'http://localhost/api/my-assignment?person_id=10' };
-			const response = await getMyAssignment(req as any);
+			const response = await getMyAssignment(req as MockRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -134,7 +151,7 @@ describe('Other API Routes', () => {
 
 		it('returns 403 when user tries to view another persons assignment', async () => {
 			const req = { url: 'http://localhost/api/my-assignment?person_id=99&year=2024' };
-			const response = await getMyAssignment(req as any);
+			const response = await getMyAssignment(req as MockRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(403);
@@ -145,7 +162,7 @@ describe('Other API Routes', () => {
 			mockDb.all.mockRejectedValue(new Error('DB Error'));
 
 			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as any);
+			const response = await getMyAssignment(req as MockRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
@@ -176,7 +193,7 @@ describe('Other API Routes', () => {
 				}),
 			};
 
-			const response = await changePassword(req as any);
+			const response = await changePassword(req as ChangePasswordRequest);
 			const json = await response.json();
 
 			expect(mockDb.get).toHaveBeenCalledWith('SELECT password_hash FROM users WHERE id = ?', ['5']);
@@ -195,7 +212,7 @@ describe('Other API Routes', () => {
 				}),
 			};
 
-			const response = await changePassword(req as any);
+			const response = await changePassword(req as ChangePasswordRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(401);
@@ -207,7 +224,7 @@ describe('Other API Routes', () => {
 				json: jest.fn().mockResolvedValue({}),
 			};
 
-			const response = await changePassword(req as any);
+			const response = await changePassword(req as ChangePasswordRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -222,7 +239,7 @@ describe('Other API Routes', () => {
 				}),
 			};
 
-			const response = await changePassword(req as any);
+			const response = await changePassword(req as ChangePasswordRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -242,7 +259,7 @@ describe('Other API Routes', () => {
 				}),
 			};
 
-			const response = await changePassword(req as any);
+			const response = await changePassword(req as ChangePasswordRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -259,7 +276,7 @@ describe('Other API Routes', () => {
 				}),
 			};
 
-			const response = await changePassword(req as any);
+			const response = await changePassword(req as ChangePasswordRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(404);
@@ -276,7 +293,7 @@ describe('Other API Routes', () => {
 				}),
 			};
 
-			const response = await changePassword(req as any);
+			const response = await changePassword(req as ChangePasswordRequest);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);

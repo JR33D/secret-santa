@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { apiGet, apiPost, apiDelete } from '@/lib/api';
 
@@ -18,7 +19,7 @@ export default function Page() {
 	const [image, setImage] = useState('');
 	const [loading, setLoading] = useState(true);
 
-	const personId = (session?.user as any)?.personId;
+	const personId = session?.user?.personId;
 
 	useEffect(() => {
 		if (personId) {
@@ -33,8 +34,8 @@ export default function Page() {
 		try {
 			const data = await apiGet<Item[]>(`/api/wishlist/${personId}`);
 			setItems(data);
-		} catch (err) {
-			console.error(err);
+		} catch (err: unknown) {
+			console.error(err instanceof Error ? err.message : err);
 		} finally {
 			setLoading(false);
 		}
@@ -56,8 +57,8 @@ export default function Page() {
 			setLink('');
 			setImage('');
 			loadItems();
-		} catch (err: any) {
-			alert(err.message || 'Failed to add item');
+		} catch (err: unknown) {
+			alert(err instanceof Error ? err.message : 'Failed to add item');
 		}
 	}
 
@@ -67,8 +68,8 @@ export default function Page() {
 		try {
 			await apiDelete(`/api/wishlist/item/${id}`);
 			loadItems();
-		} catch (err) {
-			console.error(err);
+		} catch (err: unknown) {
+			console.error(err instanceof Error ? err.message : err);
 		}
 	}
 
@@ -127,11 +128,11 @@ export default function Page() {
 
 										{item.image_url && (
 											<div className="mt-2">
-												<img
+												<Image
 													src={item.image_url}
 													alt={item.item_name}
 													className="max-w-xs max-h-40 rounded border border-gray-200"
-													onError={(e) => {
+													onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
 														(e.target as HTMLImageElement).style.display = 'none';
 													}}
 												/>

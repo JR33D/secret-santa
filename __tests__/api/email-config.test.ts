@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { GET, POST } from '@/app/api/email-config/route';
 
 describe('Email API Route (env-only)', () => {

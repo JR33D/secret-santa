@@ -34,7 +34,7 @@ export default function LoginPage() {
 			const callbackUrl = searchParams.get('callbackUrl') || '/home';
 			router.push(callbackUrl);
 			router.refresh();
-		} catch (err) {
+		} catch {
 			setError('An error occurred. Please try again.');
 			setLoading(false);
 		}

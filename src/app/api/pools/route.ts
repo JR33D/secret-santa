@@ -13,8 +13,8 @@ export async function GET() {
       ORDER BY p.name
     `);
 		return Response.json(pools, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }
 
@@ -38,10 +38,10 @@ export async function POST(request: Request) {
 			},
 			{ status: 200 },
 		);
-	} catch (error: any) {
-		if (error.message.includes('UNIQUE')) {
+	} catch (error: unknown) {
+		if (error instanceof Error && error.message.includes('UNIQUE')) {
 			return Response.json({ error: 'Pool name already exists' }, { status: 400 });
 		}
-		return Response.json({ error: error.message }, { status: 500 });
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }

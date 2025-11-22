@@ -1,4 +1,4 @@
-import React from 'react';
+import Image, { ImageProps } from 'next/image';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Page from '@/app/(main)/receiver-wishlist/page';
@@ -9,13 +9,17 @@ jest.mock('next-auth/react');
 jest.mock('@/lib/api');
 
 // Mock next/image
-jest.mock('next/image', () => ({
-	__esModule: true,
-	default: (props: any) => {
-		// eslint-disable-next-line @next/next/no-img-element
-		return <img {...props} />;
-	},
-}));
+jest.mock(
+    'next/image',
+    () =>
+        ({
+            __esModule: true,
+            default: (props: ImageProps) => {                 
+				// eslint-disable-next-line jsx-a11y/alt-text
+                return <Image width={200} height={100} {...props} />;
+            },
+        })
+);
 
 describe('Receiver Wishlist Page', () => {
 	const mockSession = {

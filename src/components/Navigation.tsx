@@ -3,12 +3,13 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import type { Session } from 'next-auth';
 
 export default function Navigation() {
 	const pathname = usePathname();
 	const { data: session } = useSession();
 
-	const user = session?.user as any;
+	const user = session?.user as Session['user'];
 	const isAdmin = user?.role === 'admin';
 
 	const adminNavItems = [

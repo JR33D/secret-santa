@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 		}
 
 		const db = await getDb();
-		const userId = (session.user as any).id;
+		const userId = session?.user?.id;
 
 		// Get current password hash
 		const user = await db.get('SELECT password_hash FROM users WHERE id = ?', [userId]);
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 		await db.run('UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?', [newPasswordHash, userId]);
 
 		return Response.json({ message: 'Password changed successfully' }, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
+	} catch (error: unknown) {
+		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
 	}
 }

@@ -1,11 +1,18 @@
+import { NextRequest } from "next/server";
 import { getDb } from '@/lib/db';
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-	try {
-		const db = await getDb();
-		await db.run('DELETE FROM people WHERE id = ?', [params.id]);
-		return Response.json({ success: true }, { status: 200 });
-	} catch (error: any) {
-		return Response.json({ error: error.message }, { status: 500 });
-	}
-}
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+    const db = await getDb();
+
+    await db.run('DELETE FROM people WHERE id = ?', [id]);
+
+    return Response.json({ success: true }, { status: 200 });
+  	} catch (error: unknown) {
+  		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });
+  	}
+  }

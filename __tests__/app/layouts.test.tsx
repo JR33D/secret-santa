@@ -1,5 +1,8 @@
-import React from 'react';
+import { PropsWithChildren } from 'react';
 import { render, screen } from '@testing-library/react';
+import RootLayout from '@/app/layout';
+import AuthLayout from '@/app/(auth)/layout';
+import MainLayout from '@/app/(main)/layout';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -13,7 +16,7 @@ jest.mock('next-auth/react', () => ({
 
 // Lightweight mocks for layout dependencies
 jest.mock('@/components/SessionProvider', () => ({
-	SessionProvider: ({ children }: any) => <div data-testid="session">{children}</div>,
+	SessionProvider: ({ children }: PropsWithChildren) => <div data-testid="session">{children}</div>,
 }));
 
 jest.mock('@/components/Header', () => ({ __esModule: true, default: () => <div data-testid="header">Header</div> }));
@@ -44,9 +47,7 @@ jest.mock('@/app/(main)/layout', () => ({
 
 describe('App layouts smoke tests', () => {
 	it('renders root layout and children', () => {
-		const RootLayout = require('@/app/layout').default;
 		render(
-			// @ts-ignore
 			<RootLayout>
 				<div>root-child</div>
 			</RootLayout>,
@@ -55,9 +56,7 @@ describe('App layouts smoke tests', () => {
 	});
 
 	it('renders auth layout and children', () => {
-		const AuthLayout = require('@/app/(auth)/layout').default;
 		render(
-			// @ts-ignore
 			<AuthLayout>
 				<div>auth-child</div>
 			</AuthLayout>,
@@ -66,9 +65,7 @@ describe('App layouts smoke tests', () => {
 	});
 
 	it('renders main layout, uses SessionProvider and Header, and renders children', () => {
-		const MainLayout = require('@/app/(main)/layout').default;
 		render(
-			// @ts-ignore
 			<MainLayout>
 				<div>main-child</div>
 			</MainLayout>,

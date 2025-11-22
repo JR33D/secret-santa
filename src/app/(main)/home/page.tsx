@@ -8,8 +8,8 @@ export default function Page() {
 
 	useEffect(() => {
 		if (status === 'authenticated' && session) {
-			const user = session.user as any;
-			const isAdmin = user.role === 'admin';
+			const user = session.user;
+			const isAdmin = user?.role === 'admin';
 
 			if (isAdmin) {
 				redirect('/pools'); // Redirect to the first admin tab
