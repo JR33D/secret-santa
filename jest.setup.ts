@@ -53,25 +53,6 @@ if (typeof window !== 'undefined') {
       dispatchEvent: jest.fn(),
     })),
   });
-
-  // HTMLCanvasElement.getContext
-  HTMLCanvasElement.prototype.getContext = jest.fn((): Partial<CanvasRenderingContext2D> => ({
-    fillStyle: '',
-    strokeStyle: '',
-    lineWidth: 0,
-    font: '',
-    textAlign: 'left',
-    textBaseline: 'top',
-    clearRect: jest.fn(),
-    fillRect: jest.fn(),
-    fillText: jest.fn(),
-    beginPath: jest.fn(),
-    moveTo: jest.fn(),
-    lineTo: jest.fn(),
-    stroke: jest.fn(),
-    arc: jest.fn(),
-    fill: jest.fn(),
-  }));
 }
 
 // -----------------------------

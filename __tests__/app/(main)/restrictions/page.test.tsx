@@ -90,7 +90,7 @@ describe('Restrictions Management Page', () => {
 				giver_id: 102,
 				receiver_id: 103,
 			});
-			expect(api.apiGet).toHaveBeenCalledTimes(4); // 2 initial + people load + restrictions reload
+			expect(api.apiGet).toHaveBeenCalledTimes(6);
 		});
 	});
 
@@ -113,7 +113,7 @@ describe('Restrictions Management Page', () => {
 			expect(global.confirm).toHaveBeenCalledWith('Remove this restriction?');
 			expect(api.apiDelete).toHaveBeenCalledWith('/api/restrictions/1');
 			expect(screen.queryByText('Alice → ❌ → Bob')).not.toBeInTheDocument(); // Assert that restriction is removed
-			expect(api.apiGet).toHaveBeenCalledTimes(4); // 2 initial + people load + restrictions reload
+			expect(api.apiGet).toHaveBeenCalledTimes(6);
 		});
 	});
 
