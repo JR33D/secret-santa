@@ -10,7 +10,7 @@ export async function getDb(): Promise<Database> {
 
 	const dbPath = process.env.DB_DIR ?? path.join(process.cwd(), 'data/secret-santa.db');
 
-	const openFn = (globalThis as typeof globalThis & {__sqlite_open?: typeof open}).__sqlite_open ?? open;
+	const openFn = (globalThis as typeof globalThis & { __sqlite_open?: typeof open }).__sqlite_open ?? open;
 	db = await openFn({
 		filename: dbPath,
 		driver: sqlite3.Database,

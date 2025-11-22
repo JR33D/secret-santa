@@ -28,7 +28,7 @@ interface MockTransporter {
 }
 
 interface PostUsersRequest {
-    json: () => Promise<{ person_id?: number }>;
+	json: () => Promise<{ person_id?: number }>;
 }
 
 type EmptyRequest = object;

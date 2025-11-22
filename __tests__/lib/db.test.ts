@@ -42,7 +42,7 @@ describe('Database Module', () => {
 		try {
 			delete global.__sqlite_open;
 		} catch {}
-			jest.resetModules();
+		jest.resetModules();
 	});
 
 	describe('getDb', () => {

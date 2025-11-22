@@ -102,13 +102,10 @@ export default function Page() {
 				<>
 					<div className="grid md:grid-cols-3 gap-4 mb-4">
 						<div>
-							<label htmlFor="pool-select" className="block font-semibold mb-1">Pool</label>
-							<select
-								id="pool-select"
-								value={poolId}
-								onChange={(e) => setPoolId(e.target.value)}
-								className="w-full p-2 border rounded"
-							>
+							<label htmlFor="pool-select" className="block font-semibold mb-1">
+								Pool
+							</label>
+							<select id="pool-select" value={poolId} onChange={(e) => setPoolId(e.target.value)} className="w-full p-2 border rounded">
 								<option value="">Select pool...</option>
 								{pools.map((p) => (
 									<option key={p.id} value={String(p.id)}>
@@ -119,14 +116,10 @@ export default function Page() {
 						</div>
 
 						<div>
-							<label htmlFor="year-input" className="block font-semibold mb-1">Year</label>
-							<input
-								id="year-input"
-								type="number"
-								value={year}
-								onChange={(e) => setYear(e.target.value)}
-								className="w-full p-2 border rounded"
-							/>
+							<label htmlFor="year-input" className="block font-semibold mb-1">
+								Year
+							</label>
+							<input id="year-input" type="number" value={year} onChange={(e) => setYear(e.target.value)} className="w-full p-2 border rounded" />
 						</div>
 
 						<div className="flex items-end">
@@ -148,16 +141,15 @@ export default function Page() {
 
 					{result && (
 						<div className="mt-4">
-							<div className={`p-3 rounded whitespace-pre-wrap ${result.includes('Error') || result.includes('already exist') ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}`}>
-								{result}
-							</div>
+							<div className={`p-3 rounded whitespace-pre-wrap ${result.includes('Error') || result.includes('already exist') ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}`}>{result}</div>
 						</div>
 					)}
 
 					<div id="currentAssignments" className="mt-6">
 						<div className="flex justify-between items-center mb-2">
 							<h3 className="text-indigo-600 text-xl font-semibold">
-								Assignments for {year}{selectedPool && ` - ${selectedPool.name}`}
+								Assignments for {year}
+								{selectedPool && ` - ${selectedPool.name}`}
 							</h3>
 							{assignments.length > 0 && (
 								<button onClick={deleteAssignments} disabled={loading} className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">

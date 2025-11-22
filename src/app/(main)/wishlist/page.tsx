@@ -66,12 +66,7 @@ export default function Page() {
 					<label htmlFor="person-select" className="block font-semibold mb-1">
 						Select Person
 					</label>
-					<select
-						id="person-select"
-						className="w-full p-2 border rounded"
-						value={personId}
-						onChange={(e) => setPersonId(e.target.value)}
-					>
+					<select id="person-select" className="w-full p-2 border rounded" value={personId} onChange={(e) => setPersonId(e.target.value)}>
 						<option value="">Select...</option>
 						{people.map((p) => (
 							<option key={p.id} value={String(p.id)}>
@@ -110,10 +105,7 @@ export default function Page() {
 							)}
 						</div>
 						<div className="flex flex-col items-end">
-							<button
-								onClick={() => removeItem(i.id)}
-								className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
-							>
+							<button onClick={() => removeItem(i.id)} className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition">
 								Remove
 							</button>
 						</div>

@@ -19,11 +19,11 @@ interface MockDatabase {
 }
 
 interface MockRequest {
-    url: string;
+	url: string;
 }
 
 interface ChangePasswordRequest {
-    json: () => Promise<{ currentPassword?: string; newPassword?: string }>;
+	json: () => Promise<{ currentPassword?: string; newPassword?: string }>;
 }
 
 describe('Other API Routes', () => {

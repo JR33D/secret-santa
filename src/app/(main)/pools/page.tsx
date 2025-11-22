@@ -53,26 +53,15 @@ export default function Page() {
 
 	return (
 		<div>
-			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">
-				Manage Pools
-			</h2>
-			<p className="text-gray-600 mb-4 text-sm">
-				Create separate pools for different groups (Family, Friends, Coworkers, etc.)
-			</p>
+			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">Manage Pools</h2>
+			<p className="text-gray-600 mb-4 text-sm">Create separate pools for different groups (Family, Friends, Coworkers, etc.)</p>
 
 			<div className="grid md:grid-cols-2 gap-4 mb-4">
 				<div>
 					<label htmlFor="pool-name-input" className="block font-semibold mb-1">
 						Pool Name
 					</label>
-					<input
-						id="pool-name-input"
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						placeholder="e.g., Family, Friends, Coworkers"
-						className="w-full p-2 border rounded"
-						disabled={loading}
-					/>
+					<input id="pool-name-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Family, Friends, Coworkers" className="w-full p-2 border rounded" disabled={loading} />
 				</div>
 				<div>
 					<label htmlFor="pool-description-input" className="block font-semibold mb-1">
@@ -106,24 +95,15 @@ export default function Page() {
 					<p className="text-gray-500">No pools yet</p>
 				) : (
 					pools.map((p) => (
-						<div
-							key={p.id}
-							className="bg-gray-50 p-4 rounded-lg flex justify-between items-center mt-3"
-						>
+						<div key={p.id} className="bg-gray-50 p-4 rounded-lg flex justify-between items-center mt-3">
 							<div>
 								<strong className="text-lg">{p.name}</strong>
-								{p.description && (
-									<div className="text-sm text-gray-600">{p.description}</div>
-								)}
+								{p.description && <div className="text-sm text-gray-600">{p.description}</div>}
 								<div className="text-xs text-indigo-600 mt-1">
 									👥 {p.member_count || 0} member{p.member_count !== 1 ? 's' : ''}
 								</div>
 							</div>
-							<button
-								onClick={() => remove(p.id)}
-								className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
-								aria-label={`Delete pool ${p.name}`}
-							>
+							<button onClick={() => remove(p.id)} className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition" aria-label={`Delete pool ${p.name}`}>
 								Delete
 							</button>
 						</div>

@@ -14,11 +14,11 @@ interface MockDatabase {
 }
 
 interface MockRequest {
-    url: string;
+	url: string;
 }
 
 interface PostPeopleRequest {
-    json: () => Promise<{ name?: string; email?: string; pool_id?: number }>;
+	json: () => Promise<{ name?: string; email?: string; pool_id?: number }>;
 }
 
 type DeleteRequest = object;

@@ -3,10 +3,7 @@ import { getDb } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-export async function DELETE(
-	request: NextRequest,
-	context: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
 	try {
 		const { id } = await context.params;
 		const session = await getServerSession(authOptions);
@@ -31,15 +28,10 @@ export async function DELETE(
 
 		// Prevent deleting the last admin
 		if (user.role === 'admin') {
-			const adminCount = await db.get(
-				"SELECT COUNT(*) as count FROM users WHERE role = 'admin'"
-			);
+			const adminCount = await db.get("SELECT COUNT(*) as count FROM users WHERE role = 'admin'");
 
 			if (adminCount.count <= 1) {
-				return Response.json(
-					{ error: 'Cannot delete the last admin user' },
-					{ status: 400 }
-				);
+				return Response.json({ error: 'Cannot delete the last admin user' }, { status: 400 });
 			}
 		}
 

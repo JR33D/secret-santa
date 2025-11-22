@@ -14,13 +14,13 @@ interface MockDatabase {
 }
 
 interface PostPoolsRequest {
-    json: () => Promise<{ name?: string; description?: string }>;
+	json: () => Promise<{ name?: string; description?: string }>;
 }
 
 type DeleteRequest = object;
 
 interface PatchPoolsRequest {
-    json: () => Promise<{ name?: string; description?: string }>;
+	json: () => Promise<{ name?: string; description?: string }>;
 }
 
 describe('Pools API Routes', () => {

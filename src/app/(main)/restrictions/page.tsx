@@ -110,18 +110,12 @@ export default function Page() {
 
 	// Filter restrictions to only those within the selected pool
 	const peopleIds = new Set(people.map((p) => p.id));
-	const filteredRestrictions = poolId
-		? restrictions.filter((r) => peopleIds.has(r.giver_id))
-		: restrictions;
+	const filteredRestrictions = poolId ? restrictions.filter((r) => peopleIds.has(r.giver_id)) : restrictions;
 
 	return (
 		<div>
-			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">
-				Manage Restrictions
-			</h2>
-			<p className="text-gray-600 mb-4 text-sm">
-				Prevent certain people from being assigned to each other (e.g., spouses, siblings)
-			</p>
+			<h2 className="text-purple-700 text-2xl font-semibold mb-4 border-b-2 border-indigo-200 pb-2">Manage Restrictions</h2>
+			<p className="text-gray-600 mb-4 text-sm">Prevent certain people from being assigned to each other (e.g., spouses, siblings)</p>
 
 			{pools.length === 0 ? (
 				<div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
@@ -163,12 +157,7 @@ export default function Page() {
 									<label htmlFor="giver-select" className="block font-semibold mb-1">
 										Giver
 									</label>
-									<select
-										id="giver-select"
-										className="w-full p-2 border rounded"
-										value={giver}
-										onChange={(e) => setGiver(e.target.value)}
-									>
+									<select id="giver-select" className="w-full p-2 border rounded" value={giver} onChange={(e) => setGiver(e.target.value)}>
 										<option value="">Select...</option>
 										{people.map((p) => (
 											<option key={p.id} value={String(p.id)}>
@@ -182,12 +171,7 @@ export default function Page() {
 									<label htmlFor="receiver-select" className="block font-semibold mb-1">
 										Cannot Give To
 									</label>
-									<select
-										id="receiver-select"
-										className="w-full p-2 border rounded"
-										value={receiver}
-										onChange={(e) => setReceiver(e.target.value)}
-									>
+									<select id="receiver-select" className="w-full p-2 border rounded" value={receiver} onChange={(e) => setReceiver(e.target.value)}>
 										<option value="">Select...</option>
 										{people.map((p) => (
 											<option key={p.id} value={String(p.id)}>
@@ -198,11 +182,7 @@ export default function Page() {
 								</div>
 							</div>
 
-							<button
-								onClick={addRestriction}
-								disabled={loading}
-								className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-							>
+							<button onClick={addRestriction} disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
 								Add Restriction
 							</button>
 						</>
@@ -219,11 +199,7 @@ export default function Page() {
 								<div>
 									<strong>{r.giver_name}</strong> → ❌ → <strong>{r.receiver_name}</strong>
 								</div>
-								<button
-									onClick={() => removeRestriction(r.id)}
-									disabled={loading}
-									className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition"
-								>
+								<button onClick={() => removeRestriction(r.id)} disabled={loading} className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition">
 									Delete
 								</button>
 							</div>

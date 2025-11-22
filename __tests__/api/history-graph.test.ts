@@ -11,7 +11,7 @@ interface MockDatabase {
 }
 
 interface MockRequest {
-    url: string;
+	url: string;
 }
 
 describe('History Graph API Route', () => {

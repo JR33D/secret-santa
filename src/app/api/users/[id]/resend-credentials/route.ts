@@ -23,20 +23,16 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
        FROM users u
        LEFT JOIN people p ON u.person_id = p.id
        WHERE u.id = ?`,
-			[userId]
+			[userId],
 		);
 
 		if (!user) return Response.json({ error: 'User not found' }, { status: 404 });
-		if (!user.person_email)
-			return Response.json({ error: 'User has no email address associated' }, { status: 400 });
+		if (!user.person_email) return Response.json({ error: 'User has no email address associated' }, { status: 400 });
 
 		const tempPassword = generatePassword();
 		const passwordHash = await hashPassword(tempPassword);
 
-		await db.run('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?', [
-			passwordHash,
-			userId,
-		]);
+		await db.run('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?', [passwordHash, userId]);
 
 		let emailSent = false;
 		let emailError = '';
@@ -46,10 +42,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
 			const envCfg = getEnvEmailConfig();
 
 			if (!isEmailConfigValid(envCfg) || !envCfg) {
-				return Response.json(
-					{ error: 'Email not configured. Set SMTP_SERVER and FROM_EMAIL in env' },
-					{ status: 400 }
-				);
+				return Response.json({ error: 'Email not configured. Set SMTP_SERVER and FROM_EMAIL in env' }, { status: 400 });
 			}
 
 			const transporter = nodemailer.createTransport({
@@ -93,11 +86,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
 				person_email: user.person_email,
 				emailSent,
 				emailError,
-				message: emailSent
-					? 'New password generated and emailed successfully'
-					: 'New password generated but email failed to send',
+				message: emailSent ? 'New password generated and emailed successfully' : 'New password generated but email failed to send',
 			},
-			{ status: 200 }
+			{ status: 200 },
 		);
 	} catch (error: unknown) {
 		return Response.json({ error: error instanceof Error ? error.message : 'An unknown error occurred' }, { status: 500 });

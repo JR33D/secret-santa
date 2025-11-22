@@ -121,10 +121,7 @@ export async function initializeAdmin() {
 	}
 
 	const passwordHash = await hashPassword(adminPassword);
-	await db.run(
-		'INSERT INTO users (username, password_hash, role, must_change_password) VALUES (?, ?, ?, ?)',
-		[adminUsername, passwordHash, 'admin', 0]
-	);
+	await db.run('INSERT INTO users (username, password_hash, role, must_change_password) VALUES (?, ?, ?, ?)', [adminUsername, passwordHash, 'admin', 0]);
 
 	console.log(`✓ Admin user created: ${adminUsername}`);
 }

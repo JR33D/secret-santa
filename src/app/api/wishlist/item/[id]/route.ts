@@ -1,10 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getDb } from '@/lib/db';
 
-export async function DELETE(
-	req: NextRequest,
-	context: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
 	const { id } = await context.params;
 	const db = await getDb();
 

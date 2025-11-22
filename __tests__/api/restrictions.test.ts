@@ -13,7 +13,7 @@ interface MockDatabase {
 }
 
 interface PostRestrictionsRequest {
-    json: () => Promise<{ giver_id?: number; receiver_id?: number }>;
+	json: () => Promise<{ giver_id?: number; receiver_id?: number }>;
 }
 
 type DeleteRequest = object;

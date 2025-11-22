@@ -33,7 +33,7 @@ describe('Generate Assignments Page', () => {
 		global.confirm = jest.fn(() => true);
 		global.alert = jest.fn();
 	});
-	
+
 	it('renders the generate assignments page', async () => {
 		render(<Page />);
 
