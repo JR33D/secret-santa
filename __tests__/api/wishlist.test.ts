@@ -31,23 +31,13 @@ describe('Wishlist API Routes', () => {
 	describe('GET /api/wishlist/[personId]', () => {
 		it('returns wishlist items for a person', async () => {
 			const mockItems = [
-				{
-					id: 1,
-					item_name: 'Book',
-					link: 'https://example.com/book',
-					image_url: 'https://example.com/book.jpg',
-				},
-				{
-					id: 2,
-					item_name: 'Gadget',
-					link: null,
-					image_url: null,
-				},
+				{ id: 1, item_name: 'Book', link: 'https://example.com/book', image_url: 'https://example.com/book.jpg' },
+				{ id: 2, item_name: 'Gadget', link: null, image_url: null },
 			];
 			mockDb.all.mockResolvedValue(mockItems);
 
-			const req = {} as NextRequest;
-			const response = await GET(req, { params: { personId: '5' } });
+			const req = new NextRequest('http://localhost/api/wishlist/5');
+			const response = await GET(req, { params: Promise.resolve({ personId: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.all).toHaveBeenCalledWith('SELECT * FROM wishlist_items WHERE person_id = ?', ['5']);
@@ -58,8 +48,8 @@ describe('Wishlist API Routes', () => {
 		it('returns empty array when person has no items', async () => {
 			mockDb.all.mockResolvedValue([]);
 
-			const req = {} as NextRequest;
-			const response = await GET(req, { params: { personId: '10' } });
+			const req = new NextRequest('http://localhost/api/wishlist/10');
+			const response = await GET(req, { params: Promise.resolve({ personId: '10' }) });
 			const json = await response.json();
 
 			expect(json).toEqual([]);
@@ -68,9 +58,9 @@ describe('Wishlist API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.all.mockRejectedValue(new Error('DB Error'));
 
-			const req = {} as NextRequest;
+			const req = new NextRequest('http://localhost/api/wishlist/5');
 
-			await expect(GET(req, { params: { personId: '5' } })).rejects.toThrow('DB Error');
+			await expect(GET(req, { params: Promise.resolve({ personId: '5' }) })).rejects.toThrow('DB Error');
 		});
 	});
 
@@ -78,15 +68,16 @@ describe('Wishlist API Routes', () => {
 		it('creates a new wishlist item with all fields', async () => {
 			mockDb.run.mockResolvedValue({ lastID: 10 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
+			const req = new NextRequest('http://localhost/api/wishlist/5', {
+				method: 'POST',
+				body: JSON.stringify({
 					item_name: 'New Book',
 					link: 'https://example.com/newbook',
 					image_url: 'https://example.com/newbook.jpg',
 				}),
-			};
+			});
 
-			const response = await POST(req as unknown as NextRequest, { params: { personId: '5' } });
+			const response = await POST(req, { params: Promise.resolve({ personId: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('INSERT INTO wishlist_items (person_id, item_name, link, image_url) VALUES (?, ?, ?, ?)', [
@@ -106,15 +97,16 @@ describe('Wishlist API Routes', () => {
 		it('creates item with null optional fields', async () => {
 			mockDb.run.mockResolvedValue({ lastID: 11 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
+			const req = new NextRequest('http://localhost/api/wishlist/5', {
+				method: 'POST',
+				body: JSON.stringify({
 					item_name: 'Simple Item',
 					link: null,
 					image_url: null,
 				}),
-			};
+			});
 
-			const response = await POST(req as unknown as NextRequest, { params: { personId: '5' } });
+			const response = await POST(req, { params: Promise.resolve({ personId: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith(expect.any(String), ['5', 'Simple Item', null, null]);
@@ -125,15 +117,16 @@ describe('Wishlist API Routes', () => {
 		it('converts empty strings to null for optional fields', async () => {
 			mockDb.run.mockResolvedValue({ lastID: 12 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
+			const req = new NextRequest('http://localhost/api/wishlist/5', {
+				method: 'POST',
+				body: JSON.stringify({
 					item_name: 'Item',
 					link: '',
 					image_url: '',
 				}),
-			};
+			});
 
-			const response = await POST(req as unknown as NextRequest, { params: { personId: '5' } });
+			const response = await POST(req, { params: Promise.resolve({ personId: '5' }) });
 
 			expect(mockDb.run).toHaveBeenCalledWith(expect.any(String), ['5', 'Item', null, null]);
 			const json = await response.json();
@@ -143,13 +136,12 @@ describe('Wishlist API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.run.mockRejectedValue(new Error('DB Error'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					item_name: 'Test Item',
-				}),
-			};
+			const req = new NextRequest('http://localhost/api/wishlist/5', {
+				method: 'POST',
+				body: JSON.stringify({ item_name: 'Test Item' }),
+			});
 
-			await expect(POST(req as unknown as NextRequest, { params: { personId: '5' } })).rejects.toThrow('DB Error');
+			await expect(POST(req, { params: Promise.resolve({ personId: '5' }) })).rejects.toThrow('DB Error');
 		});
 	});
 
@@ -157,8 +149,8 @@ describe('Wishlist API Routes', () => {
 		it('deletes a wishlist item successfully', async () => {
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {} as NextRequest;
-			const response = await DELETE(req, { params: { id: '10' } });
+			const req = new NextRequest('http://localhost/api/wishlist/item/10', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '10' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('DELETE FROM wishlist_items WHERE id = ?', ['10']);
@@ -168,8 +160,8 @@ describe('Wishlist API Routes', () => {
 		it('handles deletion of non-existent item', async () => {
 			mockDb.run.mockResolvedValue({ changes: 0 });
 
-			const req = {} as NextRequest;
-			const response = await DELETE(req, { params: { id: '999' } });
+			const req = new NextRequest('http://localhost/api/wishlist/item/999', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '999' }) });
 			const json = await response.json();
 
 			expect(json).toEqual({ success: true });
@@ -178,9 +170,9 @@ describe('Wishlist API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.run.mockRejectedValue(new Error('DB Error'));
 
-			const req = {} as NextRequest;
+			const req = new NextRequest('http://localhost/api/wishlist/item/10', { method: 'DELETE' });
 
-			await expect(DELETE(req, { params: { id: '10' } })).rejects.toThrow('DB Error');
+			await expect(DELETE(req, { params: Promise.resolve({ id: '10' }) })).rejects.toThrow('DB Error');
 		});
 	});
 });

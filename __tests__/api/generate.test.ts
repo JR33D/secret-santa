@@ -4,7 +4,6 @@
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/generate/[year]/route';
 
-// Mock database
 const mockDb = {
 	all: jest.fn(),
 	get: jest.fn(),
@@ -27,25 +26,25 @@ describe('Generate Assignments API', () => {
 	});
 
 	it('should generate assignments successfully', async () => {
-		mockDb.all.mockResolvedValueOnce(mockPeople); // Get people
-		mockDb.get.mockResolvedValueOnce({ count: 0 }); // Check existing
-		mockDb.all.mockResolvedValueOnce([]); // Get restrictions
+		mockDb.all.mockResolvedValueOnce(mockPeople);
+		mockDb.get.mockResolvedValueOnce({ count: 0 });
+		mockDb.all.mockResolvedValueOnce([]);
 		mockDb.run.mockResolvedValue({ lastID: 1 });
 
 		const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
-		const response = await POST(request, { params: { year: '2024' } });
+		const response = await POST(request, { params: Promise.resolve({ year: '2024' }) });
 		const data = await response.json();
 
 		expect(data.success).toBe(true);
 		expect(data.message).toContain('Successfully generated');
-		expect(mockDb.run).toHaveBeenCalledTimes(3); // One insert per person
+		expect(mockDb.run).toHaveBeenCalledTimes(3);
 	});
 
 	it('should fail with less than 2 people', async () => {
-		mockDb.all.mockResolvedValueOnce([mockPeople[0]]); // Only 1 person
+		mockDb.all.mockResolvedValueOnce([mockPeople[0]]);
 
 		const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
-		const response = await POST(request, { params: { year: '2024' } });
+		const response = await POST(request, { params: Promise.resolve({ year: '2024' }) });
 		const data = await response.json();
 
 		expect(response.status).toBe(400);
@@ -54,10 +53,10 @@ describe('Generate Assignments API', () => {
 
 	it('should fail if assignments already exist', async () => {
 		mockDb.all.mockResolvedValueOnce(mockPeople);
-		mockDb.get.mockResolvedValueOnce({ count: 3 }); // Existing assignments
+		mockDb.get.mockResolvedValueOnce({ count: 3 });
 
 		const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
-		const response = await POST(request, { params: { year: '2024' } });
+		const response = await POST(request, { params: Promise.resolve({ year: '2024' }) });
 		const data = await response.json();
 
 		expect(response.status).toBe(400);
@@ -65,9 +64,7 @@ describe('Generate Assignments API', () => {
 	});
 
 	it('should respect restrictions', async () => {
-		const restrictions = [
-			{ giver_id: 1, receiver_id: 2 }, // Alice can't give to Bob
-		];
+		const restrictions = [{ giver_id: 1, receiver_id: 2 }];
 
 		mockDb.all.mockResolvedValueOnce(mockPeople);
 		mockDb.get.mockResolvedValueOnce({ count: 0 });
@@ -75,23 +72,20 @@ describe('Generate Assignments API', () => {
 		mockDb.run.mockResolvedValue({ lastID: 1 });
 
 		const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
-		const response = await POST(request, { params: { year: '2024' } });
+		const response = await POST(request, { params: Promise.resolve({ year: '2024' }) });
 		const data = await response.json();
 
-		// Should successfully generate with restrictions
 		expect(data.success).toBe(true);
 
-		// Verify no assignment breaks restrictions
 		const runCalls = mockDb.run.mock.calls;
 		const aliceAssignment = runCalls.find((call) => call[0].includes('INSERT INTO assignments') && call[1][1] === 1);
 
 		if (aliceAssignment) {
-			expect(aliceAssignment[1][2]).not.toBe(2); // Alice shouldn't give to Bob
+			expect(aliceAssignment[1][2]).not.toBe(2);
 		}
 	});
 
 	it('should handle impossible restriction scenarios', async () => {
-		// Create impossible restrictions (everyone restricted from everyone else)
 		const impossibleRestrictions = [
 			{ giver_id: 1, receiver_id: 2 },
 			{ giver_id: 1, receiver_id: 3 },
@@ -106,7 +100,7 @@ describe('Generate Assignments API', () => {
 		mockDb.all.mockResolvedValueOnce(impossibleRestrictions);
 
 		const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
-		const response = await POST(request, { params: { year: '2024' } });
+		const response = await POST(request, { params: Promise.resolve({ year: '2024' }) });
 		const data = await response.json();
 
 		expect(response.status).toBe(400);
@@ -117,7 +111,7 @@ describe('Generate Assignments API', () => {
 		mockDb.all.mockRejectedValueOnce(new Error('Database error'));
 
 		const request = new NextRequest('http://localhost/api/generate/2024?pool_id=1');
-		const response = await POST(request, { params: { year: '2024' } });
+		const response = await POST(request, { params: Promise.resolve({ year: '2024' }) });
 		const data = await response.json();
 
 		expect(response.status).toBe(500);

@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+import { NextRequest } from 'next/server';
 import { GET, POST } from '@/app/api/people/route';
 import { DELETE } from '@/app/api/people/[id]/route';
 import { getDb } from '@/lib/db';
@@ -12,16 +13,6 @@ interface MockDatabase {
 	get: jest.Mock;
 	run: jest.Mock;
 }
-
-interface MockRequest {
-	url: string;
-}
-
-interface PostPeopleRequest {
-	json: () => Promise<{ name?: string; email?: string; pool_id?: number }>;
-}
-
-type DeleteRequest = object;
 
 describe('People API Routes', () => {
 	let mockDb: MockDatabase;
@@ -48,8 +39,8 @@ describe('People API Routes', () => {
 		it('returns all people when no pool_id provided', async () => {
 			mockDb.all.mockResolvedValue(mockPeople);
 
-			const req = { url: 'http://localhost/api/people' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/people');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(mockDb.all).toHaveBeenCalled();
@@ -61,8 +52,8 @@ describe('People API Routes', () => {
 			const filteredPeople = [mockPeople[0]];
 			mockDb.all.mockResolvedValue(filteredPeople);
 
-			const req = { url: 'http://localhost/api/people?pool_id=1' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/people?pool_id=1');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('WHERE people.pool_id = ?'), [1]);
@@ -72,8 +63,8 @@ describe('People API Routes', () => {
 		it('orders results by name', async () => {
 			mockDb.all.mockResolvedValue(mockPeople);
 
-			const req = { url: 'http://localhost/api/people' };
-			await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/people');
+			await GET(req);
 
 			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('ORDER BY people.name'), []);
 		});
@@ -81,8 +72,8 @@ describe('People API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.all.mockRejectedValue(new Error('DB Error'));
 
-			const req = { url: 'http://localhost/api/people' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/people');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
@@ -92,18 +83,15 @@ describe('People API Routes', () => {
 
 	describe('POST /api/people', () => {
 		it('creates a new person successfully', async () => {
-			mockDb.get.mockResolvedValue({ id: 1 }); // Pool exists
+			mockDb.get.mockResolvedValue({ id: 1 });
 			mockDb.run.mockResolvedValue({ lastID: 5 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'New Person',
-					email: 'new@example.com',
-					pool_id: 1,
-				}),
-			};
+			const req = new Request('http://localhost/api/people', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'New Person', email: 'new@example.com', pool_id: 1 }),
+			});
 
-			const response = await POST(req as PostPeopleRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(mockDb.get).toHaveBeenCalledWith('SELECT id FROM pools WHERE id = ?', [1]);
@@ -118,14 +106,12 @@ describe('People API Routes', () => {
 		});
 
 		it('returns 400 when name is missing', async () => {
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					email: 'test@example.com',
-					pool_id: 1,
-				}),
-			};
+			const req = new Request('http://localhost/api/people', {
+				method: 'POST',
+				body: JSON.stringify({ email: 'test@example.com', pool_id: 1 }),
+			});
 
-			const response = await POST(req as PostPeopleRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -133,14 +119,12 @@ describe('People API Routes', () => {
 		});
 
 		it('returns 400 when email is missing', async () => {
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Test Person',
-					pool_id: 1,
-				}),
-			};
+			const req = new Request('http://localhost/api/people', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Test Person', pool_id: 1 }),
+			});
 
-			const response = await POST(req as PostPeopleRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -148,14 +132,12 @@ describe('People API Routes', () => {
 		});
 
 		it('returns 400 when pool_id is missing', async () => {
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Test Person',
-					email: 'test@example.com',
-				}),
-			};
+			const req = new Request('http://localhost/api/people', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Test Person', email: 'test@example.com' }),
+			});
 
-			const response = await POST(req as PostPeopleRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -165,15 +147,12 @@ describe('People API Routes', () => {
 		it('returns 400 when pool does not exist', async () => {
 			mockDb.get.mockResolvedValue(null);
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Test Person',
-					email: 'test@example.com',
-					pool_id: 999,
-				}),
-			};
+			const req = new Request('http://localhost/api/people', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Test Person', email: 'test@example.com', pool_id: 999 }),
+			});
 
-			const response = await POST(req as PostPeopleRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -183,15 +162,12 @@ describe('People API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.get.mockRejectedValue(new Error('DB Error'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Test',
-					email: 'test@example.com',
-					pool_id: 1,
-				}),
-			};
+			const req = new Request('http://localhost/api/people', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Test', email: 'test@example.com', pool_id: 1 }),
+			});
 
-			const response = await POST(req as PostPeopleRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
@@ -203,8 +179,8 @@ describe('People API Routes', () => {
 		it('deletes a person successfully', async () => {
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {} as DeleteRequest;
-			const response = await DELETE(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/people/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('DELETE FROM people WHERE id = ?', ['5']);
@@ -214,15 +190,13 @@ describe('People API Routes', () => {
 		it('handles deletion errors', async () => {
 			mockDb.run.mockRejectedValue(new Error('Cannot delete'));
 
-			const req = {} as DeleteRequest;
-			const response = await DELETE(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/people/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
 			expect(json).toEqual({ error: 'Cannot delete' });
-			// The route doesn't handle errors explicitly, so it will throw
-			// In production, you might want to add error handling
 		});
 	});
 });

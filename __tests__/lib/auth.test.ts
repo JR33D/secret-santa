@@ -1,5 +1,6 @@
-import { User } from 'next-auth';
-import { Provider } from 'next-auth/providers';
+/**
+ * @jest-environment node
+ */
 import bcrypt from 'bcryptjs';
 import { getDb } from '@/lib/db';
 import { hashPassword, generatePassword, initializeAdmin, authOptions, authorizeCredentials } from '@/lib/auth';
@@ -11,6 +12,7 @@ interface Db {
 	get: jest.Mock;
 	run: jest.Mock;
 }
+
 describe('auth helpers', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -27,7 +29,6 @@ describe('auth helpers', () => {
 		const p2 = generatePassword(8);
 		expect(typeof p1).toBe('string');
 		expect(p1).toHaveLength(8);
-		// Likely different
 		expect(p1).not.toBe(p2);
 	});
 
@@ -91,20 +92,21 @@ describe('auth provider authorize', () => {
 	});
 
 	it('returns null when credentials missing', async () => {
-		const provider: Provider = (authOptions.providers as Provider[])[0];
-		const res: User | null = await provider.authorize?.(undefined);
+		const provider = authOptions.providers[0];
+		// @ts-expect-error - testing with undefined credentials
+		const res = await provider.authorize?.(undefined);
 		expect(res).toBeNull();
 	});
 
 	it('returns null when user not found', async () => {
 		mockDb.get.mockResolvedValue(null);
-		const provider: Provider = (authOptions.providers as Provider[])[0];
-		const res: User | null = await provider.authorize?.({ username: 'noone', password: 'pw' });
+		const provider = authOptions.providers[0];
+		// @ts-expect-error - testing authorize function directly
+		const res = await provider.authorize?.({ username: 'noone', password: 'pw' });
 		expect(res).toBeNull();
 	});
 
 	it('returns user object when credentials match', async () => {
-		// test the extracted helper directly
 		mockDb.get.mockResolvedValue({ id: 7, username: 'sam', password_hash: 'hashed_pw', role: 'user', person_id: 12, must_change_password: 0 });
 		(bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
@@ -123,6 +125,4 @@ describe('auth provider authorize', () => {
 		const res = await authorizeCredentials({ username: 'joe', password: 'wrong' });
 		expect(res).toBeNull();
 	});
-
-	// Successful authorize flow is covered indirectly by other integration tests
 });

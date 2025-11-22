@@ -18,14 +18,6 @@ interface MockDatabase {
 	run: jest.Mock;
 }
 
-interface MockRequest {
-	url: string;
-}
-
-interface ChangePasswordRequest {
-	json: () => Promise<{ currentPassword?: string; newPassword?: string }>;
-}
-
 describe('Other API Routes', () => {
 	let mockDb: MockDatabase;
 
@@ -99,8 +91,8 @@ describe('Other API Routes', () => {
 		it('returns assignments for authenticated user', async () => {
 			mockDb.all.mockResolvedValue(mockAssignments);
 
-			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as MockRequest);
+			const req = new Request('http://localhost/api/my-assignment?person_id=10&year=2024');
+			const response = await getMyAssignment(req);
 			const json = await response.json();
 
 			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('WHERE a.giver_id = ? AND a.year = ?'), [10, 2024]);
@@ -113,8 +105,8 @@ describe('Other API Routes', () => {
 			});
 			mockDb.all.mockResolvedValue(mockAssignments);
 
-			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as MockRequest);
+			const req = new Request('http://localhost/api/my-assignment?person_id=10&year=2024');
+			const response = await getMyAssignment(req);
 			const json = await response.json();
 
 			expect(json).toEqual(mockAssignments);
@@ -123,8 +115,8 @@ describe('Other API Routes', () => {
 		it('returns 401 when not authenticated', async () => {
 			(getServerSession as jest.Mock).mockResolvedValue(null);
 
-			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as MockRequest);
+			const req = new Request('http://localhost/api/my-assignment?person_id=10&year=2024');
+			const response = await getMyAssignment(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(401);
@@ -132,8 +124,8 @@ describe('Other API Routes', () => {
 		});
 
 		it('returns 400 when person_id missing', async () => {
-			const req = { url: 'http://localhost/api/my-assignment?year=2024' };
-			const response = await getMyAssignment(req as MockRequest);
+			const req = new Request('http://localhost/api/my-assignment?year=2024');
+			const response = await getMyAssignment(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -141,8 +133,8 @@ describe('Other API Routes', () => {
 		});
 
 		it('returns 400 when year missing', async () => {
-			const req = { url: 'http://localhost/api/my-assignment?person_id=10' };
-			const response = await getMyAssignment(req as MockRequest);
+			const req = new Request('http://localhost/api/my-assignment?person_id=10');
+			const response = await getMyAssignment(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -150,8 +142,8 @@ describe('Other API Routes', () => {
 		});
 
 		it('returns 403 when user tries to view another persons assignment', async () => {
-			const req = { url: 'http://localhost/api/my-assignment?person_id=99&year=2024' };
-			const response = await getMyAssignment(req as MockRequest);
+			const req = new Request('http://localhost/api/my-assignment?person_id=99&year=2024');
+			const response = await getMyAssignment(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(403);
@@ -161,8 +153,8 @@ describe('Other API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.all.mockRejectedValue(new Error('DB Error'));
 
-			const req = { url: 'http://localhost/api/my-assignment?person_id=10&year=2024' };
-			const response = await getMyAssignment(req as MockRequest);
+			const req = new Request('http://localhost/api/my-assignment?person_id=10&year=2024');
+			const response = await getMyAssignment(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
@@ -180,20 +172,16 @@ describe('Other API Routes', () => {
 		});
 
 		it('changes password successfully', async () => {
-			mockDb.get.mockResolvedValue({
-				password_hash: 'hashed_old_password',
-			});
+			mockDb.get.mockResolvedValue({ password_hash: 'hashed_old_password' });
 			(compare as jest.Mock).mockResolvedValue(true);
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					currentPassword: 'oldpass123',
-					newPassword: 'newpass123',
-				}),
-			};
+			const req = new Request('http://localhost/api/change-password', {
+				method: 'POST',
+				body: JSON.stringify({ currentPassword: 'oldpass123', newPassword: 'newpass123' }),
+			});
 
-			const response = await changePassword(req as ChangePasswordRequest);
+			const response = await changePassword(req);
 			const json = await response.json();
 
 			expect(mockDb.get).toHaveBeenCalledWith('SELECT password_hash FROM users WHERE id = ?', ['5']);
@@ -205,14 +193,12 @@ describe('Other API Routes', () => {
 		it('returns 401 when not authenticated', async () => {
 			(getServerSession as jest.Mock).mockResolvedValue(null);
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					currentPassword: 'old',
-					newPassword: 'new',
-				}),
-			};
+			const req = new Request('http://localhost/api/change-password', {
+				method: 'POST',
+				body: JSON.stringify({ currentPassword: 'old', newPassword: 'new' }),
+			});
 
-			const response = await changePassword(req as ChangePasswordRequest);
+			const response = await changePassword(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(401);
@@ -220,11 +206,12 @@ describe('Other API Routes', () => {
 		});
 
 		it('returns 400 when passwords missing', async () => {
-			const req = {
-				json: jest.fn().mockResolvedValue({}),
-			};
+			const req = new Request('http://localhost/api/change-password', {
+				method: 'POST',
+				body: JSON.stringify({}),
+			});
 
-			const response = await changePassword(req as ChangePasswordRequest);
+			const response = await changePassword(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -232,14 +219,12 @@ describe('Other API Routes', () => {
 		});
 
 		it('returns 400 when new password too short', async () => {
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					currentPassword: 'oldpass',
-					newPassword: 'short',
-				}),
-			};
+			const req = new Request('http://localhost/api/change-password', {
+				method: 'POST',
+				body: JSON.stringify({ currentPassword: 'oldpass', newPassword: 'short' }),
+			});
 
-			const response = await changePassword(req as ChangePasswordRequest);
+			const response = await changePassword(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -247,19 +232,15 @@ describe('Other API Routes', () => {
 		});
 
 		it('returns 400 when current password incorrect', async () => {
-			mockDb.get.mockResolvedValue({
-				password_hash: 'hashed_old_password',
-			});
+			mockDb.get.mockResolvedValue({ password_hash: 'hashed_old_password' });
 			(compare as jest.Mock).mockResolvedValue(false);
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					currentPassword: 'wrongpass',
-					newPassword: 'newpass123',
-				}),
-			};
+			const req = new Request('http://localhost/api/change-password', {
+				method: 'POST',
+				body: JSON.stringify({ currentPassword: 'wrongpass', newPassword: 'newpass123' }),
+			});
 
-			const response = await changePassword(req as ChangePasswordRequest);
+			const response = await changePassword(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -269,14 +250,12 @@ describe('Other API Routes', () => {
 		it('returns 404 when user not found', async () => {
 			mockDb.get.mockResolvedValue(null);
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					currentPassword: 'oldpass',
-					newPassword: 'newpass123',
-				}),
-			};
+			const req = new Request('http://localhost/api/change-password', {
+				method: 'POST',
+				body: JSON.stringify({ currentPassword: 'oldpass', newPassword: 'newpass123' }),
+			});
 
-			const response = await changePassword(req as ChangePasswordRequest);
+			const response = await changePassword(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(404);
@@ -286,14 +265,12 @@ describe('Other API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.get.mockRejectedValue(new Error('DB Error'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					currentPassword: 'oldpass',
-					newPassword: 'newpass123',
-				}),
-			};
+			const req = new Request('http://localhost/api/change-password', {
+				method: 'POST',
+				body: JSON.stringify({ currentPassword: 'oldpass', newPassword: 'newpass123' }),
+			});
 
-			const response = await changePassword(req as ChangePasswordRequest);
+			const response = await changePassword(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);

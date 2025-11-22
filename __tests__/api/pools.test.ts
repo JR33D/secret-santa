@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+import { NextRequest } from 'next/server';
 import { GET, POST } from '@/app/api/pools/route';
 import { DELETE, PATCH } from '@/app/api/pools/[id]/route';
 import { getDb } from '@/lib/db';
@@ -11,16 +12,6 @@ interface MockDatabase {
 	all: jest.Mock;
 	get: jest.Mock;
 	run: jest.Mock;
-}
-
-interface PostPoolsRequest {
-	json: () => Promise<{ name?: string; description?: string }>;
-}
-
-type DeleteRequest = object;
-
-interface PatchPoolsRequest {
-	json: () => Promise<{ name?: string; description?: string }>;
 }
 
 describe('Pools API Routes', () => {
@@ -78,14 +69,12 @@ describe('Pools API Routes', () => {
 		it('creates a new pool successfully', async () => {
 			mockDb.run.mockResolvedValue({ lastID: 3 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Work Team',
-					description: 'Office gift exchange',
-				}),
-			};
+			const req = new Request('http://localhost/api/pools', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Work Team', description: 'Office gift exchange' }),
+			});
 
-			const response = await POST(req as PostPoolsRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('INSERT INTO pools (name, description) VALUES (?, ?)', ['Work Team', 'Office gift exchange']);
@@ -100,14 +89,12 @@ describe('Pools API Routes', () => {
 		it('creates pool with empty description', async () => {
 			mockDb.run.mockResolvedValue({ lastID: 4 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Simple Pool',
-					description: '',
-				}),
-			};
+			const req = new Request('http://localhost/api/pools', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Simple Pool', description: '' }),
+			});
 
-			const response = await POST(req as PostPoolsRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('INSERT INTO pools (name, description) VALUES (?, ?)', ['Simple Pool', '']);
@@ -115,13 +102,12 @@ describe('Pools API Routes', () => {
 		});
 
 		it('returns 400 when name is missing', async () => {
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					description: 'Test description',
-				}),
-			};
+			const req = new Request('http://localhost/api/pools', {
+				method: 'POST',
+				body: JSON.stringify({ description: 'Test description' }),
+			});
 
-			const response = await POST(req as PostPoolsRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -132,14 +118,12 @@ describe('Pools API Routes', () => {
 		it('returns 400 on duplicate pool name', async () => {
 			mockDb.run.mockRejectedValue(new Error('UNIQUE constraint failed'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Existing Pool',
-					description: 'Test',
-				}),
-			};
+			const req = new Request('http://localhost/api/pools', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Existing Pool', description: 'Test' }),
+			});
 
-			const response = await POST(req as PostPoolsRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -149,14 +133,12 @@ describe('Pools API Routes', () => {
 		it('handles general database errors', async () => {
 			mockDb.run.mockRejectedValue(new Error('DB Error'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Test Pool',
-					description: 'Test',
-				}),
-			};
+			const req = new Request('http://localhost/api/pools', {
+				method: 'POST',
+				body: JSON.stringify({ name: 'Test Pool', description: 'Test' }),
+			});
 
-			const response = await POST(req as PostPoolsRequest);
+			const response = await POST(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
@@ -169,8 +151,8 @@ describe('Pools API Routes', () => {
 			mockDb.get.mockResolvedValue({ count: 0 });
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {} as DeleteRequest;
-			const response = await DELETE(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/pools/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.get).toHaveBeenCalledWith('SELECT COUNT(*) as count FROM people WHERE pool_id = ?', [5]);
@@ -181,8 +163,8 @@ describe('Pools API Routes', () => {
 		it('returns 400 when pool has people', async () => {
 			mockDb.get.mockResolvedValue({ count: 3 });
 
-			const req = {} as DeleteRequest;
-			const response = await DELETE(req, { params: { id: '5' } });
+			const req = new NextRequest('http://localhost/api/pools/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(400);
@@ -195,10 +177,8 @@ describe('Pools API Routes', () => {
 		it('handles database errors', async () => {
 			mockDb.get.mockRejectedValue(new Error('DB Error'));
 
-			const req = {} as DeleteRequest;
-			const response = await DELETE(req, { params: { id: '5' } });
-			// DEBUG: inspect response shape when DB error occurs
-			// DEBUG: response inspection removed
+			const req = new NextRequest('http://localhost/api/pools/5', { method: 'DELETE' });
+			const response = await DELETE(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
@@ -210,14 +190,12 @@ describe('Pools API Routes', () => {
 		it('updates pool successfully', async () => {
 			mockDb.run.mockResolvedValue({ changes: 1 });
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Updated Pool',
-					description: 'Updated description',
-				}),
-			};
+			const req = new NextRequest('http://localhost/api/pools/5', {
+				method: 'PATCH',
+				body: JSON.stringify({ name: 'Updated Pool', description: 'Updated description' }),
+			});
 
-			const response = await PATCH(req as PatchPoolsRequest, { params: { id: '5' } });
+			const response = await PATCH(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(mockDb.run).toHaveBeenCalledWith('UPDATE pools SET name = ?, description = ? WHERE id = ?', ['Updated Pool', 'Updated description', 5]);
@@ -227,14 +205,12 @@ describe('Pools API Routes', () => {
 		it('handles update errors', async () => {
 			mockDb.run.mockRejectedValue(new Error('Update failed'));
 
-			const req = {
-				json: jest.fn().mockResolvedValue({
-					name: 'Test',
-					description: 'Test',
-				}),
-			};
+			const req = new NextRequest('http://localhost/api/pools/5', {
+				method: 'PATCH',
+				body: JSON.stringify({ name: 'Test', description: 'Test' }),
+			});
 
-			const response = await PATCH(req as PatchPoolsRequest, { params: { id: '5' } });
+			const response = await PATCH(req, { params: Promise.resolve({ id: '5' }) });
 			const json = await response.json();
 
 			expect(response.status).toBe(500);

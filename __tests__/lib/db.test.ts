@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { open, Database } from 'sqlite';
 import { initializeAdmin } from '@/lib/auth';
 
@@ -12,16 +15,11 @@ interface MockDb extends Omit<Database, 'exec' | 'run' | 'get' | 'all'> {
 	all: jest.Mock<Promise<unknown[]>>;
 }
 
-declare const global: {
-	__sqlite_open: jest.Mock;
-};
-
 describe('Database Module', () => {
 	let mockDb: MockDb;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		// Reset the module to clear the singleton
 		jest.resetModules();
 
 		mockDb = {
@@ -32,22 +30,17 @@ describe('Database Module', () => {
 		} as unknown as MockDb;
 
 		(open as jest.Mock).mockResolvedValue(mockDb);
-		// Ensure the DB module picks up the same mocked open function when required
-		global.__sqlite_open = open as jest.Mock;
+		(globalThis as Record<string, unknown>).__sqlite_open = open as jest.Mock;
 		(initializeAdmin as jest.Mock).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
-		// Clean up the global pointer so other tests aren't affected
-		try {
-			delete global.__sqlite_open;
-		} catch {}
+		delete (globalThis as Record<string, unknown>).__sqlite_open;
 		jest.resetModules();
 	});
 
 	describe('getDb', () => {
 		it('opens database connection', async () => {
-			// Re-require to get fresh instance
 			const { getDb } = await import('@/lib/db');
 			const db = await getDb();
 
@@ -79,7 +72,6 @@ describe('Database Module', () => {
 			expect(mockDb.exec).toHaveBeenCalled();
 			const execCall = mockDb.exec.mock.calls[0][0];
 
-			// Check that all tables are created
 			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS pools');
 			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS people');
 			expect(execCall).toContain('CREATE TABLE IF NOT EXISTS restrictions');
@@ -104,7 +96,6 @@ describe('Database Module', () => {
 			const { getDb } = await import('@/lib/db');
 			await getDb();
 
-			// initializeAdmin may be triggered internally; ensure DB exec ran (tables created)
 			expect(mockDb.exec).toHaveBeenCalled();
 		});
 
@@ -137,7 +128,7 @@ describe('Database Module', () => {
 
 			expect(execCall).toContain('UNIQUE(giver_id, receiver_id)');
 			expect(execCall).toContain('UNIQUE(year, giver_id, pool_id)');
-			expect(execCall).toContain('TEXT UNIQUE NOT NULL'); // pools.name
+			expect(execCall).toContain('TEXT UNIQUE NOT NULL');
 		});
 
 		it('sets up cascade deletions', async () => {
@@ -187,7 +178,6 @@ describe('Database Module', () => {
 			(initializeAdmin as jest.Mock).mockRejectedValue(new Error('Admin init failed'));
 
 			const { getDb } = await import('@/lib/db');
-			// admin init errors may or may not propagate depending on module loading order; ensure getDb still returns a DB instance or throws
 			await expect(getDb()).resolves.toBeDefined();
 		});
 	});

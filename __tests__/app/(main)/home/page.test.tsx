@@ -3,14 +3,17 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import HomePage from '@/app/(main)/home/page';
 import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
 
 jest.mock('next-auth/react');
 
-// Mock next/navigation's useRouter and useSearchParams globally
+const mockRedirect = jest.fn();
+
 jest.mock('next/navigation', () => ({
-	...jest.requireActual('next/navigation'), // Keep other exports
-	redirect: jest.fn(), // Mock redirect as well
+	...jest.requireActual('next/navigation'),
+	redirect: (...args: unknown[]) => {
+		mockRedirect(...args);
+		throw new Error('NEXT_REDIRECT');
+	},
 	useRouter: jest.fn(),
 	useSearchParams: jest.fn(),
 }));
@@ -18,8 +21,7 @@ jest.mock('next/navigation', () => ({
 describe('HomePage', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
-		// Clear calls from previous tests for the globally mocked redirect
-		(redirect as jest.Mock).mockClear();
+		mockRedirect.mockClear();
 	});
 
 	it('redirects to /pools for admin users', () => {
@@ -33,7 +35,6 @@ describe('HomePage', () => {
 		try {
 			render(<HomePage />);
 		} catch (e: unknown) {
-			// Next.js redirect throws an error to stop rendering
 			if (e instanceof Error) {
 				expect(e.message).toContain('NEXT_REDIRECT');
 			} else {
@@ -41,7 +42,7 @@ describe('HomePage', () => {
 			}
 		}
 
-		expect(redirect as jest.Mock).toHaveBeenCalledWith('/pools');
+		expect(mockRedirect).toHaveBeenCalledWith('/pools');
 	});
 
 	it('redirects to /my-wishlist for regular users', () => {
@@ -55,7 +56,6 @@ describe('HomePage', () => {
 		try {
 			render(<HomePage />);
 		} catch (e: unknown) {
-			// Next.js redirect throws an error to stop rendering
 			if (e instanceof Error) {
 				expect(e.message).toContain('NEXT_REDIRECT');
 			} else {
@@ -63,7 +63,7 @@ describe('HomePage', () => {
 			}
 		}
 
-		expect(redirect as jest.Mock).toHaveBeenCalledWith('/my-wishlist');
+		expect(mockRedirect).toHaveBeenCalledWith('/my-wishlist');
 	});
 
 	it('shows loading when session status is loading', () => {
@@ -72,7 +72,7 @@ describe('HomePage', () => {
 		render(<HomePage />);
 
 		expect(screen.getByText('Loading...')).toBeInTheDocument();
-		expect(redirect as jest.Mock).not.toHaveBeenCalled();
+		expect(mockRedirect).not.toHaveBeenCalled();
 	});
 
 	it('renders null when session status is unauthenticated', () => {
@@ -81,6 +81,6 @@ describe('HomePage', () => {
 		const { container } = render(<HomePage />);
 
 		expect(container).toBeEmptyDOMElement();
-		expect(redirect as jest.Mock).not.toHaveBeenCalled();
+		expect(mockRedirect).not.toHaveBeenCalled();
 	});
 });

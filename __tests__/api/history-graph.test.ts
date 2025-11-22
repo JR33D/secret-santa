@@ -10,10 +10,6 @@ interface MockDatabase {
 	all: jest.Mock;
 }
 
-interface MockRequest {
-	url: string;
-}
-
 describe('History Graph API Route', () => {
 	let mockDb: MockDatabase;
 
@@ -38,8 +34,8 @@ describe('History Graph API Route', () => {
 		it('returns nodes and links for all assignments', async () => {
 			mockDb.all.mockResolvedValue(mockAssignments);
 
-			const req = { url: 'http://localhost/api/history-graph' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/history-graph');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('SELECT'), []);
@@ -52,8 +48,8 @@ describe('History Graph API Route', () => {
 		it('filters by pool_id when provided', async () => {
 			mockDb.all.mockResolvedValue(mockAssignments);
 
-			const req = { url: 'http://localhost/api/history-graph?pool_id=5' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/history-graph?pool_id=5');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(mockDb.all).toHaveBeenCalledWith(expect.stringContaining('WHERE a.pool_id = ?'), [5]);
@@ -64,8 +60,8 @@ describe('History Graph API Route', () => {
 		it('returns empty arrays when no assignments exist', async () => {
 			mockDb.all.mockResolvedValue([]);
 
-			const req = { url: 'http://localhost/api/history-graph' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/history-graph');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(json.nodes).toEqual([]);
@@ -80,8 +76,8 @@ describe('History Graph API Route', () => {
 			];
 			mockDb.all.mockResolvedValue(duplicateAssignments);
 
-			const req = { url: 'http://localhost/api/history-graph' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/history-graph');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(json.nodes).toHaveLength(3);
@@ -93,8 +89,8 @@ describe('History Graph API Route', () => {
 		it('handles database errors', async () => {
 			mockDb.all.mockRejectedValue(new Error('DB Error'));
 
-			const req = { url: 'http://localhost/api/history-graph' };
-			const response = await GET(req as MockRequest);
+			const req = new Request('http://localhost/api/history-graph');
+			const response = await GET(req);
 			const json = await response.json();
 
 			expect(response.status).toBe(500);
