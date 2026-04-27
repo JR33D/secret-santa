@@ -21,7 +21,7 @@
 	"dependencies": {
 		"bcryptjs": "^3.0.3",
 		"dotenv": "^17.4.2",
-		"next": "16.2.3",
+		"next": "16.2.4",
 		"next-auth": "^4.24.14",
 		"node-fetch": "^3.3.2",
 		"nodemailer": "^7.0.13",
